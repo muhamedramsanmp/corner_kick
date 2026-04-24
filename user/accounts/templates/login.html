@@ -1,0 +1,267 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login - Corner Kick</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Inter", sans-serif;
+}
+
+body {
+    height: 100vh;
+    background: linear-gradient(rgba(10,15,25,0.7), rgba(10,15,25,0.7)),
+    url("https://images.unsplash.com/photo-1593341646782-e0b495cff86d?auto=format&fit=crop&w=2000&q=80");
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+/* BG TEXT */
+.bg-text {
+    position: absolute;
+    bottom: 40px;
+    left: 40px;
+    color: rgba(255,255,255,0.06);
+}
+.bg-text h1 {
+    font-size: 90px;
+    font-weight: 900;
+}
+
+/* CARD */
+.card {
+    width: 400px;
+    background: #f3f4f6;
+    padding: 32px;
+    margin-right: 60px;
+    border-radius: 18px;
+    box-shadow: 0 25px 50px rgba(0,0,0,0.25);
+}
+
+/* HEADER */
+.logo {
+    color: #2f5bd3;
+    font-size: 22px;
+    font-weight: 800;
+}
+.desc {
+    font-size: 13px;
+    color: #666;
+    margin-bottom: 22px;
+}
+
+/* FIELD */
+.field {
+    margin-bottom: 16px;
+}
+.field label {
+    font-size: 11px;
+    font-weight: 700;
+    display: block;
+    margin-bottom: 6px;
+    color: #444;
+}
+
+/* INPUT */
+.input-box {
+    position: relative;
+}
+.input-box input {
+    width: 100%;
+    padding: 14px;
+    border-radius: 10px;
+    border: none;
+    background: #d9deee;
+    font-size: 14px;
+    outline: none;
+}
+
+/* EYE */
+.eye {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    opacity: 0.6;
+}
+
+/* OPTIONS */
+.options {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    margin: 10px 0;
+}
+.options a {
+    color: #2f5bd3;
+    text-decoration: none;
+}
+
+/* BUTTON */
+.btn {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(90deg,#2f5bd3,#3b82f6);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 8px 20px rgba(47,91,211,0.3);
+}
+
+/* DIVIDER */
+.divider {
+    text-align: center;
+    margin: 18px 0;
+    font-size: 11px;
+    color: #888;
+    position: relative;
+}
+.divider::before,
+.divider::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    width: 35%;
+    height: 1px;
+    background: #ddd;
+}
+.divider::before { left: 0; }
+.divider::after { right: 0; }
+
+/* GOOGLE */
+.google {
+    width: 100%;
+    padding: 12px;
+    background: #e5e7eb;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+/* SIGNUP */
+.signup {
+    text-align: center;
+    font-size: 12px;
+    margin-top: 12px;
+}
+.signup a {
+    color: #2f5bd3;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+@media (max-width: 900px) {
+    body {
+        justify-content: center;
+    }
+    .card {
+        margin: 0;
+    }
+}
+</style>
+
+</head>
+<body>
+
+<div class="bg-text">
+    <h1>CORNER KICK</h1>
+</div>
+
+<div class="card">
+
+    {% if messages %}
+    {% for message in messages %}
+        <div style="
+            padding:10px;
+            margin-bottom:10px;
+            border-radius:8px;
+            font-size:13px;
+            {% if message.tags == 'error' %}
+                background:#ffe5e5;color:#d8000c;
+            {% else %}
+                background:#e6ffed;color:#1e7e34;
+            {% endif %}
+        ">
+            {{ message }}
+        </div>
+    {% endfor %}
+{% endif %}
+
+    <h3 class="logo">CORNER KICK</h3>
+    <h2>Welcome Back</h2>
+    <p class="desc">Sign in to continue</p>
+
+    <form method="POST">
+        {% csrf_token %}
+
+        <div class="field">
+            <label>EMAIL ADDRESS</label>
+            <div class="input-box">
+                <input type="email" name="email" placeholder="john@example.com" required>
+            </div>
+        </div>
+
+        <div class="field">
+            <label>PASSWORD</label>
+            <div class="input-box">
+                <input type="password" id="password" name="password" required>
+                <span class="eye" onclick="togglePassword('password', this)">👁</span>
+            </div>
+        </div>
+
+        <div class="options">
+            <label>
+        <input type="checkbox" name="remember_me">
+            Remember me
+        </label>
+            <a href="{% url "forgot_password" %}">Forgot password?</a>
+        </div>
+
+        <button type="submit" class="btn">LOGIN</button>
+
+        <div class="divider">OR CONTINUE WITH</div>
+
+        <button type="button" class="google">
+            <svg width="18" height="18" viewBox="0 0 48 48">
+                <path fill="#EA4335" d="M24 9.5c3.54 0 6.67 1.22 9.17 3.6l6.85-6.85C35.91 2.34 30.3 0 24 0 14.62 0 6.51 5.48 2.56 13.44l7.98 6.2C12.41 13.06 17.7 9.5 24 9.5z"/>
+                <path fill="#4285F4" d="M46.5 24.5c0-1.66-.15-3.25-.43-4.79H24v9.06h12.7c-.55 2.96-2.2 5.46-4.69 7.14l7.23 5.62C43.93 37.53 46.5 31.53 46.5 24.5z"/>
+                <path fill="#FBBC05" d="M10.54 28.64a14.5 14.5 0 0 1 0-9.28l-7.98-6.2a24 24 0 0 0 0 21.68l7.98-6.2z"/>
+                <path fill="#34A853" d="M24 48c6.3 0 11.6-2.08 15.47-5.66l-7.23-5.62c-2.02 1.36-4.6 2.17-8.24 2.17-6.3 0-11.59-3.56-13.46-8.64l-7.98 6.2C6.51 42.52 14.62 48 24 48z"/>
+            </svg>
+            Continue with Google
+        </button>
+
+
+        <p class="signup">
+            Don’t have an account? <a href="{% url "signup" %}">Sign up</a>
+        </p>
+
+    </form>
+
+</div>
+
+<script>
+function togglePassword(id, el) {
+    const input = document.getElementById(id);
+    input.type = input.type === "password" ? "text" : "password";
+}
+</script>
+
+</body>
+</html>

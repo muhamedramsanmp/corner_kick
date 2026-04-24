@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>CORNER KICK | Precision Performance</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-secondary-container": "#394c84",
+              "on-primary-fixed-variant": "#003ea8",
+              "on-tertiary-fixed": "#360f00",
+              "on-tertiary-container": "#ffede6",
+              "on-error": "#ffffff",
+              "primary-fixed-dim": "#b4c5ff",
+              "on-secondary": "#ffffff",
+              "outline": "#737686",
+              "inverse-surface": "#2c3134",
+              "on-primary-fixed": "#00174b",
+              "on-error-container": "#93000a",
+              "surface-tint": "#0053db",
+              "surface-container-low": "#f0f4f8",
+              "background": "#f6fafe",
+              "secondary": "#495c95",
+              "tertiary": "#943700",
+              "on-tertiary-fixed-variant": "#7d2d00",
+              "surface-container-high": "#e4e9ed",
+              "surface-container-lowest": "#ffffff",
+              "on-secondary-fixed-variant": "#31447b",
+              "on-primary": "#ffffff",
+              "inverse-on-surface": "#edf1f5",
+              "surface-container": "#eaeef2",
+              "on-tertiary": "#ffffff",
+              "tertiary-container": "#bc4800",
+              "error-container": "#ffdad6",
+              "on-surface-variant": "#434655",
+              "tertiary-fixed-dim": "#ffb596",
+              "primary-fixed": "#dbe1ff",
+              "primary": "#004ac6",
+              "outline-variant": "#c3c6d7",
+              "on-background": "#171c1f",
+              "secondary-fixed": "#dbe1ff",
+              "surface-dim": "#d6dade",
+              "surface-variant": "#dfe3e7",
+              "on-primary-container": "#eeefff",
+              "secondary-fixed-dim": "#b4c5ff",
+              "secondary-container": "#acbfff",
+              "error": "#ba1a1a",
+              "primary-container": "#2563eb",
+              "surface": "#f6fafe",
+              "tertiary-fixed": "#ffdbcd",
+              "surface-bright": "#f6fafe",
+              "on-surface": "#171c1f",
+              "surface-container-highest": "#dfe3e7",
+              "on-secondary-fixed": "#00174b",
+              "inverse-primary": "#b4c5ff"
+            },
+            fontFamily: {
+              "headline": ["Inter"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      body {
+        font-family: 'Inter', sans-serif;
+        background-color: #f1f5f9;
+        color: #1e293b;
+      }
+    </style>
+</head>
+<body class="bg-[#f1f5f9]">
+<!-- TopNavBar Updated -->
+<nav class="fixed top-0 w-full z-50 bg-white shadow-sm">
+<div class="flex justify-between items-center px-8 py-4 max-w-full mx-auto">
+<div class="flex items-center">
+<a class="text-2xl font-black italic tracking-tighter text-blue-600" href="#">CORNER KICK</a>
+</div>
+<div class="hidden md:flex gap-8 items-center font-['Inter'] font-semibold text-[13px] uppercase tracking-wider text-slate-800">
+<a class="text-blue-600 border-b-2 border-blue-600 pb-1" href="#">All</a>
+<a class="hover:text-blue-600 transition-colors" href="#">Football</a>
+<a class="hover:text-blue-600 transition-colors" href="#">Cricket</a>
+<a class="hover:text-blue-600 transition-colors" href="#">Basketball</a>
+<a class="hover:text-blue-600 transition-colors" href="#">Badminton</a>
+</div>
+<div class="flex items-center gap-6">
+<div class="hidden lg:flex items-center bg-slate-100 rounded-lg px-4 py-2">
+<span class="material-symbols-outlined text-slate-400 text-[20px]">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-sm text-slate-600 w-48 ml-2" placeholder="Search equipment..." type="text"/>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-slate-700 hover:text-blue-600 transition-colors"><span class="material-symbols-outlined">favorite</span></button><button class="text-slate-700 hover:text-blue-600 transition-colors">
+<span class="material-symbols-outlined">shopping_bag</span>
+</button>
+<button class="text-slate-700 hover:text-blue-600 transition-colors">
+
+
+
+{% if user.is_authenticated %}
+    <a href="{% url 'home' %}" class="material-symbols-outlined">person</a>
+{% else %}
+    <a href="{% url 'login' %}" class="material-symbols-outlined">person</a>
+{% endif %}
+
+{% if user.is_authenticated %}
+    <form method="POST" action="{% url 'logout' %}">
+        {% csrf_token %}
+        <button type="submit" class="material-symbols-outlined">logout</button>
+    </form>
+{% else %}
+    <a href="{% url 'login' %}" class="material-symbols-outlined">person</a>
+{% endif %}
+
+
+</button>
+</div>
+</div>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="pt-[72px]">
+<!-- HERO SECTION -->
+<section class="relative w-full h-[716px] min-h-[500px] overflow-hidden">
+<img alt="Elite Footballer Action" class="w-full h-full object-cover" data-alt="dynamic low angle shot of a professional football player in a blue jersey kicking a ball in a floodlit stadium at night" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDNuphsVRuSvLg8F4Zo43EUEHzZaiHmEor1s1vNnJmVXNe5qYIdTAfezTMH_-Yo66e5_h0q5qppeIWcZqm4wDcEXozb2nAP-MBz9KWLAId3dboQQV8OXVC6ySOioczHrHK-uNlSmTH5n6vfRzfAABsC88T3lvCFTFJmqZv0lMBtLQlhumDpboqi_s9VGunK5P40m6yqkWzeibM9-Zy_vkCbIBHpFCS9Kzbu678CxDykVdXvEl_GZHct8iSpcv-cHf2f7GA_Ci6-DII"/>
+<div class="absolute inset-0 bg-gradient-to-r from-slate-900/60 to-transparent flex flex-col justify-center px-12 md:px-24">
+<p class="text-white/80 font-bold tracking-[0.2em] mb-4 text-xs uppercase">Precision Performance</p>
+<h1 class="text-white text-5xl md:text-7xl font-black italic tracking-tighter mb-8 max-w-2xl leading-none uppercase">Master the field.</h1>
+<div>
+<button class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-10 rounded-lg transition-all transform active:scale-95 text-sm uppercase tracking-widest">
+                        Shop Collection
+                    </button>
+</div>
+</div>
+</section>
+<!-- SECOND SECTION: DUAL CATEGORIES -->
+<section class="grid grid-cols-1 md:grid-cols-2 gap-1 px-1 mt-1">
+<div class="relative h-[600px] group cursor-pointer overflow-hidden">
+<img alt="Football Collection" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="close up of a professional soccer ball on lush green grass with stadium lights blurred in the background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAe-P1OCenBkN4C0Iz7Iu16AJ3vtexROFR8ZOjpGTqTow66cNghnuwEHjgBDA21LI763haFYn-T_7UwfjaFC7NE-_yb_CZMeiGSi8OSvwGukC_CTCQHS2GAvqBRr_3KjQMIpmv-3z7ViVGisA6CtUH34tULKyiC7pWRD8O9ljGYpqsWWbP8BPrsV3xAqK_EXrUiTLRsa7FgbykM4zG04qyk6DQCjOheXoGjcTq7TCzNYDo6aGipFh_pPE4ZV7NAoyFpYZA0BYNd1Ww"/>
+<div class="absolute inset-0 bg-slate-900/20 group-hover:bg-slate-900/40 transition-colors flex flex-col justify-end p-12">
+<h2 class="text-white text-3xl font-black italic tracking-tighter mb-4">FOOTBALL COLLECTION</h2>
+<p class="text-white/90 text-sm font-medium uppercase tracking-widest border-b border-white w-fit pb-1">Explore Now</p>
+</div>
+</div>
+<div class="relative h-[600px] group cursor-pointer overflow-hidden">
+<img alt="Cricket Collection" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="dramatic action shot of a cricket batsman hitting a ball with dust flying under warm afternoon sun" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBF63M8KoPLQxCof9bmXmM2DHYu11OEPTf4r1Erjl5HgeMLUG878kPrClKWYrUi9uUMGpleYi69h6FuQNtAA7LliJcCWNWv9BLYC8T_yMl9sbaJ_JH4-NIOCErbvaF5k56ofCuoBU2szH7JFYDV0X_-9VtT3xKPQBR4ImN5yLib4aotOkIVKsHPGDXt03WYkk190RlkUXTXuzisQD-UkAC6frHprLqVQsknH-Xjuxv9xH0ldhOxYUh27O79aVa2lAa7kszB-7wDTGI"/>
+<div class="absolute inset-0 bg-slate-900/20 group-hover:bg-slate-900/40 transition-colors flex flex-col justify-end p-12">
+<h2 class="text-white text-3xl font-black italic tracking-tighter mb-4">CRICKET COLLECTION</h2>
+<p class="text-white/90 text-sm font-medium uppercase tracking-widest border-b border-white w-fit pb-1">Explore Now</p>
+</div>
+</div>
+</section>
+<!-- THIRD SECTION: PRODUCT STRIP -->
+<section class="py-20 px-6 max-w-7xl mx-auto overflow-hidden">
+<div class="flex justify-between items-end mb-12">
+<div>
+<p class="text-blue-600 font-bold text-xs uppercase tracking-widest mb-2">Technical Gear</p>
+<h3 class="text-3xl font-black italic tracking-tighter text-slate-900 uppercase">Pro Essentials</h3>
+</div>
+<a class="text-slate-500 font-bold text-xs uppercase tracking-widest hover:text-blue-600 transition-colors" href="#">View All Gear</a>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-5 gap-6">
+<!-- Product 1 -->
+<div class="bg-white p-4 rounded-xl shadow-sm hover:shadow-md transition-shadow group">
+<div class="aspect-square mb-4 overflow-hidden rounded-lg bg-slate-50">
+<img alt="Elite Football" class="w-full h-full object-cover mix-blend-multiply transition-transform group-hover:scale-110" data-alt="high contrast studio shot of a white and black modern soccer ball with metallic detailing" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBk4UE2wugZFMT3uBHAtqaiEU_9NKYqbEBE2IAdZMF09gWVk6rsN7BKBNg2Wh96WS_XXLqxER2gErW30FUO0qr9wI5QjCsIT0O-tGBF8Qy7RixrWCezu2fGWBhPP81BInZqVjlc5wpMjI2tWY1XCX_btHa5ybcQKPDpsEel1NSuxO73XWMHnh0197Xx6r17cGT2O80S34wP0pX4x6EjsPNWpotsZPS9FXz8O6trMhy8ZI6kYBLJuIW9vz1l8VA7BaPvesElnBrd94g"/>
+</div>
+<p class="text-[10px] text-blue-600 font-extrabold uppercase tracking-widest mb-1">Elite Grade</p>
+<h4 class="text-sm font-bold text-slate-800 truncate mb-1">CK Match Ball v1</h4>
+<p class="text-slate-900 font-black italic">$120.00</p>
+</div>
+<!-- Product 2 -->
+<div class="bg-white p-4 rounded-xl shadow-sm hover:shadow-md transition-shadow group">
+<div class="aspect-square mb-4 overflow-hidden rounded-lg bg-slate-50">
+<img alt="Speed Boots" class="w-full h-full object-cover mix-blend-multiply transition-transform group-hover:scale-110" data-alt="side view of a sleek bright red football boot with white accents on a clean grey background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCIzAs4tN8ObWRALZikGIcqbJm4-R0mSpmFpLGL_5GpN2UNQBGJe7uYMuCLb-i8ZAiAK_grVIf37HCD1vYOT34c31rtbdUcBkmBW_fu2v0yBfrs5jTdzL7Rdx_jsLasp6IVVcPc0fyzDs2EuCkz1QnI9wlrpNd8bco3k3Mdv-37AA39__QcWGmNsSoDLg0_frsPmB8SNGwgVIQZBOC0ttCqubwGsAP13SFlp93aH7gze2RWo8xFq2gDW6nIi-r2b1IF1sLAfDzLcDU"/>
+</div>
+<p class="text-[10px] text-blue-600 font-extrabold uppercase tracking-widest mb-1">Performance</p>
+<h4 class="text-sm font-bold text-slate-800 truncate mb-1">Strike-X Speed Boots</h4>
+<p class="text-slate-900 font-black italic">$185.00</p>
+</div>
+<!-- Product 3 -->
+<div class="bg-white p-4 rounded-xl shadow-sm hover:shadow-md transition-shadow group">
+<div class="aspect-square mb-4 overflow-hidden rounded-lg bg-slate-50">
+<img alt="Cricket Bat" class="w-full h-full object-cover mix-blend-multiply transition-transform group-hover:scale-110" data-alt="premium willow cricket bat leaning against a wall with clean wood grain visible" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDPWCaw98BzYg4BZ0khfhEp95liBcx4PYWPRliO8isdGqGkMwueah8E3l7r-c7RbV8IUia8IWpxir4qLB1_41hd-Sffd4o31Hrywxo6NuAUxQqmU_J80NJLlY75g2HNhV7BShz2Fw3vmlusZQ2g1Qs0660FGYMQwhreGPMfsLYi-wi7SJdMRW38y1HX8ZzRjCStPtryK7D7H16O2NkMxhUU2qG82ds2rDtgtuelVExZni3aj9FEdxnORhVl2dtpsGVSMRwQJWGYP3M"/>
+</div>
+<p class="text-[10px] text-blue-600 font-extrabold uppercase tracking-widest mb-1">Professional</p>
+<h4 class="text-sm font-bold text-slate-800 truncate mb-1">Grand Slam Willow</h4>
+<p class="text-slate-900 font-black italic">$340.00</p>
+</div>
+<!-- Product 4 -->
+<div class="bg-white p-4 rounded-xl shadow-sm hover:shadow-md transition-shadow group">
+<div class="aspect-square mb-4 overflow-hidden rounded-lg bg-slate-50">
+<img alt="Basketball" class="w-full h-full object-cover mix-blend-multiply transition-transform group-hover:scale-110" data-alt="textured orange basketball held in hands against a dark blue court background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCGsQzUKPjO0ewaJ4wL7n1MsD3BbTZGXwIwzq_LjCctrG4OxUAQL-cJjFEee3J3aDsjUyPSsoS6NnSHV9bVE9Q35dJlo1fE_WrMCR0QnOegjdrH85wDmn_SsDlSql6fMdOHogFt7sKsvNgWx8y7DHrR80n33wuI4mfUdvQclr0KDAvTxz4j_b1W_QcA3vu3G-_TyneKEcdMulPBD6gtKWXTS4P-KbgfpfTNCTD-Hl25BJbGJlmIYYVU79-Xyy5IeEBgt7lOH66ENIs"/>
+</div>
+<p class="text-[10px] text-blue-600 font-extrabold uppercase tracking-widest mb-1">Indoor/Outdoor</p>
+<h4 class="text-sm font-bold text-slate-800 truncate mb-1">Vision Grip Basketball</h4>
+<p class="text-slate-900 font-black italic">$65.00</p>
+</div>
+<!-- Product 5 -->
+<div class="bg-white p-4 rounded-xl shadow-sm hover:shadow-md transition-shadow group">
+<div class="aspect-square mb-4 overflow-hidden rounded-lg bg-slate-50">
+<img alt="Badminton Racket" class="w-full h-full object-cover mix-blend-multiply transition-transform group-hover:scale-110" data-alt="ultra lightweight carbon fiber badminton racket with vibrant neon yellow strings" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAutiNKYRL26pXqUJgAG3FToe1aaDUCaRtMsSi_9MnJ2BqjkVFzxpJm6olo02yZcVjTnKxDVOzvuNUV3jRd3uYpSzrc5YwlTo_pcVOEfP7V3oMP4Wb_0FbL3X3hMEK7IRFMdHWUbv9feq8EKnDpDv5FiAuH8EioRH8NIqWN_RWXdNyF1LYZ20PDdGucvAj6eAo5-Js3_R2SugmAIfyv2B2TpOhfSV9qukX8v1JO2isrMiPkRP3BdXZKpuJgJbrtCvti_vWBisJ1Nl0"/>
+</div>
+<p class="text-[10px] text-blue-600 font-extrabold uppercase tracking-widest mb-1">Aero Dynamics</p>
+<h4 class="text-sm font-bold text-slate-800 truncate mb-1">Sonic Flux Racket</h4>
+<p class="text-slate-900 font-black italic">$115.00</p>
+</div>
+</div>
+</section>
+<!-- Referral Section - New -->
+<section class="py-16 px-6 relative"><img alt="High energy sports visual background" class="absolute inset-0 w-full h-full object-cover opacity-40" src="https://lh3.googleusercontent.com/aida/ADBb0ujkSV-9Kv8W85txYTn70vEXt_0wigYFRGhln-UC8eCnmX5snpboQ6bzmLZ4QeL3iLD0XhUUZKrvUPJpqI_0hBbc3M0n2qpreiFEV116HHiMy91sxNR5LBJf9glp2LVpOoNBwBy84_BT9Uvx7Q3pzAIDPk63in7P32xo7tX_ysjxMUXVE4GiyYivsMXsLDDs9zP2mOTu8Tq8meCoqAIoddMJcHP5CMAAR7pjb8Ikfwiyl5VBkt02NkDS9NohNhyl49MTQCof8I4AaQ"/>
+<div class="relative z-10 max-w-4xl mx-auto">
+<div class="bg-white p-12 rounded-2xl shadow-2xl text-center">
+<p class="text-blue-600 font-extrabold text-sm uppercase tracking-widest mb-4">Referral Program</p>
+<h2 class="text-5xl font-black italic text-slate-900 mb-6 uppercase tracking-tighter">FUEL THE GAME</h2>
+<p class="text-slate-600 font-medium text-lg mb-10 max-w-2xl mx-auto">Refer a teammate and both of you get 500 Credits to spend on any Pro Series gear.</p>
+<div class="flex flex-col items-center gap-4 mb-12">
+<label class="text-xs font-bold uppercase text-slate-400 tracking-widest">Your Unique Referral Code</label>
+<div class="flex items-center w-full max-w-md">
+<div class="flex-grow bg-slate-100 border-2 border-dashed border-blue-200 px-8 py-4 rounded-l-xl font-mono text-3xl font-black text-blue-700 tracking-[0.2em]">
+          KICK500
+        </div>
+<button class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-r-xl font-bold uppercase text-sm tracking-widest transition-all flex items-center gap-2 whitespace-nowrap h-full">
+<span class="material-symbols-outlined">content_copy</span> COPY CODE
+        </button>
+</div>
+</div>
+<div class="pt-8 border-t border-slate-100"><div class="flex justify-center mt-2">
+<button class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-12 rounded-lg transition-all transform active:scale-95 text-sm uppercase tracking-widest shadow-lg shadow-blue-200">
+    Invite Now
+  </button>
+</div></div>
+</div>
+</div></section>
+<!-- CATEGORY GRID -->
+<section class="grid grid-cols-1 md:grid-cols-4 gap-1 px-1 mt-1">
+<div class="relative h-[500px] overflow-hidden group cursor-pointer">
+<img alt="Football Category" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="abstract motion blur shot of a football player sprinting on artificial turf" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCcUukikg7Tfv6liKNbUqw0tv8JTq_D4eOAbIHjj54uLxR5bj_8ZeCrnYjgY4JPnHYkli_ZHHcqI5aAKK4sCrGG6Nx5tJvA58K9vFRx4mr4lW8nZkFOnQJDUnxLwGCDGYOErZg5zPiWoR4yanWAPW-USqDXB4s68PnnApXApAnBrxFbhaWepshXMlF-9B81u31vMdECvcaCB4iKfNtr_stQvE8YGLa3ujVda0LvTbG6StuKc9HDHbebdPfIP9arWy-uzmRTZXp617k"/>
+<div class="absolute inset-0 bg-slate-900/30 flex items-center justify-center">
+<h3 class="text-white text-2xl font-black italic tracking-tighter">FOOTBALL</h3>
+</div>
+</div>
+<div class="relative h-[500px] overflow-hidden group cursor-pointer">
+<img alt="Cricket Category" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="close up detail of a leather cricket ball with prominent white stitching on green turf" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBDuzAqrJ4-Ij46EtvnIqThiKfbhCnz7JHsBPVeubtRFghd4q7jk2Bq6asASYoR5YhzX427GAuG5SuJThZpZ7qES6EdakwGRUMJ0QSSJlD93OCxv6JFZcrtG3_ArPykSmGAVVIsU0i0kbz0xeJ9k7BK01n_JP6gnAeFrv9k90WtqX4w1Df1nm_ScWeZQIC0VLDTOs6sUOPsWxV3hREMqaF9w8rsd0yrambTOgm82TDOk6KLDTvmGrI4y7UksVe_sOLEzXoE3Fxa8kU"/>
+<div class="absolute inset-0 bg-slate-900/30 flex items-center justify-center">
+<h3 class="text-white text-2xl font-black italic tracking-tighter">CRICKET</h3>
+</div>
+</div>
+<div class="relative h-[500px] overflow-hidden group cursor-pointer">
+<img alt="Basketball Category" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="basketball player jumping for a dunk against a city sunset skyline background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBi-PZGiCi8c19VoEAS7TygN7wf-1d80YPwOfVOJOm5wuEZUuGgCVOo5yCiCywL_Z4aFMFBjBBEw5j57Aw9uFKfOdezzjwS3NyK81B31bf5XIfUCQK5qDlEHYp1_9fkUSVBly08PfNqD_MUNWw8p5rw8lJ5Rp4FkD0JIUr01Q5CaAyaIPoIlYfjnn-ATqt5oYVm7fx_riGI-ocrs8RE4HZzKrfLJxGkQka0tZ1gyIe066s-k59DtHHCD8aVclyDZehORZRtG_woELY"/>
+<div class="absolute inset-0 bg-slate-900/30 flex items-center justify-center">
+<h3 class="text-white text-2xl font-black italic tracking-tighter">BASKETBALL</h3>
+</div>
+</div>
+<div class="relative h-[500px] overflow-hidden group cursor-pointer">
+<img alt="Badminton Category" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="close up of a badminton shuttlecock resting on a blue court surface" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCGicimNRgzAAIZU9jPonXpLu4xybx9QoGnHQkXer3FtP4VJJw4qWVMLVD_jMPLciU4_dbEGElFAHTKFeBZ_NI18lgmojJWK9mVeafY3b0gYeQ-KNUMQqI7uvJbtuCpHkrYYXNU82xbR5LaWiRUBiuwyTprmG7_FaPlM6NoMwHXPTmcvBq1HSDAfvla8FkOCTVOqU7mJhCaqpfywtc0B7a4MPj4yh1PPNDlTUS-BFCHymJV4FQuukHXLhIghTG3jms4zYS5IOl0E8A"/>
+<div class="absolute inset-0 bg-slate-900/30 flex items-center justify-center">
+<h3 class="text-white text-2xl font-black italic tracking-tighter">BADMINTON</h3>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer Updated -->
+<footer class="bg-white border-t border-slate-200 pt-20 pb-10 mt-20">
+<div class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-12 mb-20">
+<div class="col-span-1 md:col-span-1">
+<a class="text-2xl font-black italic tracking-tighter text-blue-600 mb-6 block" href="#">CORNER KICK</a>
+<p class="text-slate-500 text-sm leading-relaxed mb-6">Engineered for elite athletes. We provide professional-grade sports equipment designed for precision, speed, and durability.</p>
+<div class="flex gap-4">
+<span class="material-symbols-outlined text-slate-400 cursor-pointer hover:text-blue-600 transition-colors">sports_soccer</span>
+<span class="material-symbols-outlined text-slate-400 cursor-pointer hover:text-blue-600 transition-colors">sports_cricket</span>
+<span class="material-symbols-outlined text-slate-400 cursor-pointer hover:text-blue-600 transition-colors">sports_basketball</span>
+</div>
+</div>
+<div>
+<h4 class="text-xs font-bold uppercase tracking-widest text-slate-900 mb-6">Shop Gear</h4>
+<ul class="flex flex-col gap-3 font-semibold text-slate-500 text-sm uppercase">
+<li><a class="hover:text-blue-600 transition-colors" href="#">Football</a></li>
+<li><a class="hover:text-blue-600 transition-colors" href="#">Cricket</a></li>
+<li><a class="hover:text-blue-600 transition-colors" href="#">Basketball</a></li>
+<li><a class="hover:text-blue-600 transition-colors" href="#">Badminton</a></li>
+<li><a class="hover:text-blue-600 transition-colors" href="#">New Arrivals</a></li>
+</ul>
+</div>
+<div>
+<h4 class="text-xs font-bold uppercase tracking-widest text-slate-900 mb-6">Support</h4>
+<ul class="flex flex-col gap-3 font-semibold text-slate-500 text-sm uppercase">
+<li><a class="hover:text-blue-600 transition-colors" href="#">Customer Care</a></li>
+<li><a class="hover:text-blue-600 transition-colors" href="#">Shipping &amp; Returns</a></li>
+<li><a class="hover:text-blue-600 transition-colors" href="#">Size Guide</a></li>
+<li><a class="hover:text-blue-600 transition-colors" href="#">Track Order</a></li>
+<li><a class="hover:text-blue-600 transition-colors" href="#">Contact Us</a></li>
+</ul>
+</div>
+<div>
+<h4 class="text-xs font-bold uppercase tracking-widest text-slate-900 mb-6">Stay Connected</h4>
+<p class="text-slate-500 text-sm mb-6">Join our pro squad for exclusive drops and technical insights.</p>
+<div class="flex flex-col gap-3">
+<div class="relative">
+<input class="w-full bg-slate-100 border-none rounded-lg px-4 py-3 text-sm focus:ring-2 focus:ring-blue-600" placeholder="Enter email address" type="email"/>
+<button class="absolute right-2 top-2 bg-blue-600 text-white p-1 rounded-md">
+<span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+<p class="text-[10px] text-slate-400 uppercase font-bold tracking-widest">No spam. Only performance.</p>
+</div>
+</div>
+</div>
+<div class="max-w-7xl mx-auto px-6 pt-10 border-t border-slate-100 flex flex-col md:flex-row justify-between items-center gap-6">
+<p class="font-['Inter'] text-[10px] font-bold uppercase tracking-widest text-slate-400">© 2024 CORNER KICK PRECISION. ALL RIGHTS RESERVED.</p>
+<div class="flex gap-8 font-['Inter'] text-[10px] font-bold uppercase tracking-widest text-slate-400">
+<a class="hover:text-blue-600 transition-colors" href="#">Privacy Policy</a>
+<a class="hover:text-blue-600 transition-colors" href="#">Terms of Service</a>
+<a class="hover:text-blue-600 transition-colors" href="#">Cookie Policy</a>
+</div>
+</div>
+</footer>
+
+<script>
+    // Prevent back button after login
+    history.pushState(null, null, location.href);
+    window.onpopstate = function () {
+        history.go(1);
+    };
+</script>
+</body>
+
+</html>

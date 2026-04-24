@@ -1,0 +1,247 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OTP Verification - Corner Kick</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Inter", sans-serif;
+}
+
+body {
+    height: 100vh;
+    display: flex;
+}
+
+/* LEFT IMAGE */
+.left {
+    width: 50%;
+    position: relative;
+}
+
+.left img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.left::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to right, rgba(0,0,0,0.7), transparent);
+}
+
+.left-text {
+    position: absolute;
+    bottom: 80px;
+    left: 60px;
+    color: white;
+}
+
+.left-text h1 {
+    font-size: 50px;
+    font-weight: 900;
+}
+
+/* RIGHT */
+.right {
+    width: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f3f4f6;
+}
+
+.card {
+    width: 400px;
+    background: white;
+    padding: 30px;
+    border-radius: 16px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+}
+
+/* HEADER */
+.logo {
+    color: #2f5bd3;
+    font-weight: 800;
+    margin-bottom: 20px;
+}
+
+.desc {
+    font-size: 13px;
+    color: #666;
+    margin-bottom: 20px;
+}
+
+/* OTP BOXES */
+.otp {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.otp input {
+    width: 100%;
+    height: 60px;
+    text-align: center;
+    font-size: 20px;
+    border-radius: 10px;
+    border: none;
+    background: #d9deee;
+    outline: none;
+}
+
+/* TIMER */
+.timer {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    margin-bottom: 15px;
+}
+
+.timer a {
+    color: #2f5bd3;
+    text-decoration: none;
+}
+
+/* BUTTON */
+.btn {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(90deg,#2f5bd3,#3b82f6);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+/* FOOTER */
+.footer {
+    text-align: center;
+    margin-top: 12px;
+    font-size: 12px;
+}
+
+/* MOBILE */
+@media(max-width:900px){
+    .left{display:none;}
+    .right{width:100%;}
+}
+</style>
+
+</head>
+<body>
+
+<!-- LEFT -->
+<div class="left">
+    <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuBsPkQ9qxG8wI7fGNFkDOpppQT7ZoFbX4Jlo-wz-HMe1t-w_JQ5c4DFjs2h41Xumorbzjrp0HqZir9M3O3RnoSgx7XD8YvFRhZiUcfBoZyhgJB7Zbjp0erv3-1DydmQDsdCbPkH9kS41pl8zBFNX3HEgtactCOdov34zxgkK3EKXCX_vXcwYOK5OvgQwoJQuw1hdjrQPtVNUni9OE6tkk4XbFz5TgVBKIUzcPqvHqSdSKAVPyAlejuSFz0OfdUwS_rZN2AaC9bHek0">
+    <div class="left-text">
+        <h1>VERIFY YOUR ACCOUNT</h1>
+    </div>
+</div>
+
+<!-- RIGHT -->
+<div class="right">
+
+<div class="card">
+
+    <h3 class="logo">CORNER KICK</h3>
+
+    <h2>Verify OTP</h2>
+    <p class="desc">Enter the 4-digit code sent to your email</p>
+
+    <form method="POST">
+        {% csrf_token %}
+
+        <!-- OTP INPUTS -->
+        <div class="otp">
+            <input type="text" name="otp1" maxlength="1" required>
+            <input type="text" name="otp2" maxlength="1" required>
+            <input type="text" name="otp3" maxlength="1" required>
+            <input type="text" name="otp4" maxlength="1" required>
+        </div>
+
+        <!-- TIMER -->
+       <div class="timer">
+            <span id="timer">01:00</span>
+            <a href="{% url 'resend_otp' %}" id="resend" style="display:none;">Resend</a>
+        </div>
+        <button type="submit" class="btn">VERIFY</button>
+
+        <div class="footer">
+            Didn’t receive the code? <a href="#">Resend</a>
+        </div>
+
+    </form>
+
+</div>
+
+</div>
+
+<script>
+// Auto move cursor
+const inputs = document.querySelectorAll(".otp input");
+
+inputs.forEach((input, index) => {
+    input.addEventListener("input", () => {
+        if (input.value.length === 1 && index < inputs.length - 1) {
+            inputs[index + 1].focus();
+        }
+    });
+});
+</script>
+
+
+<script>
+let timeLeft = 60;
+
+const timerElement = document.getElementById("timer");
+const resendBtn = document.getElementById("resend");
+
+// 🔥 create message element
+const message = document.createElement("div");
+message.style.color = "red";
+message.style.fontSize = "12px";
+message.style.marginTop = "5px";
+timerElement.parentElement.appendChild(message);
+
+function startTimer() {
+    resendBtn.style.display = "none";
+    message.textContent = "";
+    timeLeft = 60;
+
+    const timerInterval = setInterval(() => {
+        let minutes = Math.floor(timeLeft / 60);
+        let seconds = timeLeft % 60;
+
+        seconds = seconds < 10 ? "0" + seconds : seconds;
+
+        timerElement.textContent = `${minutes}:${seconds}`;
+
+        if (timeLeft <= 0) {
+            clearInterval(timerInterval);
+
+            timerElement.textContent = "00:00";
+            resendBtn.style.display = "inline";
+
+            // 🔥 SHOW MESSAGE
+            message.textContent = "OTP expired. You can request a new one.";
+        }
+
+        timeLeft--;
+    }, 1000);
+}
+
+startTimer();
+</script>
+
+</body>
+</html>
