@@ -1,0 +1,538 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+Wishlist
+{% endblock %}
+
+
+{% block extra_css %}
+<style>
+/* ================= LAYOUT ================= */
+
+.wrapper{
+    display:grid;
+    grid-template-columns:260px 1fr;
+    gap:32px;
+    padding:40px 48px 70px;
+}
+
+/* ================= SIDEBAR ================= */
+
+.sidebar{
+    background:#ffffff;
+    border:1px solid #e2e8f0;
+    border-radius:28px;
+    padding:28px;
+    height:fit-content;
+}
+
+.sidebar-title{
+    font-size:28px;
+    font-weight:800;
+    margin-bottom:10px;
+}
+
+.sidebar-subtitle{
+    color:#64748b;
+    font-size:13px;
+    margin-bottom:30px;
+}
+
+.menu{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+}
+
+.menu a{
+    height:52px;
+    border-radius:16px;
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:0 16px;
+    text-decoration:none;
+    color:#475569;
+    font-size:14px;
+    font-weight:600;
+    transition:.2s;
+}
+
+.menu a:hover,
+.menu a.active{
+    background:#eff6ff;
+    color:#2563eb;
+}
+
+/* ================= CONTENT ================= */
+
+.content-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:34px;
+}
+
+.page-title{
+    font-size:42px;
+    font-weight:800;
+}
+
+.page-subtitle{
+    color:#64748b;
+    margin-top:8px;
+    font-size:14px;
+}
+
+.sort-box{
+    width:220px;
+    height:50px;
+    border:1px solid #cbd5e1;
+    border-radius:16px;
+    background:#ffffff;
+    padding:0 16px;
+    outline:none;
+    font-size:14px;
+    font-weight:600;
+}
+
+/* ================= GRID ================= */
+
+.product-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:28px;
+}
+
+.product-card{
+    background:#ffffff;
+    border:1px solid #e2e8f0;
+    border-radius:28px;
+    overflow:hidden;
+    position:relative;
+    transition:.25s;
+}
+
+.product-card:hover{
+    transform:translateY(-4px);
+    box-shadow:0 14px 30px rgba(0,0,0,.08);
+}
+
+/* ================= REMOVE ================= */
+
+.remove-btn{
+    position:absolute;
+    top:16px;
+    right:16px;
+    width:40px;
+    height:40px;
+    border-radius:50%;
+    background:rgba(255,255,255,.9);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-decoration:none;
+    color:#ef4444;
+    z-index:10;
+}
+
+/* ================= IMAGE ================= */
+
+.product-image{
+    width:100%;
+    height:320px;
+    overflow:hidden;
+    background:#0f172a;
+}
+
+.product-image img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    transition:.3s;
+}
+
+.product-card:hover .product-image img{
+    transform:scale(1.05);
+}
+
+/* ================= BODY ================= */
+
+.product-body{
+    padding:20px;
+}
+
+.product-category{
+    color:#2563eb;
+    font-size:11px;
+    font-weight:700;
+    letter-spacing:1px;
+    margin-bottom:10px;
+}
+
+.product-name{
+    font-size:16px;
+    font-weight:700;
+    line-height:1.6;
+    margin-bottom:16px;
+    min-height:52px;
+}
+
+.price-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:20px;
+}
+
+.product-price{
+    color:#2563eb;
+    font-size:24px;
+    font-weight:800;
+}
+
+.stock-status{
+    background:#ecfdf5;
+    color:#10b981;
+    padding:8px 12px;
+    border-radius:20px;
+    font-size:11px;
+    font-weight:700;
+}
+
+.out-stock{
+    background:#fef2f2;
+    color:#ef4444;
+}
+
+/* ================= BUTTON ================= */
+
+.cart-btn{
+    width:100%;
+    height:52px;
+    border:none;
+    border-radius:16px;
+    background:linear-gradient(90deg,#2563eb,#3b82f6);
+    color:#ffffff;
+    font-size:14px;
+    font-weight:700;
+    cursor:pointer;
+}
+
+.cart-btn:disabled{
+    opacity:.6;
+    cursor:not-allowed;
+}
+
+/* ================= EMPTY ================= */
+
+.empty-box{
+    width:100%;
+    background:#ffffff;
+    border:1px solid #e2e8f0;
+    border-radius:28px;
+    padding:100px 30px;
+    text-align:center;
+}
+
+.empty-box span{
+    font-size:70px;
+    color:#2563eb;
+    margin-bottom:20px;
+}
+
+.empty-box h2{
+    font-size:38px;
+    margin-bottom:14px;
+}
+
+.empty-box p{
+    color:#64748b;
+    margin-bottom:30px;
+}
+
+.shop-btn{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    padding:16px 26px;
+    border-radius:16px;
+    background:#2563eb;
+    color:#ffffff;
+    text-decoration:none;
+    font-size:14px;
+    font-weight:700;
+}
+
+/* ================= RESPONSIVE ================= */
+
+@media(max-width:1200px){
+
+.wrapper{
+    grid-template-columns:1fr;
+}
+
+.product-grid{
+    grid-template-columns:repeat(2,1fr);
+}
+
+}
+
+@media(max-width:700px){
+
+.wrapper{
+    padding:30px 20px 60px;
+}
+
+.navbar{
+    padding:0 20px;
+}
+
+.nav-links{
+    display:none;
+}
+
+.product-grid{
+    grid-template-columns:1fr;
+}
+
+.content-header{
+    flex-direction:column;
+    align-items:flex-start;
+    gap:20px;
+}
+
+.page-title{
+    font-size:34px;
+}
+
+.sort-box{
+    width:100%;
+}
+
+}
+
+</style>
+{% endblock %}
+
+
+{% block content %}
+
+<body>
+
+
+
+<!-- ================= MAIN ================= -->
+
+<div class="wrapper">
+
+<!-- ================= SIDEBAR ================= -->
+
+<div class="sidebar">
+
+<h2 class="sidebar-title">
+My Wishlist
+</h2>
+
+<p class="sidebar-subtitle">
+Manage your saved items and products.
+</p>
+
+<div class="menu">
+
+<a href="#">
+<span class="material-symbols-outlined">
+person
+</span>
+My Account
+</a>
+
+<a href="#">
+<span class="material-symbols-outlined">
+shopping_bag
+</span>
+Orders
+</a>
+
+<a href="#" class="active">
+<span class="material-symbols-outlined">
+favorite
+</span>
+Wishlist
+</a>
+
+<a href="#">
+<span class="material-symbols-outlined">
+wallet
+</span>
+Wallet
+</a>
+
+</div>
+
+</div>
+
+<!-- ================= CONTENT ================= -->
+
+<div class="content">
+
+<div class="content-header">
+
+<div>
+
+<h1 class="page-title">
+Wishlist
+</h1>
+
+<p class="page-subtitle">
+{{ wishlist_items.count }} SAVED PRODUCT{{ wishlist_items.count|pluralize }}
+</p>
+
+</div>
+
+<select class="sort-box">
+<option>Sort By Recently Added</option>
+<option>Price Low To High</option>
+<option>Price High To Low</option>
+<option>A - Z</option>
+</select>
+
+</div>
+
+{% if wishlist_items %}
+
+<div class="product-grid">
+
+{% for item in wishlist_items %}
+
+{% with product=item.product %}
+
+<div class="product-card">
+
+<a
+href="#"
+class="remove-btn wishlist-btn"
+data-url="{% url 'user_products:toggle_wishlist' product.id %}"
+>
+<span class="material-symbols-outlined">
+close
+</span>
+
+</a>
+
+<a
+href="{% url 'user_products:product_details' product.slug %}"
+style="text-decoration:none;color:inherit;"
+>
+
+<div class="product-image">
+
+{% if product.default_variant.primary_image %}
+
+<img src="{{ product.default_variant.primary_image }}">
+
+{% else %}
+
+<img src="{% static 'images/default.png' %}">
+
+{% endif %}
+
+</div>
+
+<div class="product-body">
+
+<div class="product-category">
+{{ product.category.category_name }}
+</div>
+
+<div class="product-name">
+{{ product.product_name }}
+</div>
+
+<div class="price-row">
+
+<div class="product-price">
+₹{{ product.default_variant.price }}
+</div>
+
+{% if product.default_variant.stock > 0 %}
+
+<div class="stock-status">
+IN STOCK
+</div>
+
+{% else %}
+
+<div class="stock-status out-stock">
+OUT OF STOCK
+</div>
+
+{% endif %}
+
+</div>
+
+</div>
+
+</a>
+
+<a
+href="{% url 'user_products:wishlist_to_cart' product.id %}"
+style="text-decoration:none;"
+>
+
+<button
+class="cart-btn"
+{% if product.default_variant.stock <= 0 %}
+disabled
+{% endif %}
+>
+
+ADD TO BAG
+
+</button>
+
+</a>
+
+</button>
+
+</div>
+
+{% endwith %}
+
+{% endfor %}
+
+</div>
+
+{% else %}
+
+<!-- ================= EMPTY ================= -->
+
+<div class="empty-box">
+
+<span class="material-symbols-outlined">
+favorite
+</span>
+
+<h2>Your wishlist is empty</h2>
+
+<p>
+Save products you love and revisit them later.
+</p>
+
+<a
+href="{% url 'user_products:shop' %}"
+class="shop-btn"
+>
+CONTINUE SHOPPING
+</a>
+
+</div>
+
+{% endif %}
+
+</div>
+
+</div>
+
+{% endblock %}

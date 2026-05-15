@@ -1,0 +1,1409 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Product Management</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+
+<style>
+
+/* ================= RESET ================= */
+
+/* ================= RESET ================= */
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:'Inter',sans-serif;
+    background:#000;
+    color:#fff;
+    overflow-x:hidden;
+}
+
+/* ================= SIDEBAR ================= */
+
+.sidebar{
+    position:fixed;
+    width:250px;
+    height:100vh;
+    background:linear-gradient(to bottom,#05080f,#000);
+    padding:20px 15px;
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+    border-right:1px solid #0f172a;
+}
+
+/* LOGO */
+
+.logo{
+    color:#3b82f6;
+    font-weight:600;
+    font-size:15px;
+}
+
+.sublogo{
+    font-size:10px;
+    color:#6b7280;
+    margin-bottom:25px;
+    letter-spacing:1px;
+}
+
+/* MENU */
+
+.menu{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+}
+
+.menu a{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:10px 14px;
+    color:#9ca3af;
+    text-decoration:none;
+    border-radius:8px;
+    font-size:13px;
+    position:relative;
+    transition:.2s;
+}
+
+.menu a span{
+    font-size:18px;
+    opacity:.8;
+}
+
+.menu a:hover{
+    background:#0f172a;
+    color:#fff;
+}
+
+.menu a.active{
+    background:linear-gradient(
+        90deg,
+        #0f172a,
+        #0b1220
+    );
+
+    color:#60a5fa;
+}
+
+.menu a.active::before{
+    content:"";
+    position:absolute;
+    left:0;
+    top:6px;
+    bottom:6px;
+    width:3px;
+    background:#3b82f6;
+    border-radius:3px;
+}
+
+/* FOOTER */
+
+.sidebar-footer{
+    border-top:1px solid #0f172a;
+    padding-top:15px;
+}
+
+.user-box{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    background:#0b1220;
+    padding:10px;
+    border-radius:10px;
+}
+
+.user-box img{
+    width:34px;
+    height:34px;
+    border-radius:50%;
+    object-fit:cover;
+}
+
+.user-name{
+    font-size:13px;
+}
+
+.user-role{
+    font-size:11px;
+    color:#6b7280;
+}
+
+/* ================= TOPBAR ================= */
+
+.topbar{
+    position:fixed;
+    left:250px;
+    right:0;
+    height:70px;
+    background:#0b0b0b;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 25px;
+    border-bottom:1px solid #111;
+    z-index:100;
+}
+
+/* SEARCH */
+
+.search-box{
+    display:flex;
+    align-items:center;
+
+    background:linear-gradient(
+        135deg,
+        #0f172a,
+        #020617
+    );
+
+    padding:10px 15px;
+
+    border-radius:14px;
+
+    width:320px;
+
+    border:1px solid #1f2937;
+
+    gap:10px;
+
+    transition:.2s;
+}
+
+.search-box input{
+    flex:1;
+    background:transparent;
+    border:none;
+    outline:none;
+    color:#fff;
+    font-size:14px;
+}
+
+.search-box input::placeholder{
+    color:#9ca3af;
+}
+
+.search-icon{
+    color:#60a5fa;
+    font-size:22px;
+    cursor:pointer;
+}
+
+.search-box:hover{
+    border-color:#3b82f6;
+
+    box-shadow:
+        0 0 8px rgba(59,130,246,.2);
+}
+
+/* NEW BUTTON */
+
+.new-btn{
+    height:42px;
+    padding:0 18px;
+
+    border:none;
+    text-decoration: none;
+
+    border-radius:10px;
+
+    background:#2563eb;
+
+    color:#fff;
+
+    font-size:13px;
+    font-weight:600;
+
+    cursor:pointer;
+
+    display:flex;
+    align-items:center;
+    gap:8px;
+
+    transition:.2s;
+}
+
+.new-btn:hover{
+    background:#1d4ed8;
+}
+
+/* ================= MAIN ================= */
+
+.main{
+    margin-left:240px;
+    padding:100px 30px;
+}
+
+/* HEADER */
+
+h1{
+    font-size:28px;
+    font-weight:700;
+}
+
+.sub{
+    color:#6b7280;
+    margin-bottom:20px;
+}
+
+/* ================= CARDS ================= */
+
+.cards{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:20px;
+    margin-bottom:30px;
+}
+
+.card{
+    background:#111;
+    padding:20px;
+    border-radius:12px;
+    border:1px solid #1f2937;
+}
+
+.card-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.card small{
+    font-size:11px;
+    letter-spacing:1px;
+    color:#6b7280;
+}
+
+.card h2{
+    margin-top:12px;
+    font-size:26px;
+    font-weight:700;
+}
+
+.icon{
+    font-size:20px;
+}
+
+.icon.blue{color:#3b82f6;}
+.icon.green{color:#10b981;}
+.icon.red{color:#ef4444;}
+.icon.purple{color:#a855f7;}
+
+/* ================= TABLE ================= */
+
+.product-box{
+    background:#0b0b0b;
+    border:1px solid #1f2937;
+    border-radius:14px;
+    overflow:hidden;
+}
+
+/* HEADER */
+
+.box-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+
+    padding:18px 20px;
+
+    border-bottom:1px solid #1f2937;
+}
+
+.box-title{
+    display:flex;
+    align-items:center;
+    gap:10px;
+
+    font-size:20px;
+    font-weight:700;
+}
+
+.box-title span{
+    color:#3b82f6;
+}
+
+.total-items{
+    color:#6b7280;
+    font-size:12px;
+}
+
+/* FILTERS */
+
+.filters{
+    display:flex;
+    gap:15px;
+
+    padding:18px 20px;
+
+    border-bottom:1px solid #111;
+}
+
+/* FILTER SEARCH */
+
+.filter-search{
+    flex:1;
+
+    display:flex;
+    align-items:center;
+    gap:10px;
+
+    background:#0f172a;
+
+    border:1px solid #1f2937;
+
+    border-radius:12px;
+
+    padding:0 14px;
+
+    height:42px;
+}
+
+.filter-search input{
+    flex:1;
+    background:none;
+    border:none;
+    outline:none;
+    color:#fff;
+}
+
+.filter-search span{
+    color:#60a5fa;
+}
+
+/* SELECT */
+
+.filter-select{
+    width:180px;
+    height:42px;
+
+    background:#0f172a;
+
+    border:1px solid #1f2937;
+
+    border-radius:12px;
+
+    color:#fff;
+
+    padding:0 12px;
+
+    outline:none;
+}
+
+/* TABLE HEADER */
+
+/* TABLE HEADER */
+
+.t-head{
+
+    display:grid;
+
+    grid-template-columns:
+    1.4fr
+    .9fr
+    1fr
+    .9fr
+    .8fr
+    .9fr
+    1fr;
+
+    padding:18px 24px;
+
+    align-items:center;
+
+    background:#0b1220;
+
+    color:#6b7280;
+
+    font-size:12px;
+
+    border-bottom:1px solid #1f2937;
+}
+
+/* ROW */
+
+.t-row{
+
+    display:grid;
+
+    grid-template-columns:
+    1.4fr
+    .9fr
+    1fr
+    .9fr
+    .8fr
+    .9fr
+    1fr;
+
+    padding:22px 24px;
+
+    align-items:center;
+
+    border-bottom:1px solid #111;
+
+    transition:.2s;
+}
+
+.t-row:hover{
+    background:#111827;
+}
+
+/* IMAGE */
+
+.product-img{
+    width:50px;
+    height:50px;
+
+    border-radius:8px;
+
+    object-fit:cover;
+}
+
+/* PRODUCT */
+
+.product-name{
+
+    font-size:15px;
+
+    font-weight:600;
+
+    line-height:1.4;
+
+    max-width:120px;
+
+    word-break:break-word;
+}
+
+
+/* PRICE */
+
+.price{
+    font-weight:700;
+}
+
+/* STATUS */
+
+.badge{
+    display:flex;
+    align-items:center;
+    gap:6px;
+
+    width:fit-content;
+
+    padding:4px 10px;
+
+    border-radius:20px;
+
+    background:#064e3b;
+
+    color:#10b981;
+
+    font-size:11px;
+}
+
+.dot{
+    width:6px;
+    height:6px;
+    border-radius:50%;
+    background:#10b981;
+}
+
+/* ACTIONS */
+
+.actions{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    justify-content:flex-start;
+}
+
+.action-btn{
+    width:30px;
+    height:30px;
+
+    border-radius:8px;
+
+    background:#111827;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    color:#9ca3af;
+
+    text-decoration:none;
+
+    transition:.2s;
+}
+
+.action-btn:hover{
+    background:#1e293b;
+    color:#fff;
+}
+
+/* FOOTER */
+
+.footer{
+    padding:15px 20px;
+
+    font-size:12px;
+
+    color:#6b7280;
+
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+/* PAGINATION */
+
+.pages{
+    display:flex;
+    align-items:center;
+}
+
+.pages span{
+    margin:0 5px;
+    padding:5px 10px;
+
+    background:#111;
+
+    border-radius:5px;
+
+    cursor:pointer;
+}
+
+.pages .active{
+    background:#2563eb;
+}
+
+/* ================= TOAST ================= */
+
+#toast-container{
+    position:fixed;
+    top:20px;
+    right:20px;
+    z-index:9999;
+}
+
+.toast{
+    background:#0b1220;
+    color:#fff;
+    padding:14px 18px;
+    margin-bottom:10px;
+    border-radius:10px;
+    font-size:13px;
+    min-width:220px;
+    box-shadow:0 8px 25px rgba(0,0,0,.4);
+    border-left:4px solid;
+    animation:slideIn .3s ease;
+}
+
+.toast.success{
+    border-color:#22c55e;
+}
+
+.toast.error{
+    border-color:#ef4444;
+}
+
+@keyframes slideIn{
+
+    from{
+        opacity:0;
+        transform:translateX(50px);
+    }
+
+    to{
+        opacity:1;
+        transform:translateX(0);
+    }
+
+}
+
+/* ================= MOBILE ================= */
+
+@media(max-width:1200px){
+
+    .sidebar{
+        width:80px;
+    }
+
+    .main{
+        margin-left:80px;
+    }
+
+    .topbar{
+        left:80px;
+    }
+
+    .menu a{
+        justify-content:center;
+    }
+
+    .menu a p,
+    .sublogo{
+        display:none;
+    }
+
+}
+/* ================= TOAST ================= */
+
+#toast-container{
+
+    position:fixed;
+
+    top:20px;
+
+    right:20px;
+
+    z-index:99999;
+}
+
+.toast{
+
+    min-width:280px;
+
+    background:#0f172a;
+
+    border:1px solid #1e293b;
+
+    color:#fff;
+
+    padding:14px 16px;
+
+    margin-bottom:12px;
+
+    border-radius:12px;
+
+    display:flex;
+
+    align-items:center;
+
+    gap:12px;
+
+    box-shadow:
+        0 10px 30px rgba(0,0,0,.5);
+
+    animation:slideIn .35s ease;
+
+    font-size:13px;
+
+    font-weight:500;
+}
+
+/* SUCCESS */
+
+.toast.success{
+    border-left:4px solid #22c55e;
+}
+
+/* ERROR */
+
+.toast.error{
+    border-left:4px solid #ef4444;
+}
+
+/* ICON */
+
+.toast-icon{
+    font-size:20px;
+}
+
+/* SUCCESS ICON */
+
+.toast.success .toast-icon{
+    color:#22c55e;
+}
+
+/* ERROR ICON */
+
+.toast.error .toast-icon{
+    color:#ef4444;
+}
+
+/* ANIMATION */
+
+@keyframes slideIn{
+
+    from{
+        opacity:0;
+        transform:translateX(60px);
+    }
+
+    to{
+        opacity:1;
+        transform:translateX(0);
+    }
+
+}
+
+</style>
+</head>
+
+<body>
+    {% if messages %}
+
+<div id="toast-container">
+
+    {% for message in messages %}
+
+        <div class="toast {{ message.tags }}">
+
+            <span class="material-symbols-outlined toast-icon">
+
+                {% if message.tags == 'success' %}
+                    check_circle
+                {% elif message.tags == 'error' %}
+                    error
+                {% else %}
+                    info
+                {% endif %}
+
+            </span>
+
+            <span>{{ message }}</span>
+
+        </div>
+
+    {% endfor %}
+
+</div>
+
+{% endif %}
+
+<!-- SIDEBAR -->
+
+<div class="sidebar">
+
+    <div>
+
+        <div class="logo">CORNER KICK</div>
+
+        <div class="sublogo">
+            PRODUCT MANAGEMENT
+        </div>
+
+        <div class="menu">
+
+            <a href="{% url 'admin_dashboard' %}">
+
+                <span class="material-symbols-outlined">
+                    dashboard
+                </span>
+
+                Dashboard
+
+            </a>
+
+            <a>
+
+                <span class="material-symbols-outlined">
+                    shopping_cart
+                </span>
+
+                Orders
+
+            </a>
+
+            <a class="active">
+
+                <span class="material-symbols-outlined">
+                    inventory_2
+                </span>
+
+                Products
+
+            </a>
+
+            <a href="{% url 'category_management' %}">
+
+                <span class="material-symbols-outlined">
+                    category
+                </span>
+
+                Categories
+
+            </a>
+
+            <a>
+
+                <span class="material-symbols-outlined">
+                    confirmation_number
+                </span>
+
+                Coupons
+
+            </a>
+
+            <a>
+
+                <span class="material-symbols-outlined">
+                    local_offer
+                </span>
+
+                Offers
+
+            </a>
+
+            <a href="{% url 'user_management' %}">
+
+                <span class="material-symbols-outlined">
+                    group
+                </span>
+
+                Customers
+
+            </a>
+
+            <a>
+
+                <span class="material-symbols-outlined">
+                    assignment_return
+                </span>
+
+                Returns
+
+            </a>
+
+            <a>
+
+                <span class="material-symbols-outlined">
+                    rate_review
+                </span>
+
+                Reviews
+
+            </a>
+
+            <a>
+
+                <span class="material-symbols-outlined">
+                    campaign
+                </span>
+
+                Banners
+
+            </a>
+
+        </div>
+
+    </div>
+
+    <!-- FOOTER -->
+
+    <div class="sidebar-footer">
+
+        <div class="user-box">
+
+            <img src="{% static 'images/default.png' %}">
+
+            <div>
+
+                <div class="user-name">
+                    Admin User
+                </div>
+
+                <div class="user-role">
+                    System Admin
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- TOPBAR -->
+
+<div class="topbar">
+
+    <form class="search-box">
+
+        <input
+            type="text"
+            placeholder="Search products..."
+        >
+
+        <span class="material-symbols-outlined search-icon">
+            search
+        </span>
+
+    </form>
+
+    <a
+href="{% url 'admin_products:add_product' %}"
+class="new-btn"
+>
+
+    <span class="material-symbols-outlined">
+        add
+    </span>
+
+    Add Product
+
+</a>
+
+</div>
+
+<!-- MAIN -->
+
+<div class="main">
+
+    <h1>Product Management</h1>
+
+    <p class="sub">
+        Manage your sports inventory products
+    </p>
+
+    <!-- CARDS -->
+
+    <div class="cards">
+
+        <div class="card">
+
+            <div class="card-top">
+
+                <small>TOTAL PRODUCTS</small>
+
+                <span class="icon blue material-symbols-outlined">
+                    inventory_2
+                </span>
+
+            </div>
+
+            <h2>{{ total_products }}</h2>
+
+        </div>
+
+        <div class="card">
+
+            <div class="card-top">
+
+                <small>ACTIVE PRODUCTS</small>
+
+                <span class="icon green material-symbols-outlined">
+                    check_circle
+                </span>
+
+            </div>
+
+           <h2>{{ active_products }}</h2>
+
+        </div>
+
+        <div class="card">
+
+            <div class="card-top">
+
+                <small>OUT OF STOCK</small>
+
+                <span class="icon red material-symbols-outlined">
+                    production_quantity_limits
+                </span>
+
+            </div>
+
+            <h2>{{ out_of_stock }}</h2>
+
+        </div>
+
+        <div class="card">
+
+            <div class="card-top">
+
+                <small>NEW PRODUCTS</small>
+
+                <span class="icon purple material-symbols-outlined">
+                    add_box
+                </span>
+
+            </div>
+
+           <h2>{{ new_products }}</h2>
+
+        </div>
+
+    </div>
+
+    <!-- PRODUCT TABLE -->
+
+    <div class="product-box">
+
+        <!-- FILTERS -->
+
+            <form method="GET" class="filters">
+
+    <!-- SEARCH -->
+
+    <div class="filter-search">
+
+        <span class="material-symbols-outlined">
+            search
+        </span>
+
+        <input
+            type="text"
+            name="search"
+            value="{{ search }}"
+            placeholder="Search by product name..."
+        >
+
+    </div>
+
+    <!-- CATEGORY -->
+
+    <select
+        name="category"
+        class="filter-select"
+        onchange="this.form.submit()"
+    >
+
+        <option value="">
+            All Categories
+        </option>
+
+        {% for category in categories %}
+
+            <option
+                value="{{ category.id }}"
+                {% if category_id == category.id|stringformat:"s" %}
+                    selected
+                {% endif %}
+            >
+
+                {{ category.category_name }}
+
+            </option>
+
+        {% endfor %}
+
+    </select>
+
+    <!-- STATUS -->
+
+    <select
+        name="status"
+        class="filter-select"
+        onchange="this.form.submit()"
+    >
+
+        <option value="">
+            All Status
+        </option>
+
+        <option
+            value="active"
+            {% if status == 'active' %}
+                selected
+            {% endif %}
+        >
+            Active
+        </option>
+
+        <option
+            value="inactive"
+            {% if status == 'inactive' %}
+                selected
+            {% endif %}
+        >
+            Inactive
+        </option>
+
+    </select>
+
+</form>
+
+        <!-- TABLE HEADER -->
+
+        <div class="t-head">
+
+            <span>PRODUCT</span>
+
+            <span>IMAGE</span>
+
+            <span>CATEGORY</span>
+
+            <span>PRICE</span>
+
+            <span>STOCK</span>
+
+            <span>STATUS</span>
+
+            <span>ACTIONS</span>
+
+        </div>
+
+        <!-- ROW -->
+
+        {% for product in page_obj %}
+
+<div class="t-row">
+
+    <!-- PRODUCT NAME -->
+
+    <div>
+
+        <div class="product-name">
+
+            {{ product.product_name }}
+
+        </div>
+
+    
+
+    </div>
+
+    <!-- IMAGE -->
+
+    <div>
+
+        {% with variant=product.variants.first %}
+            {% with image=variant.images.first %}
+
+                {% if image %}
+
+                    <img
+                    src="{{ image.image.url }}"
+                    class="product-img">
+
+                {% else %}
+
+                    <img
+                    src="{% static 'images/default.png' %}"
+                    class="product-img">
+
+                {% endif %}
+
+            {% endwith %}
+        {% endwith %}
+
+    </div>
+
+
+    <!-- CATEGORY -->
+
+    <span>
+
+        {{ product.category.category_name }}
+
+    </span>
+
+    <!-- PRICE -->
+
+    <span class="price">
+
+        {% with variant=product.variants.first %}
+
+    {% if variant %}
+        ₹{{ variant.price }}
+    {% else %}
+        ₹0
+    {% endif %}
+
+{% endwith %}
+
+    </span>
+
+    <!-- STOCK -->
+
+    <span>
+
+        {{ product.total_stock }}
+
+    </span>
+
+    <!-- STATUS -->
+
+    <div class="badge">
+
+        <span class="dot"></span>
+
+        {% if product.is_active %}
+            ACTIVE
+        {% else %}
+            INACTIVE
+        {% endif %}
+
+    </div>
+
+    <!-- ACTIONS -->
+
+    <div class="actions">
+
+        <!-- VIEW -->
+
+        <a
+        href="{% url 'admin_products:variant_management' product.id %}"
+        class="action-btn">
+
+          <span class="material-symbols-outlined">
+    inventory_2
+</span>
+
+        </a>
+
+        <!-- EDIT -->
+            <a
+            href="{% url 'admin_products:edit_product' product.id %}"
+            class="action-btn">
+
+            <span class="material-symbols-outlined">
+                edit
+            </span>
+
+        </a>
+
+        <!-- DELETE -->
+
+       <a
+    href="{% url 'admin_products:delete_product' product.id %}"
+    class="action-btn delete-btn"
+>
+
+    <span class="material-symbols-outlined">
+        delete
+    </span>
+
+</a>
+
+    </div>
+
+</div>
+
+{% empty %}
+
+<div
+style="
+padding:80px;
+text-align:center;
+color:#6b7280;
+">
+
+    No products found
+
+</div>
+
+{% endfor %}
+        <!-- FOOTER -->
+
+       <div class="footer">
+
+    <span>
+
+        Showing
+        {{ page_obj.start_index }}
+        to
+        {{ page_obj.end_index }}
+        of
+        {{ page_obj.paginator.count }}
+        products
+
+    </span>
+
+    <div class="pages">
+
+        {% if page_obj.has_previous %}
+
+            <a
+            href="?page={{ page_obj.previous_page_number }}"
+            class="action-btn">
+
+                «
+
+            </a>
+
+        {% endif %}
+
+        {% for num in page_obj.paginator.page_range %}
+
+            {% if page_obj.number == num %}
+
+                <span class="active">
+
+                    {{ num }}
+
+                </span>
+
+            {% else %}
+
+                <a
+                href="?page={{ num }}"
+                class="action-btn">
+
+                    {{ num }}
+
+                </a>
+
+            {% endif %}
+
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+
+            <a
+            href="?page={{ page_obj.next_page_number }}"
+            class="action-btn">
+
+                »
+
+            </a>
+
+        {% endif %}
+
+    </div>
+
+</div>
+    </div>
+
+</div>
+<script>
+
+setTimeout(() => {
+
+    const toasts =
+        document.querySelectorAll('.toast');
+
+    toasts.forEach((toast) => {
+
+        toast.style.opacity = '0';
+
+        toast.style.transform =
+            'translateX(50px)';
+
+    });
+
+    setTimeout(() => {
+
+        const container =
+            document.getElementById(
+                'toast-container'
+            );
+
+        if(container){
+            container.remove();
+        }
+
+    }, 500);
+
+}, 2500);
+
+</script>
+</body>
+</html>

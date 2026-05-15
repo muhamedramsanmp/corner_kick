@@ -135,6 +135,15 @@ body {
     .left{display:none;}
     .right{width:100%;}
 }
+.error-msg{
+    background:#fee2e2;
+    color:#dc2626;
+    padding:10px;
+    border-radius:8px;
+    font-size:13px;
+    margin-bottom:15px;
+    text-align:center;
+}
 </style>
 
 </head>
@@ -156,10 +165,18 @@ body {
     <h3 class="logo">CORNER KICK</h3>
 
     <h2>Verify OTP</h2>
-    <p class="desc">Enter the 4-digit code sent to your email</p>
+    <p class="desc">Enter the 6-digit code sent to your email</p>
 
     <form method="POST">
         {% csrf_token %}
+
+          {% if messages %}
+    {% for message in messages %}
+        <div class="error-msg">
+            {{ message }}
+        </div>
+    {% endfor %}
+{% endif %}
 
         <!-- OTP INPUTS -->
         <div class="otp">
@@ -167,17 +184,20 @@ body {
             <input type="text" name="otp2" maxlength="1" required>
             <input type="text" name="otp3" maxlength="1" required>
             <input type="text" name="otp4" maxlength="1" required>
+            <input type="text" name="otp5" maxlength="1" required>
+            <input type="text" name="otp6" maxlength="1" required>
         </div>
+      
 
         <!-- TIMER -->
        <div class="timer">
-            <span id="timer">01:00</span>
-            <a href="{% url 'resend_otp' %}" id="resend" style="display:none;">Resend</a>
+            <span id="timer">{{ time_left }}</span>
+            
         </div>
         <button type="submit" class="btn">VERIFY</button>
 
         <div class="footer">
-            Didn’t receive the code? <a href="#">Resend</a>
+            Didn’t receive the code?<a href="{% url 'resend_otp' %}" id="resend" style="display:none; text-decoration:none;"> Resend</a>
         </div>
 
     </form>
@@ -199,27 +219,35 @@ inputs.forEach((input, index) => {
 });
 </script>
 
-
 <script>
-let timeLeft = 60;
 
 const timerElement = document.getElementById("timer");
 const resendBtn = document.getElementById("resend");
 
-// 🔥 create message element
-const message = document.createElement("div");
-message.style.color = "red";
-message.style.fontSize = "12px";
-message.style.marginTop = "5px";
-timerElement.parentElement.appendChild(message);
+let timeLeft = parseInt(timerElement.innerText);
 
-function startTimer() {
+// already expired after refresh
+if (timeLeft <= 0){
+
+    timerElement.textContent = "Expired";
+
+    resendBtn.style.display = "inline";
+
+    document.querySelector(".btn").disabled = true;
+
+    document.querySelectorAll(".otp input").forEach(input => {
+        input.disabled = true;
+    });
+
+}
+else{
+
     resendBtn.style.display = "none";
-    message.textContent = "";
-    timeLeft = 60;
 
     const timerInterval = setInterval(() => {
+
         let minutes = Math.floor(timeLeft / 60);
+
         let seconds = timeLeft % 60;
 
         seconds = seconds < 10 ? "0" + seconds : seconds;
@@ -227,21 +255,27 @@ function startTimer() {
         timerElement.textContent = `${minutes}:${seconds}`;
 
         if (timeLeft <= 0) {
+
             clearInterval(timerInterval);
 
-            timerElement.textContent = "00:00";
+            timerElement.textContent = "Expired";
+
             resendBtn.style.display = "inline";
 
-            // 🔥 SHOW MESSAGE
-            message.textContent = "OTP expired. You can request a new one.";
+            document.querySelector(".btn").disabled = true;
+
+            document.querySelectorAll(".otp input").forEach(input => {
+                input.disabled = true;
+            });
+
         }
 
         timeLeft--;
+
     }, 1000);
+
 }
 
-startTimer();
 </script>
-
 </body>
 </html>

@@ -1,0 +1,427 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+
+<meta http-equiv="Pragma" content="no-cache">
+
+<meta http-equiv="Expires" content="0">
+
+<title>Delete Product</title>
+
+<!-- GOOGLE FONTS -->
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<!-- ICONS -->
+
+<link
+href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined"
+rel="stylesheet">
+
+<style>
+
+/* =========================================
+                RESET
+========================================= */
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:'Inter',sans-serif;
+    overflow:hidden;
+    background:#0f172a;
+}
+
+/* =========================================
+            BLUR BACKGROUND
+========================================= */
+
+.bg{
+    position:fixed;
+    inset:0;
+
+    overflow:hidden;
+
+    z-index:1;
+}
+
+/* THIS MAKES PRODUCT PAGE BLUR */
+
+.bg-inner{
+    width:100%;
+    height:100%;
+
+    filter:blur(7px);
+
+    transform:scale(1.03);
+
+    pointer-events:none;
+}
+
+/* DARK OVERLAY */
+
+.bg::after{
+    content:"";
+
+    position:absolute;
+    inset:0;
+
+    background:rgba(2,6,23,.72);
+}
+
+/* =========================================
+                MODAL OVERLAY
+========================================= */
+
+.overlay{
+    position:fixed;
+    inset:0;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    z-index:10;
+
+    padding:20px;
+}
+
+/* =========================================
+                MODAL BOX
+========================================= */
+
+.modal{
+    width:430px;
+
+    background:#111827;
+
+    border-radius:24px;
+
+    padding:38px 32px 30px;
+
+    text-align:center;
+
+    position:relative;
+
+    border:1px solid rgba(255,255,255,.06);
+
+    box-shadow:
+    0 20px 60px rgba(0,0,0,.45);
+
+    animation:popup .25s ease;
+}
+
+/* POPUP ANIMATION */
+
+@keyframes popup{
+
+    from{
+        opacity:0;
+        transform:scale(.88);
+    }
+
+    to{
+        opacity:1;
+        transform:scale(1);
+    }
+
+}
+
+/* =========================================
+                CLOSE BUTTON
+========================================= */
+
+.close-btn{
+    position:absolute;
+
+    top:16px;
+    right:18px;
+
+    width:34px;
+    height:34px;
+
+    border:none;
+
+    border-radius:50%;
+
+    background:transparent;
+
+    color:#9ca3af;
+
+    cursor:pointer;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    transition:.3s;
+}
+
+.close-btn:hover{
+    background:rgba(255,255,255,.06);
+    color:white;
+}
+
+/* =========================================
+                    ICON
+========================================= */
+
+.icon{
+    width:78px;
+    height:78px;
+
+    margin:0 auto 24px;
+
+    border-radius:50%;
+
+    background:rgba(239,68,68,.12);
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+
+/* ICON STYLE */
+
+.icon span{
+    color:#ef4444;
+    font-size:34px;
+}
+
+/* =========================================
+                    TITLE
+========================================= */
+
+.modal h2{
+    font-size:30px;
+    font-weight:700;
+
+    color:white;
+
+    margin-bottom:14px;
+}
+
+/* =========================================
+                    TEXT
+========================================= */
+
+.modal p{
+    color:#9ca3af;
+
+    font-size:15px;
+
+    line-height:1.8;
+
+    margin-bottom:30px;
+}
+
+/* =========================================
+                BUTTON AREA
+========================================= */
+
+.buttons{
+    display:flex;
+    gap:14px;
+    
+}
+a{
+    text-decoration:none;
+}
+
+/* =========================================
+                CANCEL BUTTON
+========================================= */
+
+.cancel-btn{
+    flex:1;
+
+    height:52px;
+
+    border:none;
+
+    background:#1f2937;
+
+    border-radius:14px;
+
+    color:white;
+
+    font-size:14px;
+    font-weight:600;
+
+    cursor:pointer;
+
+    text-decoration:none;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    transition:.3s;
+}
+
+.cancel-btn:hover{
+    background:#374151;
+}
+
+/* =========================================
+                DELETE BUTTON
+========================================= */
+
+.delete-btn{
+    flex:1;
+
+    height:52px;
+
+    border:none;
+
+    background:#ef4444;
+
+    color:white;
+
+    border-radius:14px;
+
+    font-size:14px;
+    font-weight:600;
+
+    cursor:pointer;
+
+    transition:.3s;
+}
+
+.delete-btn:hover{
+    background:#dc2626;
+}
+
+/* =========================================
+                MOBILE
+========================================= */
+
+@media(max-width:500px){
+
+    .modal{
+        width:100%;
+        padding:34px 24px 26px;
+    }
+
+    .modal h2{
+        font-size:26px;
+    }
+
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- =========================================
+            PRODUCT MANAGEMENT BLUR
+========================================= -->
+
+<div class="bg">
+
+    <div class="bg-inner">
+
+        {% include "product_management.html" %}
+
+    </div>
+
+</div>
+
+<!-- =========================================
+                DELETE MODAL
+========================================= -->
+
+<div class="overlay">
+
+    <div class="modal">
+
+        <!-- CLOSE BUTTON -->
+
+        <a
+        href="{% url 'admin_products:product_management' %}"
+        class="close-btn">
+
+            <span class="material-symbols-outlined">
+                close
+            </span>
+
+        </a>
+
+        <!-- DELETE ICON -->
+
+        <div class="icon">
+
+            <span class="material-symbols-outlined">
+                delete
+            </span>
+
+        </div>
+
+        <!-- TITLE -->
+
+        <h2>
+            Delete Product?
+        </h2>
+
+        <!-- DESCRIPTION -->
+
+        <p>
+
+            This action cannot be undone.
+            The product will be permanently removed
+            from your store.
+
+        </p>
+
+        <!-- DELETE FORM -->
+
+        <form
+        method="POST"
+        action="{% url 'admin_products:delete_product' product.id %}">
+
+            {% csrf_token %}
+
+            <!-- BUTTONS -->
+
+            <div class="buttons">
+
+                <!-- CANCEL -->
+
+                <a
+                href="{% url 'admin_products:product_management' %}"
+                class="cancel-btn">
+
+                    Cancel
+
+                </a>
+
+                <!-- DELETE -->
+
+                <button
+                type="submit"
+                class="delete-btn">
+
+                    Delete
+
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+</body>
+</html>

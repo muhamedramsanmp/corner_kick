@@ -1,0 +1,131 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Delete Address</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:"Inter",sans-serif;
+}
+
+/* 🔥 BLURRED BACKGROUND */
+.bg{
+    position:fixed;
+    width:100%;
+    height:100%;
+    overflow:auto;
+    filter:blur(6px);
+    z-index:1;
+}
+
+/* 🔥 DARK OVERLAY */
+.overlay{
+    position:fixed;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,0.3);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    z-index:2;
+}
+
+/* 🔥 MODAL */
+.modal{
+    background:white;
+    padding:35px;
+    border-radius:12px;
+    width:360px;
+    text-align:center;
+    box-shadow:0 20px 40px rgba(0,0,0,0.2);
+}
+
+.icon{
+    width:60px;
+    height:60px;
+    background:#fcecec;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    margin:0 auto 20px;
+    color: #475569;
+    font-size:22px;
+}
+
+.btns{
+    display:flex;
+    gap:10px;
+    margin-top:20px;
+}
+
+.cancel{
+    flex:1;
+    padding:12px;
+    border:1px solid black;
+    background:white;
+    cursor:pointer;
+}
+
+.delete{
+    flex:1;
+    padding:12px;
+    background:#2563eb;
+    color:white;
+    border:none;
+    cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+
+<!-- 🔥 BACKGROUND (REAL ADDRESS PAGE) -->
+<div class="bg">
+    {% include "address.html" %}
+</div>
+
+<!-- 🔥 MODAL -->
+<div class="overlay">
+
+<div class="modal">
+
+    <div class="icon">
+        <i class="fa fa-trash"></i>
+    </div>
+
+    <h3>ARE YOU SURE YOU WANT TO DELETE THIS ADDRESS?</h3>
+    <p style="font-size:12px;color:gray;">This action cannot be undone.</p>
+
+    <form method="POST">
+        {% csrf_token %}
+
+        <div class="btns">
+
+            <button type="button" class="cancel"
+                onclick="window.location.href='{% url 'addressinfo:address_view' %}'">
+                CANCEL
+            </button>
+
+            <button type="submit" class="delete">
+                DELETE
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+</div>
+
+</body>
+</html>

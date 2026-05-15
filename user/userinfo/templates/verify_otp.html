@@ -1,0 +1,235 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Verify OTP</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Inter", sans-serif;
+}
+
+body {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(rgba(20,27,43,0.7), rgba(20,27,43,0.7)),
+    background-size: cover;
+    background: #eef2f7;
+}
+
+.card {
+    width: 100%;
+    max-width: 420px;
+    background: white;
+    padding: 30px;
+    border-radius: 14px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    text-align: center;
+}
+
+.icon-box {
+    width: 60px;
+    height: 60px;
+    margin: auto;
+    background: #eef2ff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 15px;
+}
+
+.title {
+    font-size: 22px;
+    font-weight: 700;
+}
+
+.desc {
+    font-size: 13px;
+    color: #64748b;
+    margin-bottom: 20px;
+}
+
+.otp-container {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.otp-container input {
+    width: 45px;
+    height: 50px;
+    text-align: center;
+    font-size: 18px;
+    border-radius: 8px;
+    border: none;
+    background: #eef2ff;
+}
+
+.timer {
+    font-size: 12px;
+    color: #64748b;
+    margin-bottom: 20px;
+}
+
+.btn {
+    width: 100%;
+    padding: 12px;
+    background: linear-gradient(90deg,#3a5bff,#5a78ff);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.links {
+    margin-top: 15px;
+    font-size: 12px;
+}
+
+.links a {
+    color: #2563eb;
+    text-decoration: none;
+}
+
+.error {
+    color: red;
+    font-size: 12px;
+    margin-bottom: 10px;
+}
+.btn {
+    display: inline-block;
+    width: 100%;
+    padding: 12px;
+    background: linear-gradient(90deg,#3a5bff,#5a78ff);
+    color: white;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+}
+.resend-btn {
+    background: none;
+    border: none;
+    color: #2563eb;
+    cursor: pointer;
+    font-size: 12px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+
+    <div class="icon-box">
+        <span class="material-symbols-outlined">mail</span>
+    </div>
+
+    <h2 class="title">Verify Email</h2>
+    <p class="desc">Enter the 6-digit code sent to your email</p>
+
+    <form method="POST">
+        {% csrf_token %}
+
+<div class="otp-container">
+    <input type="text" maxlength="1" name="otp1" required>
+    <input type="text" maxlength="1" name="otp2" required>
+    <input type="text" maxlength="1" name="otp3" required>
+    <input type="text" maxlength="1" name="otp4" required>
+    <input type="text" maxlength="1" name="otp5" required>
+    <input type="text" maxlength="1" name="otp6" required>
+</div>
+
+{% if error %}
+    <div class="error">
+        {{ error }}
+    </div>
+{% endif %}
+
+{% if messages %}
+    {% for message in messages %}
+        <div class="error">
+            {{ message }}
+        </div>
+    {% endfor %}
+{% endif %}
+
+        <div class="timer">
+    Code expires in <span id="timer">{{ time_left }}</span>s
+</div>
+
+        <button type="submit" class="btn">Verify OTP</button>
+
+    </form>
+
+    <div class="links">
+        <p>Didn't receive code? <form method="POST" action="{% url 'userinfo:resend_otp' %}">
+    {% csrf_token %}
+    <button type="submit" class="resend-btn">Resend</button>
+</form></p>
+    </div>
+
+</div>
+
+<script>
+const inputs = document.querySelectorAll(".otp-container input");
+const timerEl = document.getElementById("timer");
+const resendBtn = document.querySelector(".resend-btn");
+
+// auto move
+inputs.forEach((input, index) => {
+    input.addEventListener("input", () => {
+        if (input.value && index < inputs.length - 1) {
+            inputs[index + 1].focus();
+        }
+    });
+
+    input.addEventListener("keydown", (e) => {
+        if (e.key === "Backspace" && !input.value && index > 0) {
+            inputs[index - 1].focus();
+        }
+    });
+});
+
+// countdown
+let timeLeft = parseInt(timerEl.textContent);
+
+const countdown = setInterval(() => {
+    timeLeft--;
+    timerEl.textContent = timeLeft;
+
+    if (timeLeft <= 0) {
+        clearInterval(countdown);
+
+        // disable inputs
+        inputs.forEach(input => input.disabled = true);
+
+        // disable submit
+        document.querySelector(".btn").disabled = true;
+
+        // enable resend
+        if (resendBtn) resendBtn.disabled = false;
+
+        timerEl.innerHTML = "<span style='color:red'>Expired</span>";
+    }
+}, 1000);
+
+</script>
+
+
+</body>
+</html>

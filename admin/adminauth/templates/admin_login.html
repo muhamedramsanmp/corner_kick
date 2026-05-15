@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Admin Login</title>
+
+<style>
+/* RESET */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* BODY */
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background: radial-gradient(circle at top, #0a0f1c, #000);
+    color: #fff;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+/* TITLE */
+.title {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.title h1 {
+    font-size: 34px;
+    letter-spacing: 3px;
+    font-weight: 700;
+}
+
+.title p {
+    font-size: 13px;
+    color: #6ec1ff;
+    margin-top: 5px;
+}
+
+/* LOGIN CARD */
+.login-box {
+    background: #0f172a;
+    padding: 30px;
+    width: 350px;
+    border-radius: 12px;
+    box-shadow: 0 0 25px rgba(0, 140, 255, 0.15);
+}
+
+/* LABEL */
+label {
+    font-size: 11px;
+    color: #aaa;
+    letter-spacing: 1px;
+    display: block;
+    margin-bottom: 6px;
+}
+
+/* INPUT */
+input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 18px;
+    border-radius: 6px;
+    border: none;
+    outline: none;
+    background: #e5e7eb;
+    font-size: 14px;
+}
+
+.password-field {
+    position: relative;
+}
+
+.password-field input {
+    padding-right: 40px; /* space for icon */
+}
+
+.password-field span {
+    position: absolute;
+    right: 12px;
+    top: 35%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    font-size: 16px;
+    color: #555;
+}
+
+
+/* BUTTON */
+button {
+    width: 100%;
+    padding: 12px;
+    background: #2563eb;
+    border: none;
+    border-radius: 6px;
+    color: #fff;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+button:hover {
+    background: #1d4ed8;
+}
+
+/* FOOTER TEXT */
+.bottom-text {
+    text-align: center;
+    font-size: 11px;
+    color: #666;
+    margin-top: 15px;
+    letter-spacing: 1px;
+}
+
+/* FOOTER */
+.footer {
+    position: absolute;
+    bottom: 20px;
+    text-align: center;
+    font-size: 12px;
+    color: #555;
+}
+
+.footer a {
+    color: #777;
+    margin: 0 10px;
+    text-decoration: none;
+}
+
+</style>
+
+</head>
+<body>
+
+<div class="title">
+    <h1>CORNER KICK<br>ADMIN PORTAL</h1>
+    <p>Secure access for authorized personnel only.</p>
+</div>
+
+<div class="login-box">
+    
+
+    <form method="POST">
+
+        <!-- Django CSRF -->
+        {% csrf_token %}
+
+        {% if messages %}
+    {% for message in messages %}
+        <div style="color:red; margin-bottom:10px;">
+            {{ message }}
+        </div>
+    {% endfor %}
+{% endif %}
+
+        <label>Email Address</label>
+        <input type="email" name="email" required>
+
+        <label>Password</label>
+        <div class="password-field">
+            <input type="password" name="password" id="password" required>
+            <span onclick="togglePassword()">👁</span>
+        </div>
+
+    
+
+        <button type="submit">Login to Dashboard →</button>
+
+        <div class="bottom-text">
+            AUTHORIZED ACCESS ONLY
+        </div>
+    </form>
+
+</div>
+
+
+<script>
+function togglePassword() {
+    const password = document.getElementById("password");
+    password.type = password.type === "password" ? "text" : "password";
+}
+</script>
+
+<script>
+window.history.pushState(null, "", window.location.href);
+window.onpopstate = function () {
+    window.history.pushState(null, "", window.location.href);
+};
+(function () {
+    const isLoggedIn = "{{ request.user.is_authenticated|yesno:'true,false' }}";
+    const isAdmin = "{{ request.user.is_staff|yesno:'true,false' }}";
+
+    if (isLoggedIn === "true" && isAdmin === "true") {
+        window.location.href = "{% url 'admin_dashboard' %}";
+    }
+})();
+</script>
+</body>
+</html>

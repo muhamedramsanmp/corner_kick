@@ -1,0 +1,252 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Delete Category</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+
+<style>
+
+/* ================= RESET ================= */
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:'Inter',sans-serif;
+    overflow:hidden;
+    background:#000;
+}
+
+/* ================= BACKGROUND ================= */
+
+.bg{
+    position:fixed;
+    inset:0;
+    overflow:hidden;
+    z-index:1;
+}
+
+.bg-inner{
+    width:100%;
+    height:100%;
+    filter:blur(2px);
+    transform:scale(1.02);
+    opacity:10;
+}
+
+.bg::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:rgba(0,0,0,.74);
+}
+
+/* ================= OVERLAY ================= */
+
+.overlay{
+    position:fixed;
+    inset:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index:5;
+    padding:14px;
+}
+
+/* ================= MODAL ================= */
+
+.modal{
+    width:330px;
+    background:#0b0b0b;
+    border:1px solid #1f2937;
+    border-radius:18px;
+    padding:28px 24px;
+    text-align:center;
+    box-shadow:0 25px 60px rgba(0,0,0,.6);
+}
+
+/* ================= ICON ================= */
+
+.delete-icon{
+    width:52px;
+    height:52px;
+    margin:auto;
+    margin-bottom:18px;
+    border-radius:50%;
+    background:rgba(127,29,29,.25);
+    border:1px solid rgba(239,68,68,.25);
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+
+.delete-icon span{
+    color:#ef4444;
+    font-size:24px;
+}
+
+/* ================= TITLE ================= */
+
+.modal h2{
+    color:#fff;
+    font-size:24px;
+    font-weight:700;
+    margin-bottom:10px;
+}
+
+/* ================= DESCRIPTION ================= */
+
+.modal p{
+    color:#ef4444;
+    font-size:13px;
+    line-height:1.7;
+    margin-bottom:28px;
+}
+
+/* ================= BUTTONS ================= */
+
+.buttons{
+    display:flex;
+    justify-content:center;
+    gap:12px;
+}
+
+/* CANCEL */
+
+.cancel-btn{
+    width:92px;
+    height:42px;
+    border-radius:10px;
+    border:1px solid #1f2937;
+    background:transparent;
+    color:#d1d5db;
+    font-size:13px;
+    font-weight:500;
+    cursor:pointer;
+    transition:.2s;
+}
+
+.cancel-btn:hover{
+    background:#111827;
+}
+
+/* DELETE */
+
+.delete-btn{
+    width:140px;
+    height:42px;
+    border:none;
+    border-radius:10px;
+    background:#ef4444;
+    color:#fff;
+    font-size:13px;
+    font-weight:600;
+    cursor:pointer;
+    transition:.2s;
+}
+
+.delete-btn:hover{
+    background:#dc2626;
+    transform:translateY(-1px);
+}
+
+/* ================= MOBILE ================= */
+
+@media(max-width:500px){
+
+    .modal{
+        width:100%;
+    }
+
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- ================= BACKGROUND ================= -->
+
+<div class="bg">
+
+    <div class="bg-inner">
+
+        {% include "category_management.html" %}
+
+    </div>
+
+</div>
+
+<!-- ================= MODAL ================= -->
+
+<div class="overlay">
+
+    <div class="modal">
+
+        <!-- ICON -->
+
+        <div class="delete-icon">
+
+            <span class="material-symbols-outlined">
+                delete
+            </span>
+
+        </div>
+
+        <!-- TITLE -->
+
+        <h2>Delete Category</h2>
+
+        <!-- DESCRIPTION -->
+
+        <p>
+            Are you sure you want to delete the
+            "<strong>{{ category.category_name }}</strong>" category?
+            This action cannot be undone.
+        </p>
+
+        <!-- FORM -->
+
+        <form method="POST">
+
+            {% csrf_token %}
+
+            <div class="buttons">
+
+                <button
+                    type="button"
+                    class="cancel-btn"
+                    onclick="location.href='{% url "category_management" %}'"
+                >
+                    Cancel
+                </button>
+
+                <button
+                    type="submit"
+                    class="delete-btn"
+                >
+                    Delete Category
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+</body>
+</html>
+
+

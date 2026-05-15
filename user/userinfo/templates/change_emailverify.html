@@ -1,0 +1,195 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Verify Email</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Inter',sans-serif;
+}
+
+body{
+    height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:#eef2f7;
+}
+
+.card{
+    width:100%;
+    max-width:420px;
+    background:#fff;
+    padding:30px;
+    border-radius:14px;
+    box-shadow:0 20px 40px rgba(0,0,0,0.15);
+    text-align:center;
+}
+
+.title{
+    font-size:22px;
+    font-weight:700;
+    margin-bottom:8px;
+}
+
+.desc{
+    font-size:13px;
+    color:#666;
+    margin-bottom:20px;
+}
+
+.otp-box{
+    display:flex;
+    justify-content:center;
+    gap:10px;
+    margin-bottom:20px;
+}
+
+.otp-box input{
+    width:45px;
+    height:50px;
+    text-align:center;
+    font-size:18px;
+    border-radius:8px;
+    border:none;
+    background:#eef2ff;
+}
+
+.timer{
+    font-size:12px;
+    color:#666;
+    margin-bottom:15px;
+}
+
+.error{
+    color:red;
+    font-size:12px;
+    margin-bottom:10px;
+}
+
+.btn{
+    width:100%;
+    padding:12px;
+    background:linear-gradient(90deg,#3a5bff,#5a78ff);
+    color:#fff;
+    border:none;
+    border-radius:8px;
+    font-weight:600;
+    cursor:pointer;
+}
+
+.resend{
+    margin-top:15px;
+    font-size:12px;
+}
+
+.resend button{
+    background:none;
+    border:none;
+    color:#2563eb;
+    cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+
+    <h2 class="title">Verify Email</h2>
+    <p class="desc">Enter the 6-digit code sent to your email</p>
+
+    <form method="POST">
+        {% csrf_token %}
+
+        <div class="otp-box">
+            <input type="text" maxlength="1" name="otp1" required>
+            <input type="text" maxlength="1" name="otp2" required>
+            <input type="text" maxlength="1" name="otp3" required>
+            <input type="text" maxlength="1" name="otp4" required>
+            <input type="text" maxlength="1" name="otp5" required>
+            <input type="text" maxlength="1" name="otp6" required>
+        </div>
+
+        {% if error %}
+            <div class="error">{{ error }}</div>
+        {% endif %}
+
+        <div class="timer">
+            Code expires in <span id="time">{{ time_left }}</span>s
+        </div>
+
+        <button type="submit" class="btn">Verify OTP</button>
+
+    </form>
+
+    <div class="resend">
+        Didn’t receive code?
+        <form method="POST" action="{% url 'userinfo:resend_change_email' %}">
+            {% csrf_token %}
+            <button id="resendBtn" disabled>Resend</button>
+        </form>
+    </div>
+
+</div>
+
+<script>
+const inputs = document.querySelectorAll(".otp-box input");
+
+inputs.forEach((input, index) => {
+
+    input.addEventListener("input", () => {
+        if (input.value && index < inputs.length - 1) {
+            inputs[index + 1].focus();
+        }
+    });
+
+    input.addEventListener("keydown", (e) => {
+        if (e.key === "Backspace" && !input.value && index > 0) {
+            inputs[index - 1].focus();
+        }
+    });
+
+});
+
+const timer = document.getElementById("time");
+const resendBtn = document.getElementById("resendBtn");
+
+let time = parseInt(timer.innerText);
+
+const interval = setInterval(() => {
+
+    time--;
+
+    timer.innerText = time;
+
+    if (time <= 0) {
+
+        clearInterval(interval);
+
+        timer.innerHTML = "Expired";
+
+        resendBtn.disabled = false;
+
+        document.querySelector(".btn").disabled = true;
+
+        document.querySelectorAll(".otp-box input").forEach(input => {
+            input.disabled = true;
+        });
+
+    }
+
+}, 1000);
+
+</script>
+
+</body>
+</html>

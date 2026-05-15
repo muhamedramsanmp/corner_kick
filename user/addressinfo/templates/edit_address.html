@@ -1,0 +1,506 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+Edit Address
+{% endblock %}
+
+
+{% block extra_css %}
+<style>
+
+
+/* LAYOUT */
+.layout {
+    display: flex;
+}
+
+.sidebar {
+    width: 260px;
+    background: #f8fafc;
+    padding: 25px;
+}
+
+/* PROFILE */
+.profile-box {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.profile-img {
+    width: 55px;
+    height: 55px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.profile-name {
+    font-weight: 600;
+}
+
+.profile-role {
+    font-size: 12px;
+    color: #64748b;
+}
+
+/* TITLE */
+.menu-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: #6b7280;
+    margin-bottom: 15px;
+    letter-spacing: 2px;
+}
+
+/* SIDEBAR ITEMS */
+.sidebar-item {
+    display: flex;
+    align-items: center;   /* 🔥 FIX */
+    gap: 14px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    text-decoration: none;
+    color: #64748b;
+    font-weight: 600;
+    border-radius: 10px;
+    transition: 0.2s;
+    position: relative;
+}
+
+/* ICON */
+.icon {
+    width: 22px;
+    height: 22px;
+    display: flex;         /* 🔥 FIX */
+    align-items: center;   /* 🔥 FIX */
+    justify-content: center;
+    fill: currentColor;
+}
+
+/* HOVER */
+.sidebar-item:hover {
+    background: #e8edff;
+    color: #2563eb;
+}
+
+/* ACTIVE */
+.sidebar-item.active {
+    background: #eaf0ff;
+    color: #2563eb;
+}
+
+/* RIGHT BLUE LINE */
+.sidebar-item.active::after {
+    content: "";
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 100%;
+    width: 4px;
+    background: #2563eb;
+    border-radius: 4px;
+}
+
+/* MAIN */
+.main {
+    flex: 1;
+    padding: 40px;
+    display: flex;
+    justify-content: center;
+}
+
+/* CARD */
+.card {
+    width: 100%;
+    max-width: 850px;
+    background: white;
+    padding: 30px;
+    border-radius: 16px;
+}
+
+/* TITLE */
+.title {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 25px;
+    position: relative;
+}
+
+.title::after {
+    content: "";
+    width: 40px;
+    height: 3px;
+    background: #2563eb;
+    position: absolute;
+    left: 0;
+    bottom: -8px;
+}
+
+/* GRID */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+.full {
+    grid-column: span 2;
+}
+
+/* INPUT */
+label {
+    font-size: 11px;
+    color: #64748b;
+    font-weight: 600;
+}
+
+.form-input,
+.form-textarea{
+    width:100%;
+    padding:12px;
+    border-radius:8px;
+    border:none;
+    background:#eef2f7;
+    margin-top:5px;
+}
+
+textarea {
+    height: 80px;
+}
+
+/* ADDRESS TYPE */
+.type-group {
+    margin-top: 20px;
+}
+
+.type-group label {
+    margin-right: 10px;
+    padding: 8px 16px;
+    border-radius: 20px;
+    background: #e2e8f0;
+    cursor: pointer;
+}
+
+input[type="radio"]:checked + label {
+    background: #2563eb;
+    color: white;
+}
+
+/* TOGGLE */
+.toggle {
+    display: flex;
+    align-items: center;
+    margin-top: 20px;
+    gap: 10px;
+}
+
+.switch {
+    position: relative;
+    width: 40px;
+    height: 20px;
+}
+
+.switch input {
+    display: none;
+}
+
+.slider {
+    position: absolute;
+    background: #cbd5e1;
+    border-radius: 20px;
+    width: 100%;
+    height: 100%;
+}
+
+.slider::before {
+    content: "";
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    background: white;
+    border-radius: 50%;
+    top: 2px;
+    left: 2px;
+}
+
+input:checked + .slider {
+    background: #2563eb;
+}
+
+input:checked + .slider::before {
+    transform: translateX(20px);
+}
+
+/* BUTTONS */
+.actions {
+    margin-top: 25px;
+    display: flex;
+    gap: 15px;
+}
+
+.save-btn {
+    padding: 12px 22px;
+    background: #2563eb;
+    color: white;
+    border-radius: 8px;
+    border: none;
+}
+
+.cancel-btn {
+    padding: 12px 22px;
+    color: black;
+    border-radius: 8px;
+    text-decoration: none;
+}
+
+/* FOOTER */
+.footer {
+    background: #f1f5f9;
+    padding: 50px 20px;
+    margin-top: 80px;
+    text-align: center;
+}
+
+/* CONTAINER */
+.footer-container {
+    max-width: 900px;
+    margin: auto;
+}
+
+/* LOGO */
+.footer-logo {
+    font-size: 18px;
+    font-weight: 800;
+    color: #94a3b8;
+    font-style: italic;
+    margin-bottom: 20px;
+}
+
+/* LINKS */
+.footer-links {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+
+.footer-links a {
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #94a3b8;
+    text-decoration: none;
+    transition: 0.2s;
+}
+
+.footer-links a:hover {
+    color: #2563eb;
+}
+
+/* COPYRIGHT */
+.footer-copy {
+    font-size: 11px;
+    letter-spacing: 1px;
+    color: #cbd5e1;
+}
+/* HIDE RADIO */
+.type-group input[type="radio"] {
+    display: none;
+}
+
+/* BUTTON STYLE */
+.type-group {
+    display: flex;
+    gap: 12px;
+}
+
+.type-group label {
+    padding: 8px 18px;
+    border-radius: 20px;
+    background: #e2e8f0;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    transition: 0.2s;
+}
+
+/* ACTIVE */
+.type-group input:checked + label {
+    background: #2563eb;
+    color: white;
+}
+
+/* ALIGN ROW */
+.type-toggle-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 25px;
+}
+.form-input,
+.form-textarea{
+    width:100%;
+    padding:12px;
+    border-radius:8px;
+    border:none;
+    background:#eef2f7;
+    margin-top:5px;
+}
+/* TOGGLE FIX */
+.toggle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+}
+
+</style>
+{% endblock %}
+
+
+{% block content %}
+
+<body>
+
+
+<div class="layout">
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+
+    <div class="profile-box">
+        {% if user.profile.image %}
+            <img src="{{ user.profile.image.url }}?{{ user.profile.image.name }}" class="profile-img">
+        {% else %}
+            <img src="/media/default.png" class="profile-img">
+        {% endif %}
+
+        <div>
+            <div class="profile-name">{{ user.first_name }}</div>
+            <div class="profile-role">PRO MEMBER</div>
+        </div>
+    </div>
+
+    <div class="menu-title">ACCOUNT SETTINGS</div>
+
+    <a href="#" class="sidebar-item">
+        <span class="material-symbols-outlined">person</span>
+        PROFILE
+    </a>
+
+    <a href="#" class="sidebar-item active">
+        <span class="material-symbols-outlined">location_on</span>
+        ADDRESS
+    </a>
+
+    <a href="#" class="sidebar-item">
+        <span class="material-symbols-outlined">shopping_bag</span>
+        MY ORDERS
+    </a>
+
+    <a href="#" class="sidebar-item">
+        <span class="material-symbols-outlined">favorite</span>
+        WISHLIST
+    </a>
+
+    <a href="#" class="sidebar-item">
+        <span class="material-symbols-outlined">account_balance_wallet</span>
+        WALLET
+    </a>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+<div class="card">
+
+<div class="title">EDIT ADDRESS</div>
+
+<form method="POST">
+    {% csrf_token %}
+
+<div class="grid">
+
+<div>
+<label>FULL NAME</label>
+<input type="text" name="full_name" class="form-input" value="{{ address.full_name }}">
+</div>
+
+<div>
+<label>MOBILE NUMBER</label>
+<input type="text" name="phone" class="form-input" value="{{ address.phone }}">
+</div>
+
+<div>
+<label>PINCODE</label>
+<input type="text" name="pincode" class="form-input" value="{{ address.pincode }}">
+</div>
+
+<div>
+<label>CITY</label>
+<input type="text" name="city" class="form-input" value="{{ address.city }}">
+</div>
+
+<div>
+<label>STATE</label>
+<input type="text" name="state" class="form-input" value="{{ address.state }}"></div>
+
+<div>
+<label>COUNTRY</label>
+<input type="text" name="country" class="form-input" value="{{ address.country }}">
+</div>
+
+<div class="full">
+<label>ADDRESS (AREA AND STREET)</label>
+<textarea name="address_line" class="form-textarea">{{ address.address_line }}</textarea>
+</div>
+
+</div>
+
+<!-- TYPE -->
+<div class="type-toggle-row">
+
+    <div class="type-group">
+        <input type="radio" id="home" name="address_type" value="home"
+        {% if address.address_type == "home" %}checked{% endif %}>
+        <label for="home">HOME</label>
+
+        <input type="radio" id="work" name="address_type" value="work"
+        {% if address.address_type == "work" %}checked{% endif %}>
+        <label for="work">WORK</label>
+
+        <input type="radio" id="other" name="address_type" value="other"
+        {% if address.address_type == "other" %}checked{% endif %}>
+        <label for="other">OTHER</label>
+    </div>
+
+    <div class="toggle">
+        <span>Set as default address</span>
+        <label class="switch">
+            <input type="checkbox" name="is_default"
+            {% if address.is_default %}checked{% endif %}>
+            <span class="slider"></span>
+        </label>
+    </div>
+
+</div>
+
+
+<!-- BUTTONS -->
+<div class="actions">
+<button type="submit" class="save-btn">SAVE ADDRESS</button>
+<a href="{% url "addressinfo:address_view" %}" class="cancel-btn">CANCEL</a>
+</div>
+
+</form>
+
+</div>
+
+</div>
+
+</div>
+
+{% endblock %}

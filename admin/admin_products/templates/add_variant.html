@@ -1,0 +1,1298 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Add Variant</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+<link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css"
+/>
+<style>
+
+/* ================= RESET ================= */
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+/* ================= BODY ================= */
+
+body{
+    font-family:'Inter',sans-serif;
+    overflow:hidden;
+    background:#000;
+}
+
+/* ================= BACKGROUND ================= */
+
+.bg{
+    position:fixed;
+    inset:0;
+    overflow:hidden;
+    z-index:1;
+}
+
+.bg-inner{
+    width:100%;
+    height:100%;
+
+    filter:blur(2px);
+
+    transform:scale(1.02);
+
+    opacity:1;
+}
+
+.bg::after{
+    content:"";
+
+    position:absolute;
+    inset:0;
+
+    background:rgba(0,0,0,.76);
+}
+
+/* ================= OVERLAY ================= */
+
+.overlay{
+    position:fixed;
+
+    inset:0;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    padding:30px;
+
+    z-index:5;
+
+    backdrop-filter:blur(6px);
+}
+
+/* ================= MODAL ================= */
+
+.modal{
+
+    width:680px;
+
+    max-width:95%;
+
+    max-height:92vh;
+
+    overflow-y:auto;
+
+    background:#0b0b0b;
+
+    border:1px solid #1f2937;
+
+    border-radius:28px;
+
+    padding:34px;
+
+    position:relative;
+
+    box-shadow:
+        0 30px 80px rgba(0,0,0,.7);
+
+    scrollbar-width:none;
+}
+
+.modal::-webkit-scrollbar{
+    display:none;
+}
+
+/* ================= CLOSE ================= */
+
+.close-btn{
+    position:absolute;
+
+    top:20px;
+    right:20px;
+
+    width:40px;
+    height:40px;
+
+    border:none;
+
+    border-radius:12px;
+
+    background:#111827;
+
+    color:#9ca3af;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    cursor:pointer;
+
+    transition:.25s;
+}
+
+.close-btn:hover{
+    background:#1f2937;
+    color:#fff;
+}
+
+/* ================= TITLE ================= */
+
+.modal h2{
+    font-size:30px;
+
+    font-weight:800;
+
+    color:#fff;
+
+    margin-bottom:8px;
+}
+
+.sub{
+    color:#6b7280;
+
+    font-size:13px;
+
+    margin-bottom:30px;
+
+    line-height:1.6;
+}
+
+/* ================= IMAGE GRID ================= */
+
+.image-grid{
+
+    display:grid;
+
+    grid-template-columns:
+    repeat(4,1fr);
+
+    gap:14px;
+
+    margin-bottom:28px;
+}
+
+/* IMAGE BOX */
+
+.image-box{
+
+    position:relative;
+
+    height:160px;
+
+    border-radius:20px;
+
+    background:#020b26;
+
+    border:1px solid #13204a;
+
+    overflow:hidden;
+
+    transition:.25s;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+}
+
+/* UPLOAD */
+
+.upload-box{
+    cursor:pointer;
+}
+
+.upload-box:hover{
+    border-color:#3b82f6;
+}
+
+.upload-box span{
+
+    font-size:34px;
+
+    color:#3b82f6;
+
+    margin-bottom:8px;
+}
+
+.upload-box p{
+
+    font-size:11px;
+
+    color:#94a3b8;
+
+    letter-spacing:1px;
+}
+
+.upload-box input{
+    display:none;
+}
+
+/* ================= ROW ================= */
+
+.row{
+
+    display:grid;
+
+    grid-template-columns:
+    1fr 1fr;
+
+    gap:18px;
+}
+
+/* ================= FIELD ================= */
+
+.field{
+    margin-bottom:24px;
+}
+
+.field label{
+
+    display:block;
+
+    margin-bottom:8px;
+
+    font-size:11px;
+
+    font-weight:700;
+
+    letter-spacing:1px;
+
+    color:#9ca3af;
+}
+
+/* INPUT */
+
+.field input,
+.field select{
+
+    width:100%;
+
+    height:54px;
+
+    background:#020617;
+
+    border:1px solid #1e293b;
+
+    border-radius:14px;
+
+    padding:0 16px;
+
+    color:#fff;
+
+    outline:none;
+
+    font-size:14px;
+
+    transition:.25s;
+}
+
+.field input:focus,
+.field select:focus{
+
+    border-color:#2563eb;
+
+    box-shadow:
+        0 0 0 4px rgba(37,99,235,.15);
+}
+
+/* ================= STATUS ================= */
+
+.status-box{
+
+    background:#020617;
+
+    border:1px solid #1e293b;
+
+    border-radius:18px;
+
+    padding:18px 20px;
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    margin-top:10px;
+
+    margin-bottom:30px;
+}
+
+.status-text h4{
+
+    color:#fff;
+
+    font-size:14px;
+
+    margin-bottom:4px;
+}
+
+.status-text p{
+
+    color:#6b7280;
+
+    font-size:11px;
+}
+
+/* ================= SWITCH ================= */
+
+.switch{
+    position:relative;
+
+    width:50px;
+    height:26px;
+}
+
+.switch input{
+    opacity:0;
+    width:0;
+    height:0;
+}
+
+.slider{
+
+    position:absolute;
+
+    inset:0;
+
+    background:#374151;
+
+    border-radius:30px;
+
+    cursor:pointer;
+
+    transition:.3s;
+}
+
+.slider::before{
+
+    content:"";
+
+    position:absolute;
+
+    width:20px;
+    height:20px;
+
+    border-radius:50%;
+
+    background:#fff;
+
+    top:3px;
+    left:3px;
+
+    transition:.3s;
+}
+
+.switch input:checked + .slider{
+    background:#2563eb;
+}
+
+.switch input:checked + .slider::before{
+    transform:translateX(24px);
+}
+
+/* ================= BUTTONS ================= */
+
+.buttons{
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    gap:16px;
+}
+
+/* CANCEL */
+
+.cancel-btn{
+
+    width:170px;
+
+    height:50px;
+
+    border:none;
+
+    border-radius:14px;
+
+    background:#111827;
+
+    color:#9ca3af;
+
+    font-size:14px;
+
+    font-weight:600;
+
+    cursor:pointer;
+
+    transition:.25s;
+}
+
+.cancel-btn:hover{
+
+    background:#1f2937;
+
+    color:#fff;
+}
+
+/* SAVE */
+
+.save-btn{
+
+    width:190px;
+
+    height:50px;
+
+    border:none;
+
+    border-radius:14px;
+
+    background:linear-gradient(
+        90deg,
+        #2563eb,
+        #3b82f6
+    );
+
+    color:#fff;
+
+    font-size:14px;
+
+    font-weight:700;
+
+    cursor:pointer;
+
+    transition:.25s;
+}
+
+.save-btn:hover{
+
+    transform:translateY(-2px);
+
+    box-shadow:
+        0 12px 24px rgba(37,99,235,.30);
+}
+
+/* ================= MOBILE ================= */
+
+@media(max-width:768px){
+
+    .overlay{
+        padding:14px;
+    }
+
+    .modal{
+
+        width:100%;
+
+        max-height:94vh;
+
+        padding:22px;
+    }
+
+    .row{
+        grid-template-columns:1fr;
+    }
+
+    .image-grid{
+        grid-template-columns:
+        repeat(2,1fr);
+    }
+
+    .buttons{
+        flex-direction:column;
+    }
+
+}
+/* IMAGE */
+
+.preview-img{
+
+    width:100%;
+    height:100%;
+
+    object-fit:cover;
+
+    position:absolute;
+
+    inset:0;
+}
+
+/* HIDDEN */
+
+.hidden{
+    display:none;
+}
+
+/* CONTENT */
+
+.upload-content{
+
+    display:flex;
+
+    flex-direction:column;
+
+    align-items:center;
+
+    justify-content:center;
+
+    text-align:center;
+}
+/* ================= MESSAGES ================= */
+
+.message-container{
+    margin-bottom:20px;
+}
+
+.message{
+
+    padding:14px 16px;
+
+    border-radius:14px;
+
+    margin-bottom:10px;
+
+    font-size:13px;
+
+    font-weight:500;
+}
+
+/* ERROR */
+
+.message.error{
+
+    background:rgba(239,68,68,.12);
+
+    border:1px solid rgba(239,68,68,.25);
+
+    color:#ef4444;
+}
+
+/* SUCCESS */
+
+.message.success{
+
+    background:rgba(16,185,129,.12);
+
+    border:1px solid rgba(16,185,129,.25);
+
+    color:#10b981;
+}
+/* ================= CROP MODAL ================= */
+
+.crop-modal{
+
+    position:fixed;
+
+    inset:0;
+
+    background:rgba(0,0,0,.88);
+
+    display:none;
+
+    align-items:center;
+
+    justify-content:center;
+
+    z-index:9999;
+}
+
+.crop-container{
+
+    width:90%;
+
+    max-width:700px;
+
+    background:#0b0b0b;
+
+    padding:24px;
+
+    border-radius:24px;
+
+    border:1px solid #1f2937;
+}
+
+.crop-container img{
+
+    width:100%;
+
+    max-height:70vh;
+
+    object-fit:contain;
+}
+
+.crop-buttons{
+
+    display:flex;
+
+    justify-content:center;
+
+    gap:16px;
+
+    margin-top:20px;
+}
+
+.cancel-crop,
+.save-crop{
+
+    border:none;
+
+    height:48px;
+
+    padding:0 24px;
+
+    border-radius:12px;
+
+    font-weight:700;
+
+    cursor:pointer;
+}
+
+.cancel-crop{
+
+    background:#1f2937;
+
+    color:#fff;
+}
+
+.save-crop{
+
+    background:#2563eb;
+
+    color:#fff;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<!-- ================= BACKGROUND ================= -->
+
+<div class="bg">
+
+    <div class="bg-inner">
+
+        {% include "variant_management.html" %}
+
+    </div>
+
+</div>
+
+<!-- ================= MODAL ================= -->
+
+<div class="overlay">
+
+    <div class="modal">
+
+        <!-- CLOSE -->
+
+        <button
+            class="close-btn"
+            onclick="window.history.back()"
+        >
+
+            <span class="material-symbols-outlined">
+                close
+            </span>
+
+        </button>
+
+        <!-- TITLE -->
+
+        <h2>Add New Variant</h2>
+
+        <p class="sub">
+            Create and manage product variants for your inventory
+        </p>
+
+        {% if messages %}
+
+<div class="message-container">
+
+    {% for message in messages %}
+
+        <div class="message {{ message.tags }}">
+
+            {{ message }}
+
+        </div>
+
+    {% endfor %}
+
+</div>
+
+{% endif %}
+
+        <!-- FORM -->
+
+        <form method="POST" enctype="multipart/form-data">
+
+            {% csrf_token %}
+
+            <!-- IMAGE GRID -->
+
+            <!-- IMAGE GRID -->
+
+<!-- IMAGE GRID -->
+
+<div class="image-grid">
+
+    <!-- BOX 1 -->
+
+    <label class="image-box upload-box">
+
+        <img class="preview-img hidden">
+
+        <div class="upload-content">
+
+            <span class="material-symbols-outlined">
+                add_photo_alternate
+            </span>
+
+            <p>UPLOAD</p>
+
+        </div>
+
+        <input
+            type="file"
+            name="images"
+            class="image-input"
+            accept="image/*"
+        >
+
+    </label>
+
+    <!-- BOX 2 -->
+
+    <label class="image-box upload-box">
+
+        <img class="preview-img hidden">
+
+        <div class="upload-content">
+
+            <span class="material-symbols-outlined">
+                add_photo_alternate
+            </span>
+
+            <p>UPLOAD</p>
+
+        </div>
+
+        <input
+            type="file"
+            name="images"
+            class="image-input"
+            accept="image/*"
+        >
+
+    </label>
+
+    <!-- BOX 3 -->
+
+    <label class="image-box upload-box">
+
+        <img class="preview-img hidden">
+
+        <div class="upload-content">
+
+            <span class="material-symbols-outlined">
+                add_photo_alternate
+            </span>
+
+            <p>UPLOAD</p>
+
+        </div>
+
+        <input
+            type="file"
+            name="images"
+            class="image-input"
+            accept="image/*"
+        >
+
+    </label>
+
+    <!-- BOX 4 -->
+
+    <label class="image-box upload-box">
+
+        <img class="preview-img hidden">
+
+        <div class="upload-content">
+
+            <span class="material-symbols-outlined">
+                add_photo_alternate
+            </span>
+
+            <p>UPLOAD</p>
+
+        </div>
+
+        <input
+            type="file"
+            name="images"
+            class="image-input"
+            accept="image/*"
+        >
+
+    </label>
+
+</div>
+
+            <!-- ROW -->
+
+            <div class="row">
+
+                <!-- COLOR -->
+
+                <div class="field">
+
+                    <label>COLOR</label>
+
+<select name="color">
+
+    <option value="">Select Color</option>
+
+    <option value="Red"
+    {% if form_data.color == "Red" %}selected{% endif %}>
+    Red
+    </option>
+
+    <option value="Black"
+    {% if form_data.color == "Black" %}selected{% endif %}>
+    Black
+    </option>
+
+    <option value="White"
+    {% if form_data.color == "White" %}selected{% endif %}>
+    White
+    </option>
+
+    <option value="Blue"
+    {% if form_data.color == "Blue" %}selected{% endif %}>
+    Blue
+    </option>
+
+    <option value="Green"
+    {% if form_data.color == "Green" %}selected{% endif %}>
+    Green
+    </option>
+
+    <option value="Orange"
+    {% if form_data.color == "Orange" %}selected{% endif %}>
+    Orange
+    </option>
+
+</select>
+
+                </div>
+
+                <!-- SIZE -->
+
+                <div class="field">
+
+                    <label>SIZE</label>
+
+                  <select name="size">
+
+    <option value="">Select Size</option>
+
+    <option value="S"
+    {% if form_data.size == "S" %}selected{% endif %}>
+    S
+    </option>
+
+    <option value="M"
+    {% if form_data.size == "M" %}selected{% endif %}>
+    M
+    </option>
+
+    <option value="L"
+    {% if form_data.size == "L" %}selected{% endif %}>
+    L
+    </option>
+
+    <option value="XL"
+    {% if form_data.size == "XL" %}selected{% endif %}>
+    XL
+    </option>
+
+    <option value="1"
+    {% if form_data.size == "1" %}selected{% endif %}>
+    1
+    </option>
+
+    <option value="2"
+    {% if form_data.size == "2" %}selected{% endif %}>
+    2
+    </option>
+
+    <option value="3"
+    {% if form_data.size == "3" %}selected{% endif %}>
+    3
+    </option>
+
+    <option value="4"
+    {% if form_data.size == "4" %}selected{% endif %}>
+    4
+    </option>
+
+    <option value="5"
+    {% if form_data.size == "5" %}selected{% endif %}>
+    5
+    </option>
+
+    <option value="6"
+    {% if form_data.size == "6" %}selected{% endif %}>
+    6
+    </option>
+
+    <option value="7"
+    {% if form_data.size == "7" %}selected{% endif %}>
+    7
+    </option>
+
+    <option value="8"
+    {% if form_data.size == "8" %}selected{% endif %}>
+    8
+    </option>
+
+    <option value="9"
+    {% if form_data.size == "9" %}selected{% endif %}>
+    9
+    </option>
+
+</select>
+
+                </div>
+
+            </div>
+
+            <!-- ROW -->
+
+            <div class="row">
+
+                <!-- SKU -->
+
+                <div class="field">
+
+                    <label>SKU</label>
+
+        <input
+            type="text"
+            name="sku"
+            placeholder="CK-H-RED-001"
+            value="{{ form_data.sku }}"
+        >
+
+                </div>
+
+                <!-- STOCK -->
+
+                <div class="field">
+
+                    <label>STOCK QUANTITY</label>
+
+<input
+    type="number"
+    name="stock"
+    placeholder="100"
+    value="{{ form_data.stock }}"
+>
+
+                </div>
+
+            </div>
+
+            <!-- PRICE -->
+
+            <div class="field">
+
+                <label>PRICE (₹)</label>
+<input
+    type="number"
+    name="price"
+    placeholder="2499"
+    value="{{ form_data.price }}"
+>
+
+            </div>
+
+            <!-- STATUS -->
+
+            <div class="status-box">
+
+                <div class="status-text">
+
+                    <h4>Variant Status</h4>
+
+                    <p>
+                        Enable this variant for storefront
+                    </p>
+
+                </div>
+
+                <label class="switch">
+
+<input
+    type="checkbox"
+    name="is_active"
+    {% if form_data.is_active %}checked{% endif %}
+>
+                    <span class="slider"></span>
+
+                </label>
+
+            </div>
+            <!-- DEFAULT STATUS -->
+
+<div class="status-box">
+
+    <div class="status-text">
+
+        <h4>Default Variant</h4>
+
+        <p>
+            Use this variant as product default
+        </p>
+
+    </div>
+
+    <label class="switch">
+
+ <input
+    type="checkbox"
+    name="is_default"
+    {% if form_data.is_default %}checked{% endif %}
+>
+
+        <span class="slider"></span>
+
+    </label>
+
+</div>
+
+            <!-- BUTTONS -->
+
+            <div class="buttons">
+
+                <button
+                    type="button"
+                    class="cancel-btn"
+                    onclick="window.history.back()"
+                >
+                    Cancel
+                </button>
+
+                <button
+                    type="submit"
+                    class="save-btn"
+                >
+                    Save Variant
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+<!-- ================= CROP MODAL ================= -->
+
+<div class="crop-modal" id="cropModal">
+
+    <div class="crop-container">
+
+        <img id="cropImage">
+
+        <div class="crop-buttons">
+
+            <button
+                type="button"
+                class="cancel-crop"
+                id="cancelCrop"
+            >
+                Cancel
+            </button>
+
+            <button
+                type="button"
+                class="save-crop"
+                id="saveCrop"
+            >
+                Crop Image
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js"></script>
+
+<script>
+
+const imageInputs =
+document.querySelectorAll(".image-input");
+
+const cropModal =
+document.getElementById("cropModal");
+
+const cropImage =
+document.getElementById("cropImage");
+
+const saveCrop =
+document.getElementById("saveCrop");
+
+const cancelCrop =
+document.getElementById("cancelCrop");
+
+let cropper;
+
+let currentInput;
+
+imageInputs.forEach((input)=>{
+
+    input.addEventListener("change",function(e){
+
+        const file = e.target.files[0];
+
+        if(!file) return;
+
+        currentInput = input;
+
+        const reader = new FileReader();
+
+        reader.onload = function(event){
+
+            cropImage.src = event.target.result;
+
+            cropModal.style.display = "flex";
+
+            if(cropper){
+
+                cropper.destroy();
+
+            }
+
+            cropper = new Cropper(cropImage,{
+
+                aspectRatio:1,
+
+                viewMode:1,
+
+                dragMode:"move",
+
+                autoCropArea:1,
+
+                responsive:true,
+
+                zoomable:true,
+
+                scalable:true,
+
+                rotatable:false,
+
+            });
+
+        }
+
+        reader.readAsDataURL(file);
+
+    });
+
+});
+
+saveCrop.addEventListener("click",function(){
+
+    if(!cropper) return;
+
+    cropper.getCroppedCanvas({
+
+        width:800,
+
+        height:800,
+
+    }).toBlob((blob)=>{
+
+        const croppedFile = new File(
+
+            [blob],
+
+            "cropped.jpg",
+
+            {
+                type:"image/jpeg",
+                lastModified:new Date().getTime()
+            }
+
+        );
+
+        const container =
+        new DataTransfer();
+
+        container.items.add(croppedFile);
+
+        currentInput.files =
+        container.files;
+
+        const box =
+        currentInput.closest(".image-box");
+
+        const preview =
+        box.querySelector(".preview-img");
+
+        const content =
+        box.querySelector(".upload-content");
+
+        preview.src =
+        URL.createObjectURL(croppedFile);
+
+        preview.classList.remove("hidden");
+
+        if(content){
+
+            content.style.display = "none";
+
+        }
+
+        cropModal.style.display = "none";
+
+        cropper.destroy();
+
+    },"image/jpeg");
+
+});
+
+cancelCrop.addEventListener("click",function(){
+
+    cropModal.style.display = "none";
+
+    if(cropper){
+
+        cropper.destroy();
+
+    }
+
+});
+
+</script>
+</body>
+</html>

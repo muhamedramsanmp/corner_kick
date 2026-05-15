@@ -1,0 +1,755 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <link rel="icon" type="image/png" href="{% static 'images/favicon.png' %}">
+
+    <title>
+        {% block title %}CORNER KICK{% endblock %}
+    </title>
+
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+
+    <!-- GOOGLE FONTS -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- FONT AWESOME -->
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    {% block extra_css %}{% endblock %}
+
+    <style>
+
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+            font-family:"Inter",sans-serif;
+        }
+
+        body{
+            background:#eef2f7;
+            
+        }
+
+        /* ================= NAVBAR ================= */
+
+        .navbar{
+            height:60px;
+            background:white;
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            padding:0 40px;
+            box-shadow:0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .nav-left{
+            font-size:22px;
+            font-weight:800;
+            color:#2563eb;
+        }
+
+        .nav-center{
+            display:flex;
+            gap:35px;
+            align-items:center;
+        }
+
+        .nav-center a{
+            text-decoration:none;
+            color:#64748b;
+            font-size:14px;
+            font-weight:600;
+            position:relative;
+            transition:0.3s;
+        }
+
+        .nav-center a:hover{
+            color:#2563eb;
+        }
+
+        .nav-center a::after{
+            content:"";
+            position:absolute;
+            width:0;
+            height:2px;
+            background:#2563eb;
+            left:0;
+            bottom:-6px;
+            transition:0.3s;
+        }
+
+        .nav-center a:hover::after{
+            width:100%;
+        }
+
+        .nav-right{
+            display:flex;
+            align-items:center;
+            gap:20px;
+        }
+
+.search-box{
+    display:flex;
+    align-items:center;
+    background:#f1f5f9;
+    border-radius:999px;
+    width:230px;
+    height:42px;
+    padding:0 14px;
+}
+
+.search-box input{
+    border:none;
+    outline:none;
+    background:transparent;
+    width:100%;
+    height:100%;
+    margin-left:10px;
+    font-size:14px;
+    color:#475569;
+}
+
+.search-box input::placeholder{
+    color:#64748b;
+    font-size:14px;
+}
+
+.search-icon{
+    font-size:22px;
+    color:#64748b;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+
+        /* ICONS */
+
+        .nav-icons{
+            display:flex;
+            gap:10px;
+        }
+
+        .icon-btn{
+            font-size:24px;
+            color:#475569;
+            padding:6px;
+            border-radius:50%;
+            transition:0.2s;
+            cursor:pointer;
+        }
+
+        .icon-btn:hover{
+            background:#f1f5f9;
+            color:#2563eb;
+        }
+        .icon-wrapper{
+
+    position:relative;
+
+    text-decoration:none;
+
+}
+
+.icon-count{
+
+    position:absolute;
+
+    top:-5px;
+    right:-5px;
+
+    min-width:20px;
+    height:20px;
+
+    padding:0 5px;
+
+    border-radius:50px;
+
+    background:#111827;
+
+    color:white;
+
+    font-size:11px;
+    font-weight:700;
+
+    display:flex;
+
+    align-items:center;
+    justify-content:center;
+
+    border:2px solid white;
+
+    box-shadow:
+        0 4px 12px rgba(0,0,0,.15);
+
+}
+
+        /* ================= MAIN CONTENT ================= */
+
+        .main-content{
+            width:100%;
+        }
+
+        /* ================= FOOTER ================= */
+
+        .footer{
+            background:#f1f5f9;
+            padding:50px 20px;
+            margin-top:80px;
+            text-align:center;
+        }
+
+        .footer-logo{
+            font-size:18px;
+            font-weight:800;
+            color:#94a3b8;
+            margin-bottom:20px;
+        }
+
+        .footer-links{
+            display:flex;
+            justify-content:center;
+            gap:30px;
+            flex-wrap:wrap;
+            margin-bottom:20px;
+        }
+
+        .footer-links a{
+            text-decoration:none;
+            font-size:11px;
+            color:#94a3b8;
+            letter-spacing:1px;
+            text-transform:uppercase;
+        }
+
+        .footer-links a:hover{
+            color:#2563eb;
+        }
+
+        .footer-copy{
+            font-size:11px;
+            color:#cbd5e1;
+            letter-spacing:1px;
+        }
+        .message-container{
+    position:fixed;
+
+    top:80px;
+    right:30px;
+
+    z-index:9999;
+
+    display:flex;
+    flex-direction:column;
+
+    gap:14px;
+}
+
+.alert{
+    min-width:320px;
+
+    padding:16px 18px;
+
+    border-radius:16px;
+
+    display:flex;
+    align-items:center;
+
+    gap:12px;
+
+    color:#ffffff;
+
+    font-size:14px;
+    font-weight:600;
+
+    box-shadow:
+        0 12px 30px rgba(0,0,0,.12);
+
+    animation:slideIn .35s ease;
+}
+
+/* SUCCESS */
+
+.alert.success{
+    background:linear-gradient(
+        90deg,
+        #059669,
+        #10b981
+    );
+}
+
+/* ERROR */
+
+.alert.error{
+    background:linear-gradient(
+        90deg,
+        #dc2626,
+        #ef4444
+    );
+}
+
+/* INFO */
+
+.alert.info{
+    background:linear-gradient(
+        90deg,
+        #2563eb,
+        #3b82f6
+    );
+}
+
+.alert span{
+    font-size:22px;
+}
+
+/* ANIMATION */
+
+@keyframes slideIn{
+
+    from{
+        opacity:0;
+        transform:translateX(40px);
+    }
+
+    to{
+        opacity:1;
+        transform:translateX(0);
+    }
+}
+#ajax-popup{
+
+    position:fixed;
+
+    top:90px;
+    right:30px;
+
+    background:#111827;
+
+    color:white;
+
+    padding:16px 22px;
+
+    border-radius:16px;
+
+    font-size:14px;
+    font-weight:600;
+
+    opacity:0;
+
+    visibility:hidden;
+
+    transform:translateY(-20px);
+
+    transition:0.3s ease;
+
+    z-index:99999;
+
+    box-shadow:
+        0 12px 30px rgba(0,0,0,.16);
+
+}
+
+#ajax-popup.show{
+
+    opacity:1;
+
+    visibility:visible;
+
+    transform:translateY(0);
+
+}
+
+    </style>
+
+</head>
+
+<body>
+    <div id="ajax-popup"></div>
+
+    <!-- NAVBAR -->
+
+    <div class="navbar">
+
+        <div class="nav-left">
+            CORNER KICK
+        </div>
+
+        <div class="nav-center">
+
+            <a href="{% url 'home' %}">HOME</a>
+
+            <a href="{% url "user_products:shop" %}">SHOP</a>
+
+            <a href="#">ABOUT</a>
+
+        </div>
+
+        <div class="nav-right">
+
+            <div class="search-box">
+
+                <span class="material-symbols-outlined search-icon">
+                    search
+                </span>
+
+                <input type="text" placeholder="Search products...">
+
+            </div>
+
+            <div class="nav-icons">
+
+    <!-- CART -->
+
+    <a
+    href="{% url 'user_products:cart' %}"
+    class="icon-wrapper"
+    >
+
+        <span class="material-symbols-outlined icon-btn">
+            shopping_bag
+        </span>
+
+        <span
+        class="icon-count"
+        id="cart-count"
+        >
+            {{ cart_count }}
+        </span>
+
+    </a>
+
+    <!-- WISHLIST -->
+
+    <a
+    href="{% url 'user_products:wishlist' %}"
+    class="icon-wrapper"
+    >
+
+        <span class="material-symbols-outlined icon-btn">
+            favorite
+        </span>
+
+        <span
+        class="icon-count"
+        id="wishlist-count"
+        >
+            {{ wishlist_count }}
+        </span>
+
+    </a>
+
+    <!-- PROFILE -->
+
+    <a href="{% url 'userinfo:profile' %}">
+
+        <span class="material-symbols-outlined icon-btn">
+            person
+        </span>
+
+    </a>
+
+</div>
+
+        </div>
+
+    </div>
+
+    {% if messages %}
+
+<div class="message-container">
+
+    {% for message in messages %}
+
+    <div class="alert {{ message.tags }}">
+
+        <span class="material-symbols-outlined">
+
+            {% if message.tags == 'success' %}
+
+                check_circle
+
+            {% elif message.tags == 'error' %}
+
+                error
+
+            {% else %}
+
+                info
+
+            {% endif %}
+
+        </span>
+
+        {{ message }}
+
+    </div>
+
+    {% endfor %}
+
+</div>
+
+{% endif %}
+
+    <!-- PAGE CONTENT -->
+
+    <div class="main-content">
+
+        {% block content %}
+
+        {% endblock %}
+
+    </div>
+
+    <!-- FOOTER -->
+
+    <footer class="footer">
+
+        <div class="footer-logo">
+            CORNER KICK
+        </div>
+
+        <div class="footer-links">
+
+            <a href="#">Privacy Policy</a>
+
+            <a href="#">Terms of Service</a>
+
+            <a href="#">Shipping Info</a>
+
+            <a href="#">Returns</a>
+
+        </div>
+
+        <div class="footer-copy">
+            © 2026 CORNER KICK. ALL RIGHTS RESERVED.
+        </div>
+
+    </footer>
+
+    {% block extra_js %}{% endblock %}
+
+
+    <script>
+
+setTimeout(()=>{
+
+    const alerts =
+        document.querySelectorAll('.alert');
+
+    alerts.forEach((alert)=>{
+
+        alert.style.opacity = '0';
+
+        alert.style.transform =
+            'translateX(40px)';
+
+        setTimeout(()=>{
+
+            alert.remove();
+
+        },300);
+
+    });
+
+},3000);
+
+</script>
+<script>
+
+function showAjaxPopup(message){
+
+    const popup =
+        document.getElementById("ajax-popup")
+
+    popup.innerText = message
+
+    popup.classList.add("show")
+
+    setTimeout(()=>{
+
+        popup.classList.remove("show")
+
+    },2000)
+
+}
+
+
+/* =========================
+   WISHLIST AJAX
+========================= */
+
+document.addEventListener("click",function(e){
+
+    const button =
+        e.target.closest(".wishlist-btn")
+
+    if(!button) return
+
+    e.preventDefault()
+
+    e.stopPropagation()
+
+    const icon =
+        button.querySelector(
+            ".material-symbols-outlined"
+        )
+
+    fetch(button.dataset.url,{
+
+        method:"GET",
+
+        headers:{
+            "X-Requested-With":"XMLHttpRequest"
+        }
+
+    })
+
+    .then(response=>response.json())
+
+    .then(data=>{
+
+        if(data.success){
+
+            // NAVBAR COUNT
+
+            const wishlistCount =
+                document.getElementById(
+                    "wishlist-count"
+                )
+
+            if(wishlistCount){
+
+                wishlistCount.innerText =
+                    data.wishlist_count
+
+            }
+
+            // ACTIVE BUTTON
+
+            button.classList.toggle(
+                "active"
+            )
+
+            // HEART ICON
+
+            if(
+                button.classList.contains(
+                    "active"
+                )
+            ){
+
+                icon.innerText =
+                    "favorite"
+
+            }
+
+            else{
+
+                icon.innerText =
+                    "favorite_border"
+
+            }
+
+            // REMOVE CARD IN
+            // WISHLIST PAGE
+
+            if(
+                data.action === "removed"
+            ){
+
+                const card =
+                    button.closest(
+                        ".product-card"
+                    )
+
+                if(card){
+
+                    card.remove()
+
+                }
+
+            }
+
+            // BETTER MESSAGE
+
+            if(
+                data.action === "added"
+            ){
+
+                showAjaxPopup(
+                    "Saved to wishlist"
+                )
+
+            }
+
+            else{
+
+                showAjaxPopup(
+                    "Removed from wishlist"
+                )
+
+            }
+
+        }
+
+    })
+
+})
+
+
+/* =========================
+   CART AJAX
+========================= */
+
+document.querySelectorAll(".cart-form").forEach(form=>{
+
+    form.addEventListener("submit",function(e){
+
+        e.preventDefault()
+
+        fetch(this.action,{
+
+            method:"POST",
+
+            body:new FormData(this),
+
+            headers:{
+                "X-Requested-With":"XMLHttpRequest"
+            }
+
+        })
+
+        .then(response=>response.json())
+
+        .then(data=>{
+
+            if(data.success){
+
+                document.getElementById(
+                    "cart-count"
+                ).innerText = data.cart_count
+
+                showAjaxPopup(data.message)
+
+            }
+
+        })
+
+    })
+
+})
+
+</script>
+</body>
+</html>

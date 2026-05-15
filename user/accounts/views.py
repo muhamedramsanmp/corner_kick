@@ -2,101 +2,125 @@ import re
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth import get_user_model
-from django.contrib.auth import authenticate, login,logout
+from django.contrib.auth import authenticate, login
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.cache import never_cache,cache_control
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth import get_user_model
 from django.core.mail import send_mail
 import secrets
+from django.conf import settings
+from django.utils import timezone
+from .models import OTP
+import random
+import time 
+from django.contrib.messages import get_messages
 
 
 User = get_user_model()
 
 
 def validate_password_strength(password):
-    """
-    Returns a list of error messages if password is weak.
-    Returns an empty list if password is strong.
-    """
+
     errors = []
 
-    if len(password) < 8:
-        errors.append("Password must be at least 8 characters long.")
+    # single strong password regex
+    password_regex = r'^(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*(),.?":{}|<>]).{8,}$'
 
-    if not re.search(r"[A-Z]", password):
-        errors.append("Password must contain at least one uppercase letter (A-Z).")
+    if not re.match(password_regex, password):
 
-    if not re.search(r"[a-z]", password):
-        errors.append("Password must contain at least one lowercase letter (a-z).")
+        if len(password) < 8:
+            errors.append("Password must be at least 8 characters long.")
 
-    if not re.search(r"\d", password):
-        errors.append("Password must contain at least one number (0-9).")
+        if not re.search(r"[A-Z]", password):
+            errors.append("Password must contain at least one uppercase letter.")
 
-    if not re.search(r"[!@#$%^&*(),.?\":{}|<>]", password):
-        errors.append("Password must contain at least one special character (!@#$%^&* etc).")
+        if not re.search(r"[a-z]", password):
+            errors.append("Password must contain at least one lowercase letter.")
+
+        if not re.search(r"[!@#$%^&*(),.?\":{}|<>]", password):
+            errors.append("Password must contain at least one special character.")
 
     return errors
 
-def signup_view(request):
-    """Handle user registration."""
 
-    # 🔥 Prevent logged-in users from accessing signup
-    if request.user.is_authenticated:
-        return redirect("home")
+def signup_view(request):
+    errors = {}
 
     if request.method == "POST":
         full_name = request.POST.get("full_name", "").strip()
         email = request.POST.get("email", "").strip().lower()
-        password = request.POST.get("password", "")
-        confirm_password = request.POST.get("confirm_password", "")
+        password = request.POST.get("password")
+        confirm_password = request.POST.get("confirm_password")
 
-        # --- Validation ---
-        if not all([full_name, email, password, confirm_password]):
-            messages.error(request, "All fields are required.")
-            return redirect("signup")
 
-        if not re.match(r"^[\w\.-]+@[\w\.-]+\.\w+$", email):
-            messages.error(request, "Enter a valid email address.")
-            return redirect("signup")
+        # store old values
+        data = {
+            "full_name": full_name,
+            "email": email
+        }
+
+        # required
+        if not full_name:
+            errors["full_name"] = "Full name is required"
+
+        if not email:
+            errors["email"] = "Email is required"
+
+        if not password:
+            errors["password"] = "Password is required"
 
         if password != confirm_password:
-            messages.error(request, "Passwords do not match.")
-            return redirect("signup")
-
-        # --- Strong Password Check ---
-        password_errors = validate_password_strength(password)
-        if password_errors:
-            for error in password_errors:
-                messages.error(request, error)
-            return redirect("signup")
+            errors["confirm_password"] = "Passwords do not match"
 
         if User.objects.filter(email=email).exists():
-            messages.error(request, "An account with this email already exists.")
-            return redirect("signup")
+            errors["email"] = "Email already exists"
 
-        # --- Create User ---
-        name_parts = full_name.split(" ", 1)
-        first_name = name_parts[0]
-        last_name = name_parts[1] if len(name_parts) > 1 else ""
+        if password:
+            pwd_errors = validate_password_strength(password)
 
-        User.objects.create_user(
-            username=email,
+            if pwd_errors:
+                errors["password"] = pwd_errors 
+
+        if errors:
+            return render(request, "signup.html", {
+                "errors": errors,
+                "data": data
+            })
+
+        # ✅ OTP only if everything valid
+        otp = str(random.randint(100000, 999999))
+
+        # 🔥 SAVE OTP IN DATABASE
+        OTP.objects.filter(email=email, purpose='signup').delete()
+        OTP.objects.create(
             email=email,
-            password=password,
-            first_name=first_name,
-            last_name=last_name,
+            code=otp,
+            purpose='signup'
         )
 
-        messages.success(request, "Account created successfully. Please log in.")
-        return redirect("login")
+        # 🔥 store ONLY required data (NO OTP here)
+        request.session["signup_data"] = {
+            "full_name": full_name,
+            "email": email,
+            "password": password,
+        }
+
+        # 🔥 send OTP
+        send_mail(
+            "Your OTP Code",
+            f"Your OTP is {otp}",
+            "your_email@gmail.com",
+            [email],
+            fail_silently=False,
+        )
+
+        return redirect("verify_signup_otp")
 
     return render(request, "signup.html")
 
 def login_view(request):
 
-    # 🔥 Prevent logged-in users from accessing login page
+    # 🔥 Prevent logged-in users
     if request.user.is_authenticated:
         return redirect("home")
 
@@ -105,118 +129,217 @@ def login_view(request):
         password = request.POST.get("password")
 
         if not email or not password:
-            messages.error(request, "Email and password are required.")
-            return redirect("login")
+            return render(request, "login.html", {
+                "error": "Email and password are required."
+            })
 
         user = authenticate(request, username=email, password=password)
 
         if user is None:
-            messages.error(request, "Invalid email or password.")
-            return redirect("login")
+            return render(request, "login.html", {
+                "error": "Invalid email or password."
+            })
+
+        # 🔒 BLOCK ADMIN LOGIN
+        if user.is_staff or user.is_superuser:
+            return render(request, "login.html", {
+                "error": "Admin must login from admin portal."
+            })
+
+        # 🔒 BLOCK INACTIVE USERS
+        if not user.is_active:
+            return render(request, "login.html", {
+                "error": "Your account has been blocked."
+            })
 
         login(request, user)
-        messages.success(request, "Login successful.")
         return redirect("home")
 
     return render(request, "login.html")
 
-
+@never_cache
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@login_required(login_url="login")
 def home_view(request):
     return render(request, "landingpage.html")
 
 
-@never_cache
-@login_required(login_url="login")
-def logout_view(request):
-    logout(request)
-    request.session.flush() 
-    messages.success(request, "Logged out successfully.")
-    return redirect("login")
 
-# ─────────────────────────────────────────
-# STEP 1 — Forgot Password (Email Entry)
-# ─────────────────────────────────────────
+
 def forgot_password(request):
     if request.method == "POST":
         email = request.POST.get("email", "").strip().lower()
 
+        # ❌ user not found
         try:
             user = User.objects.get(email=email)
         except User.DoesNotExist:
             messages.error(request, "No account found with that email address.")
             return render(request, "forgotpassword.html")
 
-        # Generate OTP
-        otp = str(secrets.randbelow(9000) + 1000)
+        # 🔥 generate OTP
+        otp = str(random.randint(100000, 999999))
 
-        # Store in session
-        request.session["reset_otp"] = otp
+        # 🔥 delete old reset OTPs
+        OTP.objects.filter(email=email, purpose='reset').delete()
+
+        # 🔥 create new OTP
+        OTP.objects.create(
+            email=email,
+            code=otp,
+            purpose='reset'
+        )
+
+        # 🔥 store ONLY email (NOT OTP)
         request.session["reset_email"] = email
-        request.session["otp_verified"] = False
 
-        # 🔥 SEND EMAIL
-        subject = "Your Password Reset OTP"
-        message = f"Your OTP for password reset is: {otp}"
-        from_email = "cornerkick1010@gmail.com"
-        recipient_list = [email]
-
+        # 🔥 send email
         try:
-            send_mail(subject, message, from_email, recipient_list)
-        except Exception as e:
-            messages.error(request, "Failed to send email. Check email configuration.")
+            send_mail(
+                "Your Password Reset OTP",
+                f"Your OTP is: {otp}",
+                settings.EMAIL_HOST_USER,
+                [email],
+                fail_silently=False,
+            )
+        except Exception:
+            messages.error(request, "Failed to send email.")
             return render(request, "forgotpassword.html")
 
-        messages.success(request, "OTP has been sent to your email.")
+        messages.success(request, "OTP sent to your email.")
         return redirect("verify_otp")
 
     return render(request, "forgotpassword.html")
+
+
 def verify_otp(request):
-    if not request.session.get("reset_email"):
-        messages.error(request, "Please start the password reset process first.")
+
+    email = request.session.get("reset_email")
+
+    if not email:
         return redirect("forgot_password")
 
+    try:
+        user = User.objects.get(email=email)
+
+    except User.DoesNotExist:
+
+        messages.error(request, "User not found")
+
+        return redirect("forgot_password")
+
+
+    # 🔥 GET LATEST OTP
+    otp_obj = OTP.objects.filter(
+        email=email,
+        purpose='reset'
+    ).order_by('-created_at').first()
+
+
+    # 🔥 TIMER VALUE
+    time_left = otp_obj.time_left() if otp_obj else 60
+
+
     if request.method == "POST":
-        otp1 = request.POST.get("otp1", "")
-        otp2 = request.POST.get("otp2", "")
-        otp3 = request.POST.get("otp3", "")
-        otp4 = request.POST.get("otp4", "")
-        entered_otp = otp1 + otp2 + otp3 + otp4
 
-        stored_otp = request.session.get("reset_otp", "")
-
-        if entered_otp == stored_otp:
-            request.session["otp_verified"] = True
-            return redirect("reset_password")
-        else:
-            messages.error(request, "Invalid OTP. Please try again.")
-            return render(request, "loginotpverify.html")
-
-    return render(request, "loginotpverify.html")
+        entered_otp = (
+            request.POST.get("otp1", "") +
+            request.POST.get("otp2", "") +
+            request.POST.get("otp3", "") +
+            request.POST.get("otp4", "") +
+            request.POST.get("otp5", "") +
+            request.POST.get("otp6", "")
+        )
 
 
-from django.core.mail import send_mail
-from django.conf import settings
-import secrets
+        # ❌ incomplete OTP
+        if len(entered_otp) != 6:
+
+            messages.error(request, "Enter complete OTP")
+
+            return render(request, "loginotpverify.html", {
+                "time_left": time_left
+            })
+
+
+        # 🔥 GET LATEST OTP AGAIN
+        otp_obj = OTP.objects.filter(
+            email=email,
+            purpose='reset'
+        ).order_by('-created_at').first()
+
+
+        # ❌ no OTP
+        if not otp_obj:
+
+            messages.error(request, "OTP not found. Please resend.")
+
+            return render(request, "loginotpverify.html", {
+                "time_left": time_left
+            })
+
+
+        # ❌ expired
+        if otp_obj.is_expired():
+
+            messages.error(request, "OTP expired.")
+
+            return render(request, "loginotpverify.html", {
+                "time_left": 0
+            })
+
+
+        # ❌ incorrect
+        if entered_otp != otp_obj.code:
+
+            messages.error(request, "Invalid OTP.")
+
+            return render(request, "loginotpverify.html", {
+                "time_left": time_left
+            })
+
+
+        # ✅ VERIFIED
+        otp_obj.is_verified = True
+
+        otp_obj.save()
+
+
+        return redirect("reset_password")
+
+
+    return render(request, "loginotpverify.html", {
+        "time_left": time_left
+    })
 
 def resend_otp(request):
     email = request.session.get("reset_email")
 
     if not email:
-        messages.error(request, "Session expired. Try again.")
         return redirect("forgot_password")
 
-    # Generate new OTP
+    try:
+        user = User.objects.get(email=email)
+    except User.DoesNotExist:
+        messages.error(request, "User not found")
+        return redirect("forgot_password")
+
+    # 🔥 generate new OTP
     otp = str(secrets.randbelow(9000) + 1000)
 
-    request.session["reset_otp"] = otp
-    request.session["otp_verified"] = False
+    # 🔥 delete old OTP (only reset purpose)
+    OTP.objects.filter(email=email, purpose='reset').delete()
 
-    # Send email
+    # 🔥 create new OTP
+    OTP.objects.create(
+        email=email,
+        code=otp,
+        purpose='reset'
+    )
+
+    # 🔥 send email
     send_mail(
-        "Your New OTP",
-        f"Your new OTP is: {otp}",
+        "New OTP",
+        f"Your OTP is: {otp}",
         settings.EMAIL_HOST_USER,
         [email],
         fail_silently=False,
@@ -226,48 +349,179 @@ def resend_otp(request):
     return redirect("verify_otp")
 
 
-# ─────────────────────────────────────────
-# STEP 3 — Reset Password
-# ─────────────────────────────────────────
 def reset_password(request):
-    if not request.session.get("otp_verified"):
-        messages.error(request, "Please verify your OTP first.")
+    email = request.session.get("reset_email")
+
+    if not email:
+        return redirect("forgot_password")
+
+    try:
+        user = User.objects.get(email=email)
+    except User.DoesNotExist:
+        return redirect("forgot_password")
+
+    # 🔥 check verified OTP
+    otp_obj = OTP.objects.filter(
+        email=email,
+        purpose='reset',
+        is_verified=True
+    ).order_by('-created_at').first()
+
+    if not otp_obj:
+        return redirect("verify_otp")
+
+    if otp_obj.is_expired():
         return redirect("forgot_password")
 
     if request.method == "POST":
-        password         = request.POST.get("password", "")
-        confirm_password = request.POST.get("confirm_password", "")
+        password = request.POST.get("password", "").strip()
+        confirm_password = request.POST.get("confirm_password", "").strip()
 
-        if len(password) < 8:
-            messages.error(request, "Password must be at least 8 characters.")
-            return render(request, "resetpassword.html")
+        # ❌ STEP 1: empty
+        if not password or not confirm_password:
+            return render(request, "resetpassword.html", {
+                "error": "All fields are required."
+            })
 
+        # ❌ STEP 2: mismatch
         if password != confirm_password:
-            messages.error(request, "Passwords do not match.")
-            return render(request, "resetpassword.html")
+            return render(request, "resetpassword.html", {
+                "error": "Passwords do not match."
+            })
 
-        has_upper   = any(c.isupper() for c in password)
-        has_special = any(c in "!@#$%^&*()_+-=[]{}|;':\",./<>?" for c in password)
+        # ❌ STEP 3: strength (one-by-one)
+        errors = validate_password_strength(password)
+        if errors:
+            return render(request, "resetpassword.html", {
+                "error": errors[0]
+            })
 
-        if not has_upper or not has_special:
-            messages.error(request, "Password must contain at least one uppercase letter and one special character.")
-            return render(request, "resetpassword.html")
+        # ✅ STEP 4: success
+        user.set_password(password)
+        user.save()
 
-        email = request.session.get("reset_email")
-        try:
-            user = User.objects.get(email=email)
-            user.password = make_password(password)
-            user.save()
-        except User.DoesNotExist:
-            messages.error(request, "User not found. Please restart the process.")
-            return redirect("forgot_password")
+        OTP.objects.filter(email=email, purpose='reset').delete()
 
-        # Clean up session
-        request.session.pop("reset_otp",    None)
-        request.session.pop("reset_email",  None)
-        request.session.pop("otp_verified", None)
-
-        messages.success(request, "Password reset successful! You can now log in.")
+        messages.success(request, "Password reset successful.")
         return redirect("login")
 
     return render(request, "resetpassword.html")
+
+def verify_signup_otp(request):
+
+    from django.contrib.messages import get_messages
+
+    storage = get_messages(request)
+
+    for _ in storage:
+        pass
+
+    data = request.session.get("signup_data")
+
+    if not data:
+        return redirect("signup")
+
+    email = data.get("email")
+
+    # IMPORTANT
+    otp_obj = OTP.objects.filter(
+        email=email,
+        purpose='signup'
+    ).order_by('-created_at').first()
+
+    time_left = otp_obj.time_left() if otp_obj else 60
+
+    if request.method == "POST":
+
+        entered_otp = (
+            request.POST.get("otp1", "") +
+            request.POST.get("otp2", "") +
+            request.POST.get("otp3", "") +
+            request.POST.get("otp4", "") +
+            request.POST.get("otp5", "") +
+            request.POST.get("otp6", "")
+        )
+
+        if len(entered_otp) != 6:
+            messages.error(
+                request,
+                "Enter complete OTP",
+                extra_tags="otp"
+            )
+
+            return render(request, "signup_verify.html", {
+                "time_left": time_left
+            })
+
+        otp_obj = OTP.objects.filter(
+            email=email,
+            purpose='signup'
+        ).order_by('-created_at').first()
+
+        if not otp_obj:
+            messages.error(request, "OTP not found", extra_tags="otp")
+
+            return render(request, "signup_verify.html", {
+                "time_left": time_left
+            })
+
+        if otp_obj.is_expired():
+            messages.error(
+                request,
+                "OTP expired. Please resend.",
+                extra_tags="otp"
+            )
+
+            return render(request, "signup_verify.html", {
+                "time_left": 0
+            })
+
+        if entered_otp != otp_obj.code:
+            messages.error(
+                request,
+                "Invalid OTP",
+                extra_tags="otp"
+            )
+
+            return render(request, "signup_verify.html", {
+                "time_left": time_left
+            })
+
+        # remaining signup logic...
+
+    return render(request, "signup_verify.html", {
+        "time_left": time_left
+    })
+
+def resend_signup_otp(request):
+    data = request.session.get("signup_data")
+
+    if not data:
+        return redirect("signup")
+
+    email = data.get("email")
+
+    # generate new OTP
+    otp = str(random.randint(100000, 999999))
+
+    # delete old OTP
+    OTP.objects.filter(email=email, purpose='signup').delete()
+
+    # create new OTP
+    OTP.objects.create(
+        email=email,
+        code=otp,
+        purpose='signup'
+    )
+
+    # send mail
+    send_mail(
+        "Your OTP Code",
+        f"Your new OTP is {otp}",
+        "your_email@gmail.com",
+        [email],
+        fail_silently=False,
+    )
+
+    messages.success(request, "New OTP sent successfully.")
+    return redirect("verify_signup_otp")

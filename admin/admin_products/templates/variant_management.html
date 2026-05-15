@@ -1,0 +1,1107 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Variant Management</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+
+<style>
+
+/* ================= RESET ================= */
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:'Inter',sans-serif;
+    background:#000;
+    color:#fff;
+    overflow-x:hidden;
+}
+
+/* ================= TOPBAR ================= */
+
+.topbar{
+    position:fixed;
+
+    left:0;
+    right:0;
+    top:0;
+
+    height:74px;
+
+    background:#050505;
+
+    border-bottom:1px solid #111827;
+
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+
+    padding:0 34px;
+
+    z-index:100;
+}
+
+/* LEFT */
+
+.top-left{
+
+    display:flex;
+    flex-direction:column;
+}
+
+.logo{
+    font-size:18px;
+    font-weight:800;
+    color:#3b82f6;
+}
+
+.logo-sub{
+    margin-top:4px;
+
+    font-size:10px;
+
+    letter-spacing:2px;
+
+    color:#6b7280;
+}
+
+/* RIGHT */
+
+.top-actions{
+    display:flex;
+    align-items:center;
+    gap:18px;
+}
+
+/* SEARCH */
+
+.search-box{
+    width:320px;
+    height:44px;
+
+    background:#0f172a;
+
+    border:1px solid #1e293b;
+
+    border-radius:14px;
+
+    display:flex;
+    align-items:center;
+
+    gap:10px;
+
+    padding:0 14px;
+}
+
+.search-box input{
+    flex:1;
+
+    background:none;
+    border:none;
+    outline:none;
+
+    color:#fff;
+
+    font-size:13px;
+}
+
+.search-box span{
+    color:#64748b;
+}
+
+/* ICONS */
+
+.top-icons{
+    display:flex;
+    align-items:center;
+    gap:16px;
+}
+
+.top-icons span{
+    color:#94a3b8;
+    cursor:pointer;
+    transition:.2s;
+}
+
+.top-icons span:hover{
+    color:#fff;
+}
+
+/* ================= MAIN ================= */
+
+.main{
+    width:100%;
+
+    padding:110px 34px 40px;
+}
+
+/* ================= PRODUCT BANNER ================= */
+
+.product-banner{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+
+    margin-bottom:34px;
+}
+
+/* LEFT */
+
+.banner-left{
+    display:flex;
+    gap:28px;
+}
+
+/* IMAGE */
+
+.product-image{
+    width:180px;
+    height:180px;
+
+    border-radius:24px;
+
+    background:#4b5f60;
+
+    overflow:hidden;
+
+    border:1px solid #1f2937;
+}
+
+.product-image img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+}
+
+/* CONTENT */
+
+.product-content small{
+    color:#3b82f6;
+
+    font-size:11px;
+
+    letter-spacing:1px;
+
+    font-weight:700;
+}
+
+.product-content h1{
+    margin-top:12px;
+
+    font-size:52px;
+
+    line-height:1;
+
+    font-weight:800;
+}
+
+.product-content p{
+    margin-top:16px;
+
+    max-width:700px;
+
+    line-height:1.8;
+
+    color:#94a3b8;
+
+    font-size:15px;
+}
+
+/* BUTTON */
+
+.add-btn{
+    width:180px;
+    height:58px;
+
+    border:none;
+
+    border-radius:18px;
+
+    background:linear-gradient(
+        90deg,
+        #2563eb,
+        #3b82f6
+    );
+
+    color:#fff;
+
+    font-size:15px;
+    font-weight:700;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    gap:8px;
+
+    cursor:pointer;
+
+    transition:.25s;
+    
+}
+a{
+    text-decoration:none;
+}
+
+.add-btn:hover{
+    transform:translateY(-2px);
+
+    box-shadow:
+        0 12px 24px rgba(37,99,235,.3);
+}
+
+/* ================= STATS ================= */
+
+.stats{
+    display:grid;
+
+    grid-template-columns:repeat(4,1fr);
+
+    gap:18px;
+
+    margin-bottom:36px;
+}
+
+.stat-card{
+    background:#0b0b0b;
+
+    border:1px solid #1f2937;
+
+    border-radius:20px;
+
+    padding:24px;
+}
+
+.stat-card small{
+    color:#64748b;
+
+    font-size:11px;
+
+    letter-spacing:1px;
+}
+
+.stat-card h2{
+    margin-top:14px;
+
+    font-size:34px;
+
+    font-weight:800;
+}
+
+.warning{
+    color:#f59e0b;
+}
+
+/* ================= TABLE ================= */
+
+.variant-box{
+    background:#0b0b0b;
+
+    border:1px solid #1f2937;
+
+    border-radius:24px;
+
+    overflow:hidden;
+}
+
+/* HEADER */
+
+.t-head{
+    display:grid;
+
+    grid-template-columns:
+    2.2fr
+    1fr
+    1fr
+    1.2fr
+    1fr
+    .8fr;
+
+    padding:20px 28px;
+
+    background:#0b1220;
+
+    color:#64748b;
+
+    font-size:11px;
+
+    letter-spacing:1px;
+
+    border-bottom:1px solid #1f2937;
+}
+
+/* ROW */
+
+.t-row{
+    display:grid;
+
+    grid-template-columns:
+    2.2fr
+    1fr
+    1fr
+    1.2fr
+    1fr
+    .8fr;
+
+    align-items:center;
+
+    padding:20px 28px;
+
+    border-bottom:1px solid #111827;
+
+    transition:.2s;
+}
+
+.t-row:hover{
+    background:#111827;
+}
+
+/* VARIANT */
+
+.variant-info{
+    display:flex;
+    align-items:center;
+    gap:16px;
+}
+
+/* ICON */
+
+.variant-icon{
+    width:40px;
+    height:40px;
+
+    border-radius:12px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+
+.red{
+    background:#3f1111;
+    color:#ef4444;
+}
+
+.white{
+    background:#1f2937;
+    color:#fff;
+}
+
+.blue{
+    background:#0f172a;
+    color:#60a5fa;
+}
+
+/* NAME */
+
+.variant-name{
+    font-size:15px;
+    font-weight:600;
+}
+
+/* SKU */
+
+.sku{
+    color:#64748b;
+    font-size:13px;
+}
+
+/* PRICE */
+
+.price{
+    font-size:15px;
+    font-weight:700;
+}
+
+/* STOCK */
+
+.stock-badge{
+    width:fit-content;
+
+    padding:6px 12px;
+
+    border-radius:20px;
+
+    font-size:11px;
+
+    font-weight:700;
+}
+
+.stock-green{
+    background:#064e3b;
+    color:#10b981;
+}
+
+.stock-yellow{
+    background:#3f2d07;
+    color:#f59e0b;
+}
+
+/* STATUS */
+
+.status{
+    width:fit-content;
+
+    padding:6px 12px;
+
+    border-radius:20px;
+
+    font-size:11px;
+
+    font-weight:700;
+}
+
+.active{
+    background:#064e3b;
+    color:#10b981;
+}
+
+.inactive{
+    background:#3f1111;
+    color:#ef4444;
+}
+/* DEFAULT */
+
+.default-status{
+
+    background:#1e3a8a;
+
+    color:#93c5fd;
+}
+
+/* ACTIONS */
+
+.actions{
+    display:flex;
+    align-items:center;
+    gap:14px;
+}
+
+.action-btn{
+    color:#94a3b8;
+    cursor:pointer;
+    transition:.2s;
+}
+
+.action-btn:hover{
+    color:#fff;
+}
+
+/* FOOTER */
+
+.footer{
+    padding:18px 28px;
+
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+
+    color:#64748b;
+
+    font-size:12px;
+}
+
+/* PAGINATION */
+
+.pages{
+    display:flex;
+    align-items:center;
+    gap:8px;
+}
+
+.page-btn{
+    padding:8px 14px;
+
+    border-radius:8px;
+
+    background:#111827;
+
+    color:#9ca3af;
+
+    cursor:pointer;
+}
+
+/* ================= MOBILE ================= */
+
+@media(max-width:1200px){
+
+    .stats{
+        grid-template-columns:repeat(2,1fr);
+    }
+
+    .variant-box{
+        overflow-x:auto;
+    }
+
+    .t-head,
+    .t-row{
+        min-width:900px;
+    }
+
+}
+/* BREADCRUMB */
+
+.breadcrumb{
+    display:flex;
+    align-items:center;
+    gap:8px;
+
+    font-size:12px;
+
+    color:#64748b;
+
+    letter-spacing:.5px;
+}
+
+.breadcrumb span{
+    color:#3b82f6;
+}
+/* BACK LINK */
+
+.back-link{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:6px;
+
+    color:#64748b;
+
+    text-decoration:none;
+
+    transition:.2s;
+}
+
+.back-link span{
+
+    font-size:14px;
+}
+
+.back-link:hover{
+
+    color:#3b82f6;
+}
+/* ================= TOAST ================= */
+
+#toast-container{
+
+    position:fixed;
+
+    top:20px;
+
+    right:20px;
+
+    z-index:99999;
+}
+
+.toast{
+
+    min-width:280px;
+
+    background:#0f172a;
+
+    border:1px solid #1e293b;
+
+    color:#fff;
+
+    padding:14px 16px;
+
+    margin-bottom:12px;
+
+    border-radius:12px;
+
+    display:flex;
+
+    align-items:center;
+
+    gap:12px;
+
+    box-shadow:
+        0 10px 30px rgba(0,0,0,.5);
+
+    animation:slideIn .35s ease;
+
+    font-size:13px;
+
+    font-weight:500;
+}
+
+/* SUCCESS */
+
+.toast.success{
+    border-left:4px solid #22c55e;
+}
+
+/* ERROR */
+
+.toast.error{
+    border-left:4px solid #ef4444;
+}
+
+/* ICON */
+
+.toast-icon{
+    font-size:20px;
+}
+
+/* SUCCESS ICON */
+
+.toast.success .toast-icon{
+    color:#22c55e;
+}
+
+/* ERROR ICON */
+
+.toast.error .toast-icon{
+    color:#ef4444;
+}
+
+/* ANIMATION */
+
+@keyframes slideIn{
+
+    from{
+        opacity:0;
+        transform:translateX(60px);
+    }
+
+    to{
+        opacity:1;
+        transform:translateX(0);
+    }
+
+}
+</style>
+
+</head>
+
+<body>
+
+<!-- TOPBAR -->
+
+<div class="topbar">
+    {% if messages %}
+
+<div id="toast-container">
+
+    {% for message in messages %}
+
+        <div class="toast {{ message.tags }}">
+
+            <span class="material-symbols-outlined toast-icon">
+
+                {% if message.tags == 'success' %}
+                    check_circle
+                {% elif message.tags == 'error' %}
+                    error
+                {% else %}
+                    info
+                {% endif %}
+
+            </span>
+
+            <span>{{ message }}</span>
+
+        </div>
+
+    {% endfor %}
+
+</div>
+
+{% endif %}
+
+    <!-- LEFT -->
+
+    <div class="top-left">
+
+        <div class="logo">
+            CORNER KICK
+        </div>
+
+        <div class="logo-sub">
+            VARIANT MANAGEMENT
+        </div>
+
+    </div>
+
+    <!-- RIGHT -->
+
+    <div class="top-actions">
+
+        <div class="search-box">
+
+            <span class="material-symbols-outlined">
+                search
+            </span>
+
+            <input
+                type="text"
+                placeholder="Search variants..."
+            >
+
+        </div>
+
+
+    </div>
+
+</div>
+
+<!-- MAIN -->
+
+<div class="main">
+
+    <!-- PRODUCT BANNER -->
+
+    <div class="product-banner">
+
+        <div class="banner-left">
+
+            <!-- IMAGE -->
+
+           <div class="product-image">
+
+    {% if default_variant and default_variant.images.first %}
+
+    <img
+        src="{{ default_variant.images.first.image.url }}"
+    >
+
+{% else %}
+
+    <img src="{% static 'images/default.png' %}">
+
+{% endif %}
+</div>
+
+            <!-- CONTENT -->
+
+            <div class="product-content">
+
+                <div class="breadcrumb">
+
+    <a
+    href="{% url 'admin_products:product_management' %}"
+    class="back-link">
+
+        <span class="material-symbols-outlined">
+            arrow_back_ios
+        </span>
+
+        PRODUCTS
+
+    </a>
+
+    /
+
+    <span>VARIANT MANAGEMENT</span>
+
+</div>
+
+                <h1>
+                    {{ product.product_name }}
+                </h1>
+
+                <p>
+                    Manage all size and color variations
+                    for the Elite Performance series.
+                    Each variant supports independent
+                    stock and pricing controls.
+                </p>
+
+            </div>
+
+        </div>
+
+        <!-- BUTTON -->
+
+        <a href="{% url "admin_products:add_variant" product.id %}"><button class="add-btn">
+
+            <span class="material-symbols-outlined">
+                add
+            </span>
+
+            ADD VARIANT
+
+        </button>
+        </a>
+
+    </div>
+
+    <!-- STATS -->
+
+    <div class="stats">
+
+        <div class="stat-card">
+
+            <small>TOTAL STOCK</small>
+
+            <h2>{{ total_stock }} Units</h2>
+
+        </div>
+
+        <div class="stat-card">
+
+            <small>ACTIVE VARIANTS</small>
+
+            <h2>{{ active_variants }} Models</h2>
+
+        </div>
+
+        <div class="stat-card">
+
+            <small>LOW STOCK ALERT</small>
+
+            <h2 class="warning">{{ low_stock }} Variant</h2>
+
+        </div>
+
+        <div class="stat-card">
+
+            <small>BASE PRICE</small>
+
+            <h2>
+
+        {% with variant=product.variants.first %}
+
+    {% if variant %}
+        ₹{{ variant.price }}
+    {% else %}
+        ₹0
+    {% endif %}
+
+{% endwith %}
+
+    </h2>
+
+        </div>
+
+    </div>
+
+    <!-- TABLE -->
+
+    <div class="variant-box">
+
+        <!-- HEADER -->
+
+        <div class="t-head">
+
+            <span>VARIANT NAME</span>
+
+            <span>SKU</span>
+
+            <span>PRICE</span>
+
+            <span>STOCK STATUS</span>
+
+            <span>STATUS</span>
+
+            <span>ACTIONS</span>
+
+        </div>
+
+        <!-- ROW -->
+
+       {% for variant in page_obj %}
+
+<div class="t-row">
+
+    <div class="variant-info">
+
+        <div class="variant-icon blue">
+
+            <span class="material-symbols-outlined">
+                checkroom
+            </span>
+
+        </div>
+
+        <div class="variant-name">
+
+            {{ variant.color }} - {{ variant.size }}
+
+        </div>
+
+    </div>
+
+    <div class="sku">
+
+        {{ variant.sku }}
+
+    </div>
+
+    <div class="price">
+
+        ₹ {{ variant.price }}
+
+    </div>
+
+    <div class="
+        stock-badge
+        {% if variant.stock < 20 %}
+            stock-yellow
+        {% else %}
+            stock-green
+        {% endif %}
+    ">
+
+        {{ variant.stock_status }}
+        ({{ variant.stock }})
+
+    </div>
+
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+
+    <!-- ACTIVE STATUS -->
+
+    <div class="
+        status
+        {% if variant.is_active %}
+            active
+        {% else %}
+            inactive
+        {% endif %}
+    ">
+
+        {% if variant.is_active %}
+            ACTIVE
+        {% else %}
+            INACTIVE
+        {% endif %}
+
+    </div>
+
+    <!-- DEFAULT STATUS -->
+
+    {% if variant.is_default %}
+
+    <div class="status default-status">
+
+        DEFAULT
+
+    </div>
+
+    {% endif %}
+
+</div>
+
+    <div class="actions">
+
+        <a href="{% url 'admin_products:edit_variant' variant.id %}">
+
+            <span class="material-symbols-outlined action-btn">
+                edit
+            </span>
+
+        </a>
+
+        <a href="{% url 'admin_products:delete_variant' variant.id %}">
+
+            <span class="material-symbols-outlined action-btn">
+                delete
+            </span>
+
+        </a>
+
+    </div>
+
+</div>
+
+{% endfor %}
+        <!-- FOOTER -->
+
+        <div class="footer">
+
+    <span>
+
+        Showing
+        {{ page_obj.start_index }}
+        to
+        {{ page_obj.end_index }}
+        of
+        {{ page_obj.paginator.count }}
+        variants
+
+    </span>
+
+    <div class="pages">
+
+        {% if page_obj.has_previous %}
+
+            <a
+            href="?page={{ page_obj.previous_page_number }}"
+            class="page-btn">
+
+                Previous
+
+            </a>
+
+        {% endif %}
+
+        {% if page_obj.has_next %}
+
+            <a
+            href="?page={{ page_obj.next_page_number }}"
+            class="page-btn">
+
+                Next
+
+            </a>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+    </div>
+
+</div>
+
+<script>
+
+setTimeout(() => {
+
+    const toasts =
+        document.querySelectorAll('.toast');
+
+    toasts.forEach((toast) => {
+
+        toast.style.opacity = '0';
+
+        toast.style.transform =
+            'translateX(50px)';
+
+    });
+
+    setTimeout(() => {
+
+        const container =
+            document.getElementById(
+                'toast-container'
+            );
+
+        if(container){
+            container.remove();
+        }
+
+    }, 500);
+
+}, 2500);
+
+</script>
+</body>
+</html>

@@ -1,0 +1,599 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Edit Profile</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Inter", sans-serif;
+}
+
+body {
+    background: #eef2f7;
+}
+
+.navbar {
+    height: 60px;
+    background: white;
+    display: flex;
+    align-items: center;
+    padding: 0 40px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    position: relative;
+}
+
+.nav-left {
+    font-weight: 900;
+    font-size: 20px;
+    color: #2f5bd3;
+}
+
+.nav-center {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+
+    display: flex;
+    gap: 40px;
+}
+
+.nav-center a {
+    text-decoration: none;
+    font-size: 14px;
+    color: #64748b;
+    font-weight: 600;
+    position: relative;
+    transition: 0.3s;
+}
+
+.nav-center a:hover {
+    color: #2563eb;
+}
+
+.nav-center a::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -6px;
+    width: 0%;
+    height: 2px;
+    background: #2563eb;
+    transition: 0.3s;
+}
+
+.nav-center a:hover::after {
+    width: 100%;
+}
+
+.material-symbols-outlined {
+    font-size: 22px;
+}
+
+.layout {
+    display: flex;
+}
+
+/* SIDEBAR */
+.sidebar {
+    width: 270px;
+    background: #f8fafc;
+    padding: 30px 20px;
+}
+
+.profile-box {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 30px;
+}
+
+.profile-img {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+}
+.profile-name {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0;
+}
+
+.profile-role {
+    font-size: 12px;
+    color: #64748b;
+    letter-spacing: 1px;
+    margin-top: 2px;
+}
+
+.profile-info p {
+    font-size: 12px;
+    color: #64748b;
+    margin-top: 2px;
+}
+
+.menu-title {
+    font-size: 11px;
+    color: #94a3b8;
+    margin-bottom: 12px;
+}
+
+.sidebar-item {
+    display: flex;
+    gap: 14px;
+    padding: 12px;
+    border-radius: 10px;
+    color: #64748b;
+    text-decoration: none;
+}
+
+.sidebar-item.active {
+    background: #eaf0ff;
+    color: #2563eb;
+    border-right: 4px solid #2563eb;
+}
+
+.main {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.card {
+    width: 500px;
+    background: #f8fafc;
+    padding: 40px;
+    border-radius: 16px;
+    text-align: center;
+}
+
+.avatar-wrapper {
+    position: relative;
+    width: 120px;
+    margin: auto;
+}
+
+.avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 4px solid white;
+}
+
+.avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.camera {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    background: #2563eb;
+    color: white;
+    border-radius: 50%;
+    padding: 6px;
+}
+
+.title {
+    margin-top: 20px;
+    font-size: 22px;
+    font-weight: 700;
+}
+
+.form {
+    margin-top: 25px;
+    text-align: left;
+}
+
+.field {
+    margin-bottom: 20px;
+}
+
+.field label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #64748b;
+}
+
+.field input {
+    width: 100%;
+    padding: 14px;
+    margin-top: 6px;
+    border-radius: 10px;
+    border: none;
+    background: #e2e8f0;
+}
+
+.actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.btn {
+    padding: 10px 18px;
+    border-radius: 8px;
+    border: none;
+}
+
+.cancel {
+    background: #e5e7eb;
+}
+
+.save {
+    background: #2563eb;
+    color: white;
+}
+.sidebar-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    text-decoration: none;
+    color: #64748b;
+    font-weight: 600;
+    border-radius: 10px;
+    transition: 0.2s;
+    position: relative;
+}
+
+.icon {
+    width: 22px;
+    height: 22px;
+    fill: currentColor; 
+}
+
+.sidebar-item:hover {
+    background: #e8edff;
+    color: #2563eb;
+}
+
+
+.sidebar-item.active {
+    background: #eaf0ff;
+    color: #2563eb;
+}
+
+.sidebar-item.active::after {
+    content: "";
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 100%;
+    width: 4px;
+    background: #2563eb;
+    border-radius: 4px;
+}
+.actions button,
+.actions a {
+    padding: 10px 16px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;   
+    display: inline-block;
+    font-size: 14px;
+}
+.cancel {
+    background: #e5e7eb;
+    color: black;
+}
+
+.save {
+    background: #2563eb;
+    color: white;
+}
+
+.profile-img,
+.avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+
+    transition: all 0.3s ease;
+}
+
+
+.avatar,
+.profile-img {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    overflow: hidden;
+
+    border: 4px solid #ffffff;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+
+    position: relative;
+}
+
+/* HOVER EFFECT */
+.avatar:hover img,
+.profile-img:hover {
+    transform: scale(1.05);
+}
+
+/* CAMERA BUTTON */
+.camera {
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+
+    background: #2563eb;
+    color: white;
+
+    border-radius: 50%;
+    padding: 6px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.camera:hover {
+    background: #1d4ed8;
+}
+.avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    overflow: hidden;
+    position: relative;
+}
+
+.avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* REMOVE BUTTON */
+/* REMOVE BUTTON - THEME MATCHED */
+.remove-photo-btn {
+    margin-top: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin-left: 125px;
+
+    width: 40%;
+    padding: 9px 12px;
+
+    font-size: 12px;
+    font-weight: 600;
+
+    color: #2563eb;              /* primary blue */
+    background: #eaf0ff;         /* soft blue background */
+
+    border: 1px solid #c7d2fe;   /* light border */
+    border-radius: 10px;
+
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+
+/* ICON */
+.remove-photo-btn span {
+    font-size: 16px;
+    opacity: 0.9;
+}
+
+/* HOVER */
+.remove-photo-btn:hover {
+    background: #2563eb;
+    color: #ffffff;
+    border-color: #2563eb;
+}
+
+/* CLICK EFFECT */
+.remove-photo-btn:active {
+    transform: scale(0.96);
+}
+
+/* OPTIONAL subtle shadow (matches card style) */
+.remove-photo-btn {
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
+}
+</style>
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<div class="navbar">
+
+    
+    <div class="nav-left">CORNER KICK</div>
+
+    
+    <div class="nav-center">
+        <a href="#">ALL</a>
+        <a href="#">FOOTBALL</a>
+        <a href="#">CRICKET</a>
+        <a href="#">BASKETBALL</a>
+        <a href="#">BADMINTON</a>
+    </div>
+
+    
+    <div class="nav-right"></div>
+
+</div>
+
+<div class="layout">
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+
+        <div class="profile-box">
+
+    <div class="avatar">
+
+{% load static %}
+
+{% if profile.image %}
+    <img src="{{ profile.image.url }}">
+{% else %}
+    <img src="{% static 'images/default.png' %}">
+{% endif %}
+</div>
+
+    <div class="profile-info">
+        <h3>{{ user.first_name }} {{ user.last_name }}</h3>
+    </div>
+
+</div>
+
+        <div class="menu-title">ACCOUNT SETTINGS</div>
+
+        <!-- ITEMS -->
+        <a href="#" class="sidebar-item active">
+            <svg class="icon" viewBox="0 0 24 24">
+                <path d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zm0 2c-3.3 0-10 1.7-10 5v3h20v-3c0-3.3-6.7-5-10-5z"/>
+            </svg>
+            PROFILE
+        </a>
+
+        <a href="#" class="sidebar-item">
+            <svg class="icon" viewBox="0 0 24 24">
+                <path d="M12 2C8.1 2 5 5.1 5 9c0 5.2 7 13 7 13s7-7.8 7-13c0-3.9-3.1-7-7-7z"/>
+            </svg>
+            ADDRESS
+        </a>
+
+        <a href="#" class="sidebar-item">
+            <svg class="icon" viewBox="0 0 24 24">
+                <path d="M6 2l1.5 4h9L18 2H6zm-2 6h16l-1.5 12h-13L4 8z"/>
+            </svg>
+            MY ORDERS
+        </a>
+
+        <a href="#" class="sidebar-item">
+            <svg class="icon" viewBox="0 0 24 24">
+                <path d="M12 21s-6.7-4.4-9.3-8.1C1.2 10.7 2.5 7 6 7c2 0 3 1 4 2 1-1 2-2 4-2 3.5 0 4.8 3.7 3.3 5.9C18.7 16.6 12 21 12 21z"/>
+            </svg>
+            WISHLIST
+        </a>
+
+        <a href="#" class="sidebar-item">
+            <svg class="icon" viewBox="0 0 24 24">
+                <path d="M21 7H3v10h18V7zM3 5h18v2H3V5zm4 6h6v2H7v-2z"/>
+            </svg>
+            WALLET
+        </a>
+
+    </div>
+
+<!-- CENTER -->
+<div class="main">
+
+    <div class="card">
+
+
+    <form method="POST" action="{% url 'userinfo:edit_profile' %}" 
+      enctype="multipart/form-data" class="form">
+
+    {% csrf_token %}
+
+    <div class="avatar-wrapper">
+    <div class="avatar">
+        {% if profile.image %}
+            <img src="{{ profile.image.url }}" id="preview">
+        {% else %}
+            <img src="{% static 'images/default.png' %}" id="preview">
+        {% endif %}
+    </div>
+
+    <input type="file" name="profile_image" id="imageInput" hidden>
+
+    <label for="imageInput" class="camera">
+        <span class="material-symbols-outlined">photo_camera</span>
+    </label>
+</div>
+
+<!-- ✅ MOVE HERE -->
+<input type="hidden" name="remove_image" id="removeImageInput">
+
+    <button type="button" class="remove-photo-btn" onclick="removePhoto()">
+        <span class="material-symbols-outlined">delete</span>
+        Remove Photo
+    </button>
+    
+
+    <h2 class="title">Edit Profile</h2>
+
+    <div class="field">
+        <label>FULL NAME</label>
+        <input type="text" name="full_name"
+               value="{{ user.first_name }} {{ user.last_name }}">
+    </div>
+
+    <div class="field">
+        <label>EMAIL ADDRESS</label>
+        <input type="email" name="email"
+               value="{{ user.email }}">
+    </div>
+
+    <div class="field">
+        <label>PHONE NUMBER</label>
+        <input type="tel" name="phone"
+       value="{{ profile.phone|default:'' }}"
+       pattern="[0-9]{10}" maxlength="10" required>
+    </div>
+
+    <div class="actions">
+        <a href="{% url 'userinfo:profile' %}" class="btn cancel">Cancel</a>
+        <button type="submit" class="btn save">Save Changes</button>
+    </div>
+
+</form>
+
+</div>
+
+</div>
+
+</div>
+
+<script>
+const input = document.getElementById("imageInput");
+const preview = document.getElementById("preview");
+
+if(input && preview){
+    input.addEventListener("change", function(e){
+        const file = e.target.files[0];
+        if(file){
+            preview.src = URL.createObjectURL(file);
+        }
+    });
+}
+</script>
+<script>
+function removePhoto(){
+    document.getElementById("removeImageInput").value = "1";
+
+    // show default image immediately
+    document.getElementById("preview").src = "{% static 'images/default.png' %}";
+}
+</script>
+</body>
+</html>

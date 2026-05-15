@@ -1,0 +1,347 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Verify OTP</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family: 'Inter', sans-serif;
+}
+
+body{
+    display:flex;
+    height:100vh;
+}
+
+/* LEFT SIDE */
+.left{
+    flex:1;
+    background: linear-gradient(rgba(10,20,40,0.8), rgba(10,20,40,0.8)),
+    url("https://images.unsplash.com/photo-1518091043644-c1d4457512c6");
+    background-size:cover;
+    background-position:center;
+    color:white;
+    padding:60px;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+}
+
+.left h1{
+    font-size:48px;
+    font-weight:800;
+    line-height:1.2;
+}
+
+/* RIGHT SIDE */
+.right{
+    flex:1;
+    background:#f1f5f9;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+
+/* CARD */
+.card{
+    background:white;
+    padding:30px;
+    border-radius:14px;
+    width:360px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.1);
+}
+
+.card h2{
+    margin-bottom:10px;
+}
+
+.card p{
+    font-size:14px;
+    color:#555;
+    margin-bottom:20px;
+}
+
+/* OTP BOX */
+.otp-container{
+    display:flex;
+    gap:10px;
+    justify-content:center;
+    margin-bottom:15px;
+}
+
+.otp-input{
+    width:45px;
+    height:50px;
+    text-align:center;
+    font-size:20px;
+    border-radius:8px;
+    border:1px solid #ddd;
+    outline:none;
+}
+
+/* TIMER */
+.timer{
+    font-size:12px;
+    color:#666;
+    margin-bottom:10px;
+    display:flex;
+    justify-content:space-between;
+}
+
+/* BUTTON */
+.btn{
+    width:100%;
+    padding:12px;
+    background:#2563eb;
+    border:none;
+    color:white;
+    border-radius:8px;
+    font-weight:600;
+    cursor:pointer;
+}
+
+/* RESEND */
+.resend{
+    text-align:center;
+    font-size:13px;
+    margin-top:10px;
+}
+
+.resend a{
+    color:#2563eb;
+    text-decoration:none;
+}
+.error-msg {
+    background: #fee2e2;
+    color: #dc2626;
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 13px;
+    margin-bottom: 12px;
+    text-align: center;
+}
+</style>
+</head>
+
+<body>
+
+<!-- LEFT -->
+<div class="left">
+    <h1>PRECISION<br>PLAYMAKER<br>GEAR</h1>
+</div>
+
+<!-- RIGHT -->
+<div class="right">
+
+<div class="card">
+    {% if messages %}
+    {% for message in messages %}
+        {% if "otp" in message.tags %}
+            <div class="error-msg">
+                {{ message }}
+            </div>
+        {% endif %}
+    {% endfor %}
+{% endif %}
+
+    <h2>Verify OTP</h2>
+    <p>Enter the 6-digit code sent to your email</p>
+
+    <form method="POST">
+        {% csrf_token %}
+
+        <!-- OTP INPUT -->
+        <div class="otp-container">
+    <input type="text" maxlength="1" name="otp1" class="otp-input" required>
+    <input type="text" maxlength="1" name="otp2" class="otp-input" required>
+    <input type="text" maxlength="1" name="otp3" class="otp-input" required>
+    <input type="text" maxlength="1" name="otp4" class="otp-input" required>
+    <input type="text" maxlength="1" name="otp5" class="otp-input" required>
+    <input type="text" maxlength="1" name="otp6" class="otp-input" required>
+</div>
+
+        <!-- HIDDEN FIELD (REAL OTP VALUE) -->
+        <input type="hidden" name="otp" id="otp_value">
+
+        <div class="timer">
+            <span id="countdown">{{ time_left }}</span>
+        </div>
+
+        <button type="submit" class="btn">Verify & Proceed</button>
+    </form>
+
+    <div class="resend">
+        Didn't receive code? <a id="resendBtn" href="{% url 'resend_signup_otp' %}">Resend Code</a>
+    </div>
+
+</div>
+
+</div>
+<script>
+
+// ======================
+// SELECT ELEMENTS
+// ======================
+
+const inputs = document.querySelectorAll(".otp-input");
+const form = document.querySelector("form");
+
+const countdown = document.getElementById("countdown");
+const resendBtn = document.getElementById("resendBtn");
+
+
+// ======================
+// OTP INPUT HANDLING
+// ======================
+
+inputs.forEach((input, index) => {
+
+    // Only numbers
+    input.addEventListener("input", () => {
+
+        input.value = input.value.replace(/[^0-9]/g, "");
+
+        // Auto next focus
+        if (input.value.length === 1 && index < inputs.length - 1) {
+            inputs[index + 1].focus();
+        }
+
+    });
+
+    // Backspace previous focus
+    input.addEventListener("keydown", (e) => {
+
+        if (e.key === "Backspace" && input.value === "" && index > 0) {
+            inputs[index - 1].focus();
+        }
+
+    });
+
+    // Paste full OTP
+    input.addEventListener("paste", (e) => {
+
+        let pasteData = e.clipboardData
+            .getData("text")
+            .replace(/[^0-9]/g, "");
+
+        if (pasteData.length === inputs.length) {
+
+            inputs.forEach((inp, i) => {
+                inp.value = pasteData[i];
+            });
+
+        }
+
+        e.preventDefault();
+
+    });
+
+});
+
+
+// ======================
+// COMBINE OTP BEFORE SUBMIT
+// ======================
+
+form.addEventListener("submit", function(e) {
+
+    let otp = "";
+
+    inputs.forEach(input => {
+        otp += input.value;
+    });
+
+    // Full OTP validation
+    if (otp.length !== 6) {
+
+        e.preventDefault();
+
+        alert("Enter complete OTP");
+
+        return;
+
+    }
+
+    // Store combined OTP
+    document.getElementById("otp_value").value = otp;
+
+});
+
+
+// ======================
+// TIMER + RESEND CONTROL
+// ======================
+
+// Disable resend initially
+resendBtn.style.pointerEvents = "none";
+resendBtn.style.opacity = "0.5";
+
+
+// IMPORTANT:
+// countdown text comes from Django {{ time_left }}
+let time = parseInt(countdown.innerText);
+
+
+// If already expired after refresh
+if (time <= 0) {
+
+    countdown.textContent = "Expired";
+
+    resendBtn.style.pointerEvents = "auto";
+    resendBtn.style.opacity = "1";
+
+    document.querySelector(".btn").disabled = true;
+
+    inputs.forEach(input => {
+        input.disabled = true;
+    });
+
+}
+else {
+
+    const timer = setInterval(() => {
+
+        let min = Math.floor(time / 60);
+        let sec = time % 60;
+
+        countdown.textContent =
+            String(min).padStart(2, '0') + ":" +
+            String(sec).padStart(2, '0');
+
+        if (time <= 0) {
+
+            clearInterval(timer);
+
+            countdown.textContent = "Expired";
+
+            // Enable resend
+            resendBtn.style.pointerEvents = "auto";
+            resendBtn.style.opacity = "1";
+
+            // Disable verify button
+            document.querySelector(".btn").disabled = true;
+
+            // Disable OTP inputs
+            inputs.forEach(input => {
+                input.disabled = true;
+            });
+
+        }
+
+        time--;
+
+    }, 1000);
+
+}
+
+</script>
+</body>
+</html>

@@ -1,0 +1,1618 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+Product Details
+{% endblock %}
+
+
+{% block extra_css %}
+<style>
+
+
+/* ================= BREADCRUMB ================= */
+
+.breadcrumb{
+    padding:24px 48px 10px;
+
+    display:flex;
+    align-items:center;
+    gap:8px;
+
+    font-size:11px;
+
+    color:#64748b;
+
+    letter-spacing:1px;
+
+    font-weight:700;
+}
+
+.breadcrumb a{
+    text-decoration:none;
+    color:#64748b;
+}
+
+.breadcrumb span{
+    color:#2563eb;
+}
+
+/* ================= MAIN ================= */
+
+.main{
+    display:grid;
+    grid-template-columns:1.1fr .9fr;
+
+    gap:50px;
+
+    padding:20px 48px 70px;
+}
+
+/* ================= GALLERY ================= */
+
+.gallery{
+    display:flex;
+    flex-direction:column;
+    gap:18px;
+}
+
+.main-image{
+    width:100%;
+    height:620px;
+
+    background:#ffffff;
+
+    border-radius:28px;
+
+    overflow:hidden;
+
+    border:1px solid #e2e8f0;
+
+    position:relative;
+}
+
+.main-image img{
+    width:100%;
+    height:100%;
+
+    object-fit:cover;
+
+    transition:.3s;
+}
+
+
+.zoom-tag{
+    position:absolute;
+
+    bottom:18px;
+    right:18px;
+
+    background:#ffffff;
+
+    border-radius:12px;
+
+    padding:10px 14px;
+
+    font-size:11px;
+
+    font-weight:700;
+
+    color:#0f172a;
+
+    border:1px solid #e2e8f0;
+}
+.zoom-lens{
+
+    position:absolute;
+
+    width:180px;
+    height:180px;
+
+    border-radius:50%;
+
+    border:4px solid #ffffff;
+
+    overflow:hidden;
+
+    pointer-events:none;
+
+    display:none;
+
+    z-index:999;
+
+    background-repeat:no-repeat;
+
+    box-shadow:0 10px 30px rgba(0,0,0,.35);
+
+    cursor:none;
+}
+
+
+/* THUMBNAILS */
+
+.thumbnail-row{
+    display:flex;
+    gap:14px;
+
+    flex-wrap:wrap;
+}
+
+.thumb{
+    width:92px;
+    height:92px;
+
+    border-radius:18px;
+
+    overflow:hidden;
+
+    background:#ffffff;
+
+    border:2px solid transparent;
+
+    cursor:pointer;
+
+    transition:.2s;
+}
+
+.thumb.active,
+.thumb:hover{
+    border-color:#2563eb;
+}
+
+.thumb img{
+    width:100%;
+    height:100%;
+
+    object-fit:cover;
+}
+
+/* ================= INFO ================= */
+
+.info{
+    background:#ffffff;
+
+    border:1px solid #e2e8f0;
+
+    border-radius:28px;
+
+    padding:34px;
+
+    height:fit-content;
+
+    position:sticky;
+    top:24px;
+}
+
+.product-category{
+    color:#2563eb;
+
+    font-size:11px;
+
+    letter-spacing:1px;
+
+    font-weight:700;
+
+    margin-bottom:12px;
+}
+
+.product-title{
+    font-size:42px;
+
+    font-weight:800;
+
+    line-height:1.1;
+
+    margin-bottom:18px;
+}
+
+/* PRICE */
+
+.price-row{
+    display:flex;
+    align-items:center;
+    gap:14px;
+
+    margin-bottom:24px;
+}
+
+.price{
+    font-size:36px;
+
+    font-weight:800;
+
+    color:#2563eb;
+}
+
+.old-price{
+    color:#94a3b8;
+
+    text-decoration:line-through;
+
+    font-size:18px;
+}
+
+.discount{
+    background:#dbeafe;
+
+    color:#2563eb;
+
+    padding:8px 12px;
+
+    border-radius:20px;
+
+    font-size:11px;
+
+    font-weight:700;
+}
+
+/* STOCK */
+
+.stock-box{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+
+    padding:10px 14px;
+
+    border-radius:20px;
+
+    background:#ecfdf5;
+
+    color:#059669;
+
+    font-size:12px;
+
+    font-weight:700;
+
+    margin-bottom:28px;
+}
+
+.stock-dot{
+    width:8px;
+    height:8px;
+
+    border-radius:50%;
+
+    background:#10b981;
+}
+
+/* SELECTORS */
+
+.section-title{
+    font-size:12px;
+
+    letter-spacing:1px;
+
+    color:#64748b;
+
+    font-weight:700;
+
+    margin-bottom:14px;
+}
+
+.color-options,
+.size-options{
+    display:flex;
+    gap:12px;
+
+    flex-wrap:wrap;
+
+    margin-bottom:30px;
+}
+
+.color-box{
+    width:42px;
+    height:42px;
+
+    border-radius:12px;
+
+    border:2px solid transparent;
+
+    cursor:pointer;
+}
+
+.color-box.active{
+    border-color:#2563eb;
+}
+
+.size-box{
+    min-width:70px;
+    height:48px;
+
+    border-radius:14px;
+
+    border:1px solid #cbd5e1;
+
+    background:#ffffff;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    font-size:13px;
+
+    font-weight:700;
+
+    cursor:pointer;
+
+    transition:.2s;
+}
+
+.size-box.active,
+.size-box:hover{
+    background:#2563eb;
+    color:#ffffff;
+    border-color:#2563eb;
+}
+
+/* BUTTONS */
+
+.button-group{
+    display:flex;
+    gap:14px;
+
+    margin-bottom:34px;
+}
+
+.cart-btn{
+    flex:1;
+
+    height:56px;
+
+    border:none;
+
+    border-radius:16px;
+
+    background:linear-gradient(
+        90deg,
+        #2563eb,
+        #3b82f6
+    );
+
+    color:#ffffff;
+
+    font-size:14px;
+
+    font-weight:700;
+
+    cursor:pointer;
+
+    transition:.25s;
+}
+
+.cart-btn:hover{
+    transform:translateY(-2px);
+
+    box-shadow:0 14px 30px rgba(37,99,235,.25);
+}
+
+.cart-btn:disabled{
+    opacity:.6;
+    cursor:not-allowed;
+    transform:none;
+    box-shadow:none;
+    background:#94a3b8;
+}
+.wishlist-btn{
+
+    width:58px;
+
+    border:none;
+
+    border-radius:16px;
+
+    background:#eff6ff;
+
+    color:#2563eb;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    cursor:pointer;
+
+    text-decoration:none;
+
+    transition:.25s;
+
+}
+
+/* ICON */
+
+.wishlist-btn span{
+
+    font-size:28px;
+
+    transition:.25s;
+
+}
+
+/* HOVER */
+
+.wishlist-btn:hover{
+
+    background:#2563eb;
+
+    transform:translateY(-2px);
+
+}
+
+.wishlist-btn:hover span{
+
+    color:#ffffff;
+
+}
+
+/* ACTIVE */
+
+.wishlist-btn.active{
+
+    background:#2563eb;
+
+}
+
+.wishlist-btn.active span{
+
+    color:#ffffff;
+
+}
+
+
+/* ACCORDION */
+
+.accordion{
+    border-top:1px solid #e2e8f0;
+}
+
+.accordion-item{
+    border-bottom:1px solid #e2e8f0;
+
+    padding:18px 0;
+}
+
+.accordion-title{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+
+    font-size:13px;
+
+    font-weight:700;
+
+    color:#0f172a;
+
+    margin-bottom:14px;
+}
+
+.accordion-content{
+    color:#64748b;
+
+    font-size:14px;
+
+    line-height:1.8;
+}
+
+/* ================= RELATED ================= */
+
+.related{
+    padding:0 48px 70px;
+}
+
+.related h2{
+    font-size:34px;
+
+    margin-bottom:30px;
+
+    font-weight:800;
+}
+
+.related-grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+
+    gap:24px;
+}
+
+.related-card{
+    background:#ffffff;
+
+    border:1px solid #e2e8f0;
+
+    border-radius:24px;
+
+    overflow:hidden;
+
+    transition:.25s;
+}
+
+.related-card:hover{
+    transform:translateY(-4px);
+
+    box-shadow:0 10px 28px rgba(0,0,0,.08);
+}
+
+.related-image{
+    width:100%;
+    height:280px;
+
+    overflow:hidden;
+}
+
+.related-image img{
+    width:100%;
+    height:100%;
+
+    object-fit:cover;
+}
+
+.related-body{
+    padding:18px;
+}
+
+.related-title{
+    font-size:14px;
+
+    font-weight:700;
+
+    line-height:1.6;
+
+    margin-bottom:10px;
+}
+
+.related-price{
+    color:#2563eb;
+
+    font-size:18px;
+
+    font-weight:800;
+}
+
+/* ================= RESPONSIVE ================= */
+
+@media(max-width:1200px){
+
+    .main{
+        grid-template-columns:1fr;
+    }
+
+    .related-grid{
+        grid-template-columns:repeat(2,1fr);
+    }
+}
+
+@media(max-width:700px){
+
+    .navbar{
+        padding:0 20px;
+    }
+
+    .nav-links{
+        display:none;
+    }
+
+    .breadcrumb,
+    .main,
+    .related{
+        padding-left:20px;
+        padding-right:20px;
+    }
+
+    .product-title{
+        font-size:32px;
+    }
+
+    .main-image{
+        height:420px;
+    }
+
+    .related-grid{
+        grid-template-columns:1fr;
+    }
+
+    .button-group{
+        flex-direction:column;
+    }
+
+    .wishlist-btn{
+        width:100%;
+        height:56px;
+    }
+}
+.related-pagination{
+
+    margin-top:50px;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    gap:16px;
+
+}
+
+.pagination-number,
+.pagination-arrow{
+
+    width:62px;
+
+    height:62px;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    border-radius:18px;
+
+    text-decoration:none;
+
+    font-size:22px;
+
+    font-weight:700;
+
+    background:#f3f4f6;
+
+    color:#1f2937;
+
+    border:1px solid #d1d5db;
+
+    transition:0.3s ease;
+
+}
+
+.pagination-number:hover,
+.pagination-arrow:hover{
+
+    background:#2563eb;
+
+    color:white;
+
+    transform:translateY(-3px);
+
+    border-color:#2563eb;
+
+}
+
+.pagination-number.active{
+
+    background:#2563eb;
+
+    color:white;
+
+    border-color:#2563eb;
+
+    box-shadow:0 10px 25px rgba(37,99,235,0.25);
+
+}
+
+@media(max-width:768px){
+
+    .pagination-number,
+    .pagination-arrow{
+
+        width:52px;
+
+        height:52px;
+
+        font-size:18px;
+
+        border-radius:14px;
+
+    }
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<!-- ================= NAVBAR ================= -->
+
+{% endblock %}
+
+
+{% block content %}
+
+<!-- ================= BREADCRUMB ================= -->
+
+<div class="breadcrumb">
+
+    <a href="{% url 'user_products:shop' %}">
+        SHOP
+    </a>
+
+    /
+
+    <a href="#">
+        {{ product.category.category_name }}
+    </a>
+
+    /
+
+    <span>
+        {{ product.product_name }}
+    </span>
+
+</div>
+
+<!-- ================= MAIN ================= -->
+
+<div class="main">
+
+    <!-- ================= GALLERY ================= -->
+
+    <div class="gallery">
+
+        <div class="main-image">
+            <div class="zoom-lens" id="zoomLens"></div>
+
+            {% if primary_image %}
+
+            <img
+            id="mainProductImage"
+            src="{{ primary_image.image.url }}"
+            >
+
+            {% else %}
+
+            <img
+            id="mainProductImage"
+            src="{% static 'images/default.png' %}"
+            >
+
+            {% endif %}
+
+
+        </div>
+
+        <!-- THUMBNAILS -->
+
+        <div
+class="thumbnail-row"
+id="thumbnailContainer"
+>
+
+{% for image in default_variant.images.all %}
+
+<div
+class="thumb {% if forloop.first %}active{% endif %}"
+onclick="changeImage(this, '{{ image.image.url }}')"
+>
+
+    <img src="{{ image.image.url }}">
+
+</div>
+
+{% endfor %}
+
+</div>
+
+    </div>
+
+    <!-- ================= PRODUCT INFO ================= -->
+
+    <div class="info">
+
+        <div class="product-category">
+            {{ product.category.category_name }}
+        </div>
+
+        <div class="product-title">
+            {{ product.product_name }}
+        </div>
+
+        <!-- PRICE -->
+
+        <div class="price-row">
+
+        <div class="price" id="productPrice">
+            ₹{{ default_variant.price }}
+        </div>
+
+            <div class="old-price">
+                ₹4999
+            </div>
+
+            <div class="discount">
+                20% OFF
+            </div>
+
+        </div>
+
+        <!-- STOCK -->
+
+        {% if default_variant.stock > 0 %}
+
+        <div class="stock-box">
+
+            <div class="stock-dot"></div>
+
+            <span id="stockText">
+            IN STOCK ({{ default_variant.stock }} LEFT)
+        </span>
+
+        </div>
+
+        {% else %}
+
+        <div class="stock-box" style="background:#fef2f2;color:#ef4444;">
+
+            <div class="stock-dot" style="background:#ef4444;"></div>
+
+            OUT OF STOCK
+
+        </div>
+
+        {% endif %}
+<!-- COLORS -->
+<!-- COLORS -->
+
+<div class="section-title">
+    SELECT COLOR
+</div>
+
+<div class="color-options" id="colorContainer">
+
+</div>
+
+
+<!-- SIZES -->
+
+<div class="section-title">
+    SELECT SIZE
+</div>
+
+<div
+class="size-options"
+id="sizeContainer"
+>
+
+</div>
+
+
+
+
+<!-- BUTTONS -->
+
+<form
+method="POST"
+action="{% url 'user_products:add_to_cart' %}"
+>
+
+    {% csrf_token %}
+
+    <input
+    type="hidden"
+    name="variant_id"
+    id="selectedVariant"
+    value="{{ default_variant.id }}"
+    >
+
+    <input
+    type="hidden"
+    name="quantity"
+    value="1"
+    >
+
+    <div class="button-group">
+
+        <button
+type="submit"
+class="cart-btn"
+id="cartButton"
+
+{% if default_variant.stock <= 0 %}
+disabled
+{% endif %}
+
+>
+
+{% if default_variant.stock <= 0 %}
+
+OUT OF STOCK
+
+{% else %}
+
+ADD TO CART
+
+{% endif %}
+
+</button>
+
+<a
+href="#"
+data-url="{% url 'user_products:toggle_wishlist' product.id %}"
+class="wishlist-btn
+{% if is_wishlisted %}
+active
+{% endif %}
+"
+>
+
+<span class="material-symbols-outlined">
+
+{% if is_wishlisted %}
+
+favorite
+
+{% else %}
+
+favorite_border
+
+{% endif %}
+
+</span>
+
+    </a>
+
+    </div>
+
+</form>
+
+
+        <!-- ACCORDION -->
+
+        <div class="accordion">
+
+            <div class="accordion-item">
+
+                <div class="accordion-title">
+
+                    DESCRIPTION
+
+                    <span class="material-symbols-outlined">
+                        expand_more
+                    </span>
+
+                </div>
+
+                <div class="accordion-content">
+                    {{ product.description }}
+                </div>
+
+            </div>
+
+            <div class="accordion-item">
+
+                <div class="accordion-title">
+
+                    MATERIALS & CARE
+
+                    <span class="material-symbols-outlined">
+                        expand_more
+                    </span>
+
+                </div>
+
+                <div class="accordion-content">
+                    {{ product.materials }}
+                    <br><br>
+                    {{ product.care_guide }}
+                </div>
+
+            </div>
+
+            <div class="accordion-item">
+
+                <div class="accordion-title">
+
+                    DELIVERY & RETURNS
+
+                    <span class="material-symbols-outlined">
+                        expand_more
+                    </span>
+
+                </div>
+
+                <div class="accordion-content">
+                    {{ product.delivery_returns }}
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ================= RELATED PRODUCTS ================= -->
+
+<div class="related">
+
+    <h2>RELATED PRODUCTS</h2>
+
+    <div class="related-grid">
+
+        {% for related in related_products %}
+
+        <a
+            href="{% url 'user_products:product_details' related.slug %}"
+            class="related-link"
+        >
+
+            <div class="related-card">
+
+                <div class="related-image">
+
+                    {% with variant=related.variants.first %}
+
+                        {% if variant and variant.primary_image %}
+
+                            <img
+                                src="{{ variant.primary_image }}"
+                                alt="{{ related.product_name }}"
+                            >
+
+                        {% else %}
+
+                            <img
+                                src="{% static 'images/default.png' %}"
+                                alt="Default Image"
+                            >
+
+                        {% endif %}
+
+                    {% endwith %}
+
+                </div>
+
+                <div class="related-body">
+
+                    <div class="related-title">
+
+                        {{ related.product_name }}
+
+                    </div>
+
+                    {% with variant=related.variants.first %}
+
+                    <div class="related-price">
+
+                        ₹{{ variant.price }}
+
+                    </div>
+
+                    {% endwith %}
+
+                </div>
+
+            </div>
+
+        </a>
+
+        {% empty %}
+
+        <p>No related products found.</p>
+
+        {% endfor %}
+
+    </div>
+
+    <!-- PAGINATION -->
+
+   <div class="related-pagination">
+
+    {% if related_products.has_previous %}
+
+    <a
+        href="?related_page={{ related_products.previous_page_number }}"
+        class="pagination-arrow"
+    >
+        ‹
+    </a>
+
+    {% endif %}
+
+    {% for num in related_products.paginator.page_range %}
+
+        {% if related_products.number == num %}
+
+            <a
+                href="?related_page={{ num }}"
+                class="pagination-number active"
+            >
+                {{ num }}
+            </a>
+
+        {% else %}
+
+            <a
+                href="?related_page={{ num }}"
+                class="pagination-number"
+            >
+                {{ num }}
+            </a>
+
+        {% endif %}
+
+    {% endfor %}
+
+    {% if related_products.has_next %}
+
+    <a
+        href="?related_page={{ related_products.next_page_number }}"
+        class="pagination-arrow"
+    >
+        ›
+    </a>
+
+    {% endif %}
+
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+function changeImage(element, imageUrl){
+
+    document
+    .getElementById(
+        'mainProductImage'
+    ).src = imageUrl;
+
+    document
+    .querySelectorAll('.thumb')
+    .forEach((thumb)=>{
+
+        thumb.classList.remove('active');
+
+    });
+
+    element.classList.add('active');
+}
+
+let selectedColor = "{{ default_variant.color }}";
+
+let selectedSize = "{{ default_variant.size }}";
+
+const variants = [
+
+{% for variant in variants %}
+
+{
+    id: "{{ variant.id }}",
+
+    color: "{{ variant.color }}",
+
+    size: "{{ variant.size }}",
+
+    price: "{{ variant.price }}",
+
+    stock: "{{ variant.stock }}",
+
+    images: [
+
+        {% for image in variant.images.all %}
+
+        "{{ image.image.url }}",
+
+        {% endfor %}
+
+    ],
+},
+
+{% endfor %}
+
+];
+
+
+// =====================================
+// UPDATE PRODUCT UI
+// =====================================
+
+function updateVariant(){
+
+    const matchedVariant = variants.find(
+
+        variant =>
+
+            variant.color === selectedColor &&
+
+            variant.size === selectedSize
+
+    );
+
+    if(!matchedVariant){
+        return;
+    }
+
+    // IMAGE
+
+    if(matchedVariant.images.length > 0){
+
+        document.getElementById(
+            "mainProductImage"
+        ).src =
+            matchedVariant.images[0];
+
+        const thumbnailContainer =
+        document.getElementById(
+            "thumbnailContainer"
+        );
+
+        thumbnailContainer.innerHTML = "";
+
+        matchedVariant.images.forEach(
+
+            (image, index)=>{
+
+                thumbnailContainer.innerHTML += `
+
+                    <div
+                    class="thumb ${index === 0 ? 'active' : ''}"
+                    onclick="changeImage(this, '${image}')"
+                    >
+
+                        <img src="${image}">
+
+                    </div>
+
+                `;
+
+            }
+
+        );
+
+    }
+
+    // PRICE
+
+    document.getElementById(
+        "productPrice"
+    ).innerText =
+        "₹" + matchedVariant.price;
+
+    // STOCK
+
+    const stock =
+    parseInt(matchedVariant.stock);
+
+    document.getElementById(
+        "stockText"
+    ).innerText =
+        `IN STOCK (${stock} LEFT)`;
+
+    // CART BUTTON
+
+    const cartBtn =
+    document.getElementById(
+        "cartButton"
+    );
+
+    if(stock <= 0){
+
+        cartBtn.disabled = true;
+
+        cartBtn.innerText =
+        "OUT OF STOCK";
+
+    }else{
+
+        cartBtn.disabled = false;
+
+        cartBtn.innerText =
+        "ADD TO CART";
+
+    }
+
+    // VARIANT ID
+
+    document.getElementById(
+        "selectedVariant"
+    ).value =
+        matchedVariant.id;
+
+}
+
+
+// =====================================
+// RENDER COLORS
+// =====================================
+function renderColors(){
+
+    const colorContainer =
+    document.getElementById(
+        "colorContainer"
+    );
+
+    colorContainer.innerHTML = "";
+
+    const uniqueColors = [];
+
+    variants.forEach((variant)=>{
+
+        if(
+            !uniqueColors.includes(
+                variant.color
+            )
+        ){
+
+            uniqueColors.push(
+                variant.color
+            );
+
+        }
+
+    });
+
+    uniqueColors.forEach((color)=>{
+
+        const colorBox =
+        document.createElement("div");
+
+        colorBox.className =
+        "color-box";
+
+        if(color === selectedColor){
+
+            colorBox.classList.add(
+                "active"
+            );
+
+        }
+
+        colorBox.style.background =
+        color.toLowerCase();
+
+        colorBox.title = color;
+
+        colorBox.onclick = function(){
+
+            selectedColor = color;
+
+            // GET FIRST SIZE
+            // FOR THIS COLOR
+
+            const firstVariant =
+            variants.find(
+
+                variant =>
+
+                    variant.color ===
+                    selectedColor
+
+            );
+
+            if(firstVariant){
+
+                selectedSize =
+                firstVariant.size;
+
+            }
+
+            renderSizes();
+
+            renderColors();
+
+            updateVariant();
+
+        };
+
+        colorContainer.appendChild(
+            colorBox
+        );
+
+    });
+
+}
+
+// =====================================
+// RENDER SIZES
+// =====================================
+
+function renderSizes(){
+
+    const sizeContainer =
+    document.getElementById(
+        "sizeContainer"
+    );
+
+    sizeContainer.innerHTML = "";
+
+    const uniqueSizes = [];
+
+    variants.forEach((variant)=>{
+
+        if(
+            variant.color === selectedColor &&
+            !uniqueSizes.includes(
+                variant.size
+            )
+        ){
+
+            uniqueSizes.push(
+                variant.size
+            );
+
+        }
+
+    });
+
+    uniqueSizes.forEach((size)=>{
+
+        const sizeBox =
+        document.createElement("div");
+
+        sizeBox.className =
+        "size-box";
+
+        if(size === selectedSize){
+
+            sizeBox.classList.add(
+                "active"
+            );
+
+        }
+
+        sizeBox.innerText = size;
+
+        sizeBox.onclick = function(){
+
+            selectedSize = size;
+
+            // FIRST AVAILABLE COLOR
+
+            const firstVariant =
+            variants.find(
+
+                variant =>
+
+                    variant.color ===
+                    selectedColor &&
+
+                    variant.size ===
+                    selectedSize
+
+            );
+
+            if(!firstVariant){
+
+                const fallbackVariant =
+                variants.find(
+
+                    variant =>
+
+                        variant.size ===
+                        selectedSize
+
+                );
+
+                if(fallbackVariant){
+
+                    selectedColor =
+                    fallbackVariant.color;
+
+                }
+
+            }
+
+            renderColors();
+
+            renderSizes();
+
+            updateVariant();
+
+        };
+
+        sizeContainer.appendChild(
+            sizeBox
+        );
+
+    });
+
+}
+
+
+// =====================================
+// INITIAL LOAD
+// =====================================
+
+renderColors();
+
+renderSizes();
+
+updateVariant();
+
+const mainImage =
+document.querySelector(".main-image");
+
+const productImage =
+document.getElementById("mainProductImage");
+
+const zoomLens =
+document.getElementById("zoomLens");
+
+mainImage.addEventListener(
+    "mousemove",
+    function(e){
+
+        const rect =
+        mainImage.getBoundingClientRect();
+
+        const x =
+        e.clientX - rect.left;
+
+        const y =
+        e.clientY - rect.top;
+
+        zoomLens.style.display =
+        "block";
+
+        const lensSize = 180;
+
+        let lensX =
+        x - lensSize / 2;
+
+        let lensY =
+        y - lensSize / 2;
+
+        // STOP OUTSIDE OVERFLOW
+
+        lensX = Math.max(
+            0,
+            Math.min(
+                lensX,
+                rect.width - lensSize
+            )
+        );
+
+        lensY = Math.max(
+            0,
+            Math.min(
+                lensY,
+                rect.height - lensSize
+            )
+        );
+
+        zoomLens.style.left =
+        lensX + "px";
+
+        zoomLens.style.top =
+        lensY + "px";
+
+        // STRONG ZOOM
+
+        const zoomLevel = 3.5;
+
+        const bgX =
+        (x / rect.width) * 100;
+
+        const bgY =
+        (y / rect.height) * 100;
+
+        zoomLens.style.backgroundImage =
+        `url('${productImage.src}')`;
+
+        zoomLens.style.backgroundSize =
+        `${rect.width * zoomLevel}px ${rect.height * zoomLevel}px`;
+
+        zoomLens.style.backgroundPosition =
+        `${bgX}% ${bgY}%`;
+
+    }
+);
+
+mainImage.addEventListener(
+    "mouseleave",
+    function(){
+
+        zoomLens.style.display =
+        "none";
+
+    }
+);
+</script>
+
+
+{% endblock %}
