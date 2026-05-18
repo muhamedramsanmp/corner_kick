@@ -139,13 +139,24 @@ My Cart
 }
 
 .qty-input{
+
     width:65px;
     height:40px;
+
     border:1px solid #cbd5e1;
+
     border-radius:12px;
-    text-align:center;
+
+    display:flex;
+
+    align-items:center;
+    justify-content:center;
+
     font-size:15px;
     font-weight:700;
+
+    background:#ffffff;
+
 }
 
 /* ================= PRICE ================= */
@@ -384,11 +395,20 @@ My Cart
 a{
     text-decoration:none;
 }
+.qty-btn{
+
+    text-decoration:none;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+}
 
 </style>
 
 
-<body>
 {% endblock %}
 
 
@@ -416,7 +436,10 @@ MY BAG
 
 {% for item in cart_items %}
 
-<div class="cart-card">
+<div
+class="cart-card"
+id="cart-card-{{ item.id }}"
+>
 
 <a
 href="{% url 'user_products:remove_cart_item' item.id %}"
@@ -467,7 +490,7 @@ SIZE : {{ item.variant.size }}
 </div>
 
 <div class="stock-text">
-{{ item.variant.stock }} LEFT
+{{ item.variant.available_stock }}
 </div>
 
 </div>
@@ -476,33 +499,27 @@ SIZE : {{ item.variant.size }}
 
 <div class="qty-wrapper">
 
-<a href="{% url 'user_products:update_cart_quantity' item.id %}?action=decrease">
-
-    <button
-    type="button"
-    class="qty-btn"
-    >
-        −
-    </button>
-
+<a
+href="{% url 'user_products:update_cart_quantity' item.id %}?action=decrease"
+class="qty-btn qty-update-btn"
+data-item-id="{{ item.id }}"
+>
+−
 </a>
 
-<input
+<div
 class="qty-input"
-type="number"
-value="{{ item.quantity }}"
-readonly
+id="qty-{{ item.id }}"
 >
+{{ item.quantity }}
+</div>
 
-<a href="{% url 'user_products:update_cart_quantity' item.id %}?action=increase">
-
-    <button
-    type="button"
-    class="qty-btn"
-    >
-        +
-    </button>
-
+<a
+href="{% url 'user_products:update_cart_quantity' item.id %}?action=increase"
+class="qty-btn qty-update-btn"
+data-item-id="{{ item.id }}"
+>
++
 </a>
 
 </div>
@@ -511,8 +528,10 @@ readonly
 
 <div class="cart-price">
 
-<div class="item-total">
-
+<div
+class="item-total"
+id="subtotal-{{ item.id }}"
+>
 ₹{{ item.subtotal }}
 </div>
 
@@ -542,7 +561,9 @@ ORDER SUMMARY
 
 <div class="summary-row">
 <span>Subtotal</span>
-<span>₹{{ cart.total_price }}</span>
+<span id="cart-subtotal">
+    ₹{{ cart.total_price }}
+</span>
 </div>
 
 <div class="summary-row">
@@ -559,14 +580,16 @@ ORDER SUMMARY
 
 <div class="summary-row">
 <span>TOTAL</span>
-<span>₹{{ cart.total_price }}</span>
+<span id="cart-total">
+    ₹{{ cart.total_price }}
+</span>
 </div>
 
 </div>
 
-<button class="checkout-btn">
+<a href="{% url "checkout_page" %}"><button class="checkout-btn">
 CONTINUE TO CHECKOUT
-</button>
+</button></a>
 
 </div>
 
@@ -657,5 +680,172 @@ style="text-decoration:none;color:inherit;"
 </div>
 
 </div>
+
+<script>
+
+document.addEventListener("click", async function(e){
+
+    const button =
+        e.target.closest(".qty-update-btn")
+
+    if(!button){
+        return
+    }
+
+    e.preventDefault()
+
+    try{
+
+        const response = await fetch(
+            button.href,
+            {
+                method:"GET",
+                headers:{
+                    "X-Requested-With":"XMLHttpRequest"
+                }
+            }
+        )
+
+        const data =
+            await response.json()
+
+        if(data.message){
+
+            showAjaxPopup(
+                data.message
+            )
+
+        }
+
+        // UPDATE NAVBAR
+
+        document.getElementById(
+            "cart-count"
+        ).innerText =
+            data.cart_count
+
+        const itemId =
+            button.dataset.itemId
+
+        // REMOVE PRODUCT
+
+        if(data.removed){
+
+            const card =
+                document.getElementById(
+                    `cart-card-${itemId}`
+                )
+
+            if(card){
+
+                card.remove()
+
+            }
+
+            // EMPTY CART
+
+            const remainingCards =
+                document.querySelectorAll(
+                    ".cart-card"
+                )
+
+            if(remainingCards.length === 0){
+
+                const wrapper =
+                    document.querySelector(
+                        ".wrapper"
+                    )
+
+                wrapper.innerHTML = `
+
+                <h1 class="page-title">
+                    MY BAG
+                </h1>
+
+                <p class="page-subtitle">
+                    0 ITEMS IN YOUR BAG
+                </p>
+
+                <div class="empty-cart">
+
+                    <span class="material-symbols-outlined">
+                        shopping_bag
+                    </span>
+
+                    <h2>Your cart is empty</h2>
+
+                    <p>
+                        Looks like you haven't added anything yet.
+                    </p>
+
+                    <a
+                    href="/products/shop/"
+                    class="shop-btn"
+                    >
+                        CONTINUE SHOPPING
+                    </a>
+
+                </div>
+
+                `
+
+            }
+
+            return
+
+        }
+
+        // UPDATE QUANTITY
+
+        const qtyBox =
+            document.getElementById(
+                `qty-${itemId}`
+            )
+
+        if(data.quantity !== undefined){
+
+            qtyBox.innerText =
+                data.quantity
+
+        }
+
+        // UPDATE ITEM SUBTOTAL
+
+        if(data.subtotal !== undefined){
+
+            document.getElementById(
+                `subtotal-${itemId}`
+            ).innerText =
+                `₹${data.subtotal}`
+
+        }
+
+            // UPDATE SUMMARY
+
+        if(data.cart_total !== undefined){
+
+            document.getElementById(
+                "cart-subtotal"
+            ).innerText =
+                `₹${data.cart_total}`
+
+            document.getElementById(
+                "cart-total"
+            ).innerText =
+                `₹${data.cart_total}`
+
+        }
+
+    }
+
+    catch(error){
+
+        console.log(error)
+
+    }
+
+})
+
+</script>
 
 {% endblock %}

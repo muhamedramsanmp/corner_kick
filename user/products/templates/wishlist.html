@@ -221,33 +221,44 @@ Wishlist
 }
 
 .cart-btn:disabled{
-    opacity:.6;
+
+    background:#cbd5e1;
+
+    color:#64748b;
+
     cursor:not-allowed;
+
+    opacity:1;
+
+    box-shadow:none;
+
 }
 
 /* ================= EMPTY ================= */
+/* ================= EMPTY CART ================= */
 
-.empty-box{
+.empty-cart{
+    grid-column:1 / -1;
     width:100%;
     background:#ffffff;
     border:1px solid #e2e8f0;
     border-radius:28px;
-    padding:100px 30px;
+    padding:90px 30px;
     text-align:center;
 }
 
-.empty-box span{
-    font-size:70px;
+.empty-cart span{
+    font-size:60px;
     color:#2563eb;
     margin-bottom:20px;
 }
 
-.empty-box h2{
-    font-size:38px;
-    margin-bottom:14px;
+.empty-cart h2{
+    font-size:34px;
+    margin-bottom:12px;
 }
 
-.empty-box p{
+.empty-cart p{
     color:#64748b;
     margin-bottom:30px;
 }
@@ -257,9 +268,9 @@ Wishlist
     align-items:center;
     justify-content:center;
     padding:16px 26px;
-    border-radius:16px;
     background:#2563eb;
     color:#ffffff;
+    border-radius:16px;
     text-decoration:none;
     font-size:14px;
     font-weight:700;
@@ -385,7 +396,10 @@ Wallet
 Wishlist
 </h1>
 
-<p class="page-subtitle">
+<p
+class="page-subtitle"
+id="wishlist-subtitle"
+>
 {{ wishlist_items.count }} SAVED PRODUCT{{ wishlist_items.count|pluralize }}
 </p>
 
@@ -400,13 +414,14 @@ Wishlist
 
 </div>
 
-{% if wishlist_items %}
 
 <div class="product-grid">
 
 {% for item in wishlist_items %}
 
 {% with product=item.product %}
+
+{% if product %}
 
 <div class="product-card">
 
@@ -418,7 +433,6 @@ data-url="{% url 'user_products:toggle_wishlist' product.id %}"
 <span class="material-symbols-outlined">
 close
 </span>
-
 </a>
 
 <a
@@ -456,7 +470,7 @@ style="text-decoration:none;color:inherit;"
 ₹{{ product.default_variant.price }}
 </div>
 
-{% if product.default_variant.stock > 0 %}
+{% if product.default_variant.available_stock > 0 %}
 
 <div class="stock-status">
 IN STOCK
@@ -476,39 +490,38 @@ OUT OF STOCK
 
 </a>
 
-<a
-href="{% url 'user_products:wishlist_to_cart' product.id %}"
-style="text-decoration:none;"
->
-
 <button
-class="cart-btn"
-{% if product.default_variant.stock <= 0 %}
+class="cart-btn move-cart-btn"
+
+data-url="{% url 'user_products:wishlist_to_cart' product.id %}"
+
+{% if product.default_variant.available_stock <= 0 %}
 disabled
 {% endif %}
 >
 
-ADD TO BAG
+{% if product.default_variant.available_stock <= 0 %}
 
-</button>
-
-</a>
-
-</button>
-
-</div>
-
-{% endwith %}
-
-{% endfor %}
-
-</div>
+OUT OF STOCK
 
 {% else %}
 
-<!-- ================= EMPTY ================= -->
+ADD TO BAG
 
-<div class="empty-box">
+{% endif %}
+
+</button>
+
+</div>
+
+{% endif %}
+
+{% endwith %}
+
+{% empty %}
+
+
+<div class="empty-cart">
 
 <span class="material-symbols-outlined">
 favorite
@@ -517,7 +530,7 @@ favorite
 <h2>Your wishlist is empty</h2>
 
 <p>
-Save products you love and revisit them later.
+Looks like you haven't added anything yet.
 </p>
 
 <a
@@ -529,10 +542,117 @@ CONTINUE SHOPPING
 
 </div>
 
-{% endif %}
+
+{% endfor %}
 
 </div>
 
 </div>
+
+
+<script>
+
+document.addEventListener("click",function(e){
+
+    const button =
+        e.target.closest(".move-cart-btn")
+
+    if(!button) return
+
+    e.preventDefault()
+
+    fetch(button.dataset.url,{
+
+        method:"GET",
+
+        headers:{
+            "X-Requested-With":"XMLHttpRequest"
+        }
+
+    })
+
+    .then(response=>response.json())
+
+    .then(data=>{
+
+        if(data.success){
+
+            // UPDATE NAVBAR COUNTS
+
+            document.getElementById(
+                "cart-count"
+            ).innerText = data.cart_count
+
+            document.getElementById(
+                "wishlist-count"
+            ).innerText = data.wishlist_count
+
+            // REMOVE PRODUCT CARD
+
+            const card =
+                button.closest(
+                    ".product-card"
+                )
+
+            if(card){
+
+                card.remove()
+
+            }
+
+            // SHOW EMPTY BOX
+
+            const productGrid =
+    document.querySelector(
+        ".product-grid"
+    )
+
+            const remainingCards =
+                productGrid.querySelectorAll(
+                    ".product-card"
+                )
+
+            if(remainingCards.length === 0){
+
+                productGrid.innerHTML = `
+
+                <div class="empty-cart">
+
+                    <span class="material-symbols-outlined">
+                        favorite
+                    </span>
+
+                    <h2>Your wishlist is empty</h2>
+
+                    <p>
+                        Looks like you haven't added anything yet.
+                    </p>
+
+                    <a
+                    href="/products/shop/"
+                    class="shop-btn"
+                    >
+                        CONTINUE SHOPPING
+                    </a>
+
+                </div>
+
+                `
+
+            }
+
+            // POPUP MESSAGE
+
+            showAjaxPopup(
+                "Product moved to cart"
+            )
+
+        }
+
+    })
+
+})
+
+</script>
 
 {% endblock %}

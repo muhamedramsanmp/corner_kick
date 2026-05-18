@@ -763,7 +763,7 @@ body{
 
 <div class="image-grid">
 
-    {% for image in variant.images.all %}
+    {% for image in variant.images.all|dictsort:"created_at" %}
 
     <label class="image-box upload-box">
 
@@ -878,6 +878,15 @@ body{
     Orange
 </option>
 
+<option
+    value="Yellow"
+    {% if variant.color == "Yellow" %}
+    selected
+    {% endif %}
+>
+    Yellow
+</option>
+
                     </select>
 
                 </div>
@@ -940,6 +949,12 @@ body{
 
         <option value="9" {% if variant.size == "9" %}selected{% endif %}>
             9
+        </option>
+        <option value="18" {% if variant.size == "18" %}selected{% endif %}>
+            18
+        </option>
+        <option value="SH" {% if variant.size == "SH" %}selected{% endif %}>
+            SH
         </option>
 
     </select>

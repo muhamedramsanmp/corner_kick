@@ -1174,27 +1174,23 @@ class="new-btn"
 
     <div>
 
-        {% with variant=product.variants.first %}
-            {% with image=variant.images.first %}
+    {% if product.default_variant.primary_image %}
 
-                {% if image %}
+        <img
+            src="{{ product.default_variant.primary_image }}"
+            class="product-img"
+        >
 
-                    <img
-                    src="{{ image.image.url }}"
-                    class="product-img">
+    {% else %}
 
-                {% else %}
+        <img
+            src="{% static 'images/default.png' %}"
+            class="product-img"
+        >
 
-                    <img
-                    src="{% static 'images/default.png' %}"
-                    class="product-img">
+    {% endif %}
 
-                {% endif %}
-
-            {% endwith %}
-        {% endwith %}
-
-    </div>
+</div>
 
 
     <!-- CATEGORY -->

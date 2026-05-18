@@ -17,6 +17,7 @@ def address_view(request):
 @login_required
 def add_address(request):
 
+    next_page = request.GET.get('next')
     if request.method == "POST":
 
         full_name = request.POST.get("full_name", "").strip()
@@ -70,6 +71,12 @@ def add_address(request):
             is_default=is_default
         )
 
+        if next_page == 'checkout':
+
+            return redirect(
+                'checkout_page'
+            )
+
         return redirect('addressinfo:address_view')
 
     return render(request, 'add_address.html')
@@ -100,6 +107,7 @@ def edit_address(request, id):
 
     address = get_object_or_404(Address, id=id, user=request.user)
 
+    next_page = request.GET.get('next')
     if request.method == "POST":
 
         address.full_name = request.POST.get("full_name")
@@ -122,7 +130,12 @@ def edit_address(request, id):
             address.is_default = False
 
         address.save()
+        
+        if next_page == 'checkout':
 
+            return redirect(
+                'checkout_page'
+            )
         return redirect('addressinfo:address_view')
 
     return render(request, "edit_address.html", {

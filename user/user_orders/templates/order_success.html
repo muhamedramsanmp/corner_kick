@@ -1,0 +1,284 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+<style>
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.success-container {
+    width: 100%;
+    min-height: 100vh;
+    background: #f5f6fa;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+}
+
+.success-icon {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    background: #e8f1ff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 30px;
+}
+
+.success-icon i {
+    color: #2d5cff;
+    font-size: 28px;
+}
+
+.success-container h1 {
+    font-size: 42px;
+    font-weight: 700;
+    color: #1d2433;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.success-subtitle {
+    text-align: center;
+    color: #7c8798;
+    line-height: 1.8;
+    font-size: 15px;
+    margin-bottom: 40px;
+}
+
+.success-summary {
+    width: 100%;
+    max-width: 500px;
+    background: white;
+    border-radius: 14px;
+    padding: 30px;
+    border: 1px solid #ececec;
+    margin-bottom: 30px;
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 0;
+    border-bottom: 1px solid #f1f1f1;
+}
+
+.summary-row:last-child {
+    border-bottom: none;
+}
+
+.summary-row span {
+    font-size: 13px;
+    color: #8b95a7;
+    font-weight: 600;
+}
+
+.summary-row strong {
+    font-size: 15px;
+    color: #1d2433;
+}
+
+.total-row {
+    padding-top: 25px;
+}
+
+.total-row strong {
+    font-size: 26px;
+    font-weight: 700;
+}
+
+.success-buttons {
+    width: 100%;
+    max-width: 500px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 35px;
+}
+
+.orders-btn,
+.shopping-btn {
+    width: 100%;
+    height: 58px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    font-size: 15px;
+    font-weight: 700;
+    transition: 0.3s;
+}
+
+.orders-btn {
+    background: #2d5cff;
+    color: white;
+}
+
+.orders-btn:hover {
+    opacity: 0.9;
+}
+
+.shopping-btn {
+    background: white;
+    color: #1d2433;
+    border: 1px solid #e5e5e5;
+}
+
+.shopping-btn:hover {
+    background: #f9f9f9;
+}
+
+.success-note {
+    text-align: center;
+    color: #9ba3b2;
+    font-size: 13px;
+    line-height: 1.7;
+}
+
+@media (max-width: 576px) {
+
+    .success-container h1 {
+        font-size: 32px;
+    }
+
+    .success-summary {
+        padding: 22px;
+    }
+
+    .total-row strong {
+        font-size: 22px;
+    }
+
+}
+
+</style>
+
+
+<div class="success-container">
+
+    <!-- SUCCESS ICON -->
+
+    <div class="success-icon">
+
+        <i class="fa-solid fa-check"></i>
+
+    </div>
+
+
+    <!-- TITLE -->
+
+    <h1>
+        Order Placed Successfully!
+    </h1>
+
+    <p class="success-subtitle">
+
+        Your performance gear is being prepared
+        <br>
+        for the pitch. We'll notify you when it ships.
+
+    </p>
+
+
+    <!-- ORDER SUMMARY -->
+
+    <div class="success-summary">
+
+        <div class="summary-row">
+
+            <span>
+                ORDER ID
+            </span>
+
+            <strong>
+                {{ order.order_id }}
+            </strong>
+
+        </div>
+
+
+        <div class="summary-row">
+
+            <span>
+                ORDER DATE
+            </span>
+
+            <strong>
+                {{ order.created_at|date:"F d, Y" }}
+            </strong>
+
+        </div>
+
+
+        <div class="summary-row">
+
+            <span>
+                PAYMENT METHOD
+            </span>
+
+            <strong>
+                {{ order.payment_method }}
+            </strong>
+
+        </div>
+
+
+        <div class="summary-row total-row">
+
+            <span>
+                TOTAL AMOUNT
+            </span>
+
+            <strong>
+                ₹{{ order.total_amount }}
+            </strong>
+
+        </div>
+
+    </div>
+
+
+    <!-- BUTTONS -->
+
+    <div class="success-buttons">
+
+        <a
+        href="#"
+        class="orders-btn"
+        >
+            GO TO ORDERS
+        </a>
+
+
+        <a
+        href="/"
+        class="shopping-btn"
+        >
+            CONTINUE SHOPPING
+        </a>
+
+    </div>
+
+
+    <!-- FOOTER NOTE -->
+
+    <p class="success-note">
+
+        A confirmation email has been sent to your
+        registered email address.
+
+    </p>
+
+</div>
+
+{% endblock %}

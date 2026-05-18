@@ -16,3 +16,16 @@ class Address(models.Model):
 
     def __str__(self):
         return self.full_name
+    
+    def save(self, *args, **kwargs):
+
+        if self.is_default:
+
+            Address.objects.filter(
+                user=self.user,
+                is_default=True
+            ).exclude(id=self.id).update(
+                is_default=False
+            )
+
+        super().save(*args, **kwargs)

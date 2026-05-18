@@ -675,6 +675,10 @@ body{
 
     color:#fff;
 }
+.required{
+    color:#ef4444;
+    margin-left:4px;
+}
 
 </style>
 
@@ -718,7 +722,7 @@ body{
         <h2>Add New Variant</h2>
 
         <p class="sub">
-            Create and manage product variants for your inventory
+            Create and manage product variants for your inventory <br>Must include three image
         </p>
 
         {% if messages %}
@@ -863,7 +867,7 @@ body{
 
                 <div class="field">
 
-                    <label>COLOR</label>
+                    <label>COLOR<span class="required">*</span></label>
 
 <select name="color">
 
@@ -898,7 +902,10 @@ body{
     {% if form_data.color == "Orange" %}selected{% endif %}>
     Orange
     </option>
-
+    <option value="Yellow"
+    {% if form_data.color == "Yelow" %}selected{% endif %}>
+    Yellow
+    </option>
 </select>
 
                 </div>
@@ -907,7 +914,7 @@ body{
 
                 <div class="field">
 
-                    <label>SIZE</label>
+                    <label>SIZE<span class="required">*</span></label>
 
                   <select name="size">
 
@@ -977,6 +984,14 @@ body{
     {% if form_data.size == "9" %}selected{% endif %}>
     9
     </option>
+        <option value="18"
+    {% if form_data.size == "18" %}selected{% endif %}>
+    18
+    </option>
+    <option value="SH"
+    {% if form_data.size == "SH" %}selected{% endif %}>
+    SH
+    </option>
 
 </select>
 
@@ -992,7 +1007,7 @@ body{
 
                 <div class="field">
 
-                    <label>SKU</label>
+                    <label>SKU<span class="required">*</span></label>
 
         <input
             type="text"
@@ -1007,7 +1022,7 @@ body{
 
                 <div class="field">
 
-                    <label>STOCK QUANTITY</label>
+                    <label>STOCK QUANTITY<span class="required">*</span></label>
 
 <input
     type="number"
@@ -1024,7 +1039,7 @@ body{
 
             <div class="field">
 
-                <label>PRICE (₹)</label>
+                <label>PRICE (₹)<span class="required">*</span></label>
 <input
     type="number"
     name="price"

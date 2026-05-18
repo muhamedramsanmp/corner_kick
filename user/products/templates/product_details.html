@@ -753,36 +753,35 @@ Product Details
         <div class="main-image">
             <div class="zoom-lens" id="zoomLens"></div>
 
-            {% if primary_image %}
+            {% if default_variant.primary_image %}
 
-            <img
-            id="mainProductImage"
-            src="{{ primary_image.image.url }}"
-            >
+<img
+    id="mainProductImage"
+    src="{{ default_variant.primary_image }}"
+>
 
-            {% else %}
+{% else %}
 
-            <img
-            id="mainProductImage"
-            src="{% static 'images/default.png' %}"
-            >
+<img
+    id="mainProductImage"
+    src="{% static 'images/default.png' %}"
+>
 
-            {% endif %}
+{% endif %}
 
 
         </div>
 
         <!-- THUMBNAILS -->
 
-        <div
+<div
 class="thumbnail-row"
 id="thumbnailContainer"
 >
 
-{% for image in default_variant.images.all %}
-
+{% for image in variant.images.all|dictsort:"created_at" %} 
 <div
-class="thumb {% if forloop.first %}active{% endif %}"
+class="thumb {% if image.is_primary %}active{% endif %}"
 onclick="changeImage(this, '{{ image.image.url }}')"
 >
 
@@ -828,14 +827,14 @@ onclick="changeImage(this, '{{ image.image.url }}')"
 
         <!-- STOCK -->
 
-        {% if default_variant.stock > 0 %}
+        {% if default_variant.available_stock > 0 %}
 
         <div class="stock-box">
 
             <div class="stock-dot"></div>
 
             <span id="stockText">
-            IN STOCK ({{ default_variant.stock }} LEFT)
+            IN STOCK ({{ default_variant.available_stock }} LEFT)
         </span>
 
         </div>
@@ -884,6 +883,7 @@ id="sizeContainer"
 <form
 method="POST"
 action="{% url 'user_products:add_to_cart' %}"
+class="cart-form"
 >
 
     {% csrf_token %}
@@ -908,13 +908,13 @@ type="submit"
 class="cart-btn"
 id="cartButton"
 
-{% if default_variant.stock <= 0 %}
+{% if default_variant.available_stock <= 0 %}
 disabled
 {% endif %}
 
 >
 
-{% if default_variant.stock <= 0 %}
+{% if default_variant.available_stock <= 0 %}
 
 OUT OF STOCK
 
@@ -1189,11 +1189,11 @@ const variants = [
 
     price: "{{ variant.price }}",
 
-    stock: "{{ variant.stock }}",
+    stock: "{{ variant.available_stock }}",
 
     images: [
 
-        {% for image in variant.images.all %}
+        {% for image in variant.images.all|dictsort:"created_at" %}
 
         "{{ image.image.url }}",
 

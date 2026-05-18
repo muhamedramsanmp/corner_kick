@@ -1,8 +1,8 @@
-from admin.admin_products.models import Product
+
 from django.utils.text import slugify
 from django.db import models
 from django.conf import settings
-from admin.admin_products.models import Variant
+from admin.admin_products.models import Variant,Product
 
 
 

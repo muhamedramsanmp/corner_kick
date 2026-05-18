@@ -407,6 +407,8 @@ def variant_management(request, product_id):
         }
 
     )
+
+
 @login_required(login_url='login')
 def add_variant(request, product_id):
 

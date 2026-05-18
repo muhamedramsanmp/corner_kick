@@ -619,6 +619,8 @@ document.addEventListener("click",function(e){
 
     .then(data=>{
 
+        showAjaxPopup(data.message)
+
         if(data.success){
 
             // NAVBAR COUNT
@@ -679,6 +681,65 @@ document.addEventListener("click",function(e){
 
                 }
 
+                // UPDATE SUBTITLE
+
+                const subtitle =
+                    document.getElementById(
+                        "wishlist-subtitle"
+                    )
+
+                if(subtitle){
+
+                    subtitle.innerText =
+                        `${data.wishlist_count} SAVED PRODUCT`
+
+                }
+
+                // EMPTY WISHLIST
+
+                const productGrid =
+                    document.querySelector(
+                        ".product-grid"
+                    )
+
+                if(productGrid){
+
+                    const remainingCards =
+                        productGrid.querySelectorAll(
+                            ".product-card"
+                        )
+
+                    if(remainingCards.length === 0){
+
+                        productGrid.innerHTML = `
+
+                        <div class="empty-cart">
+
+                            <span class="material-symbols-outlined">
+                                favorite
+                            </span>
+
+                            <h2>Your wishlist is empty</h2>
+
+                            <p>
+                                Looks like you haven't added anything yet.
+                            </p>
+
+                            <a
+                            href="/products/shop/"
+                            class="shop-btn"
+                            >
+                                CONTINUE SHOPPING
+                            </a>
+
+                        </div>
+
+                        `
+
+                    }
+
+                }
+
             }
 
             // BETTER MESSAGE
@@ -734,13 +795,15 @@ document.querySelectorAll(".cart-form").forEach(form=>{
 
         .then(data=>{
 
+            
+
             if(data.success){
+
+                showAjaxPopup(data.message)
 
                 document.getElementById(
                     "cart-count"
                 ).innerText = data.cart_count
-
-                showAjaxPopup(data.message)
 
             }
 

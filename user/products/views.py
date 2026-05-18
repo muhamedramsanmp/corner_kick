@@ -11,6 +11,7 @@ from django.contrib.auth.decorators import login_required
 from .models import Cart, CartItem
 from .models import Wishlist
 from django.http import JsonResponse
+from django.db.models import Sum
 
 
 
@@ -341,6 +342,8 @@ def product_details(request, slug):
 
     related_products = paginator.get_page(page)
 
+    ordered_images = None
+
 
     context = {
 
@@ -377,187 +380,219 @@ def product_details(request, slug):
 @login_required(login_url='login')
 def add_to_cart(request):
 
-    if request.method == "POST":
+    if request.method != "POST":
 
-
-        variant_id = request.POST.get(
-            "variant_id"
+        return redirect(
+            "user_products:shop"
         )
 
-        quantity = request.POST.get(
-            "quantity",
-            1
-        )
+    # =====================================
+    # GET DATA
+    # =====================================
 
-        try:
+    variant_id = request.POST.get(
+        "variant_id"
+    )
 
-            quantity = int(quantity)
+    quantity = request.POST.get(
+        "quantity",
+        1
+    )
 
-            if quantity < 1:
+    # =====================================
+    # VALIDATE QUANTITY
+    # =====================================
 
-                messages.error(
+    try:
 
-                    request,
+        quantity = int(quantity)
 
-                    "Invalid quantity"
-
-                )
-
-                return redirect(
-                    'user_products:cart'
-                )
-
-        except:
+        if quantity < 1:
 
             messages.error(
-
                 request,
-
                 "Invalid quantity"
-
             )
 
             return redirect(
-                'user_products:cart'
+                "user_products:cart"
             )
 
-        variant = Variant.objects.filter(
+    except ValueError:
 
-            id=variant_id,
-
-            is_deleted=False,
-
-            is_active=True,
-
-            product__is_deleted=False,
-
-            product__is_active=True
-
-        ).first()
-
-        if not variant:
-
-            messages.error(
-
-                request,
-
-                "Variant unavailable"
-
-            )
-
-            return redirect(
-                "user_products:shop"
-            )
-
-        if variant.stock <= 0:
-
-            messages.error(
-
-                request,
-
-                "Product out of stock"
-
-            )
-
-            return redirect(
-                'user_products:cart'
-            )
-
-
-        if quantity > variant.stock:
-
-            messages.error(
-
-                request,
-
-                f"Only {variant.stock} items available"
-
-            )
-
-            return redirect(
-                'user_products:cart'
-            )
-
-
-        cart, created = Cart.objects.get_or_create(
-
-            user=request.user
-
+        messages.error(
+            request,
+            "Invalid quantity"
         )
 
+        return redirect(
+            "user_products:cart"
+        )
 
-        cart_item = CartItem.objects.filter(
+    # =====================================
+    # GET VARIANT
+    # =====================================
+
+    variant = Variant.objects.filter(
+
+        id=variant_id,
+
+        is_deleted=False,
+
+        is_active=True,
+
+        product__is_deleted=False,
+
+        product__is_active=True
+
+    ).first()
+
+    if not variant:
+
+        messages.error(
+            request,
+            "Variant unavailable"
+        )
+
+        return redirect(
+            "user_products:shop"
+        )
+
+    # =====================================
+    # OUT OF STOCK
+    # =====================================
+
+    if variant.available_stock <= 0:
+
+        messages.error(
+            request,
+            "Product out of stock"
+        )
+
+        return redirect(
+            "user_products:cart"
+        )
+
+    # =====================================
+    # STOCK CHECK
+    # =====================================
+
+    if quantity > variant.available_stock:
+
+        messages.error(
+            request,
+            f"Only {variant.available_stock} items available"
+        )
+
+        return redirect(
+            "user_products:cart"
+        )
+
+    # =====================================
+    # GET CART
+    # =====================================
+
+    cart, created = Cart.objects.get_or_create(
+        user=request.user
+    )
+
+    # =====================================
+    # EXISTING CART ITEM
+    # =====================================
+
+    cart_item = CartItem.objects.filter(
+        cart=cart,
+        variant=variant
+    ).first()
+
+    # =====================================
+    # UPDATE EXISTING ITEM
+    # =====================================
+
+    if cart_item:
+
+        new_quantity = (
+            cart_item.quantity + quantity
+        )
+
+        # MAXIMUM 5 LIMIT
+
+        if new_quantity > 5:
+
+            messages.error(
+                request,
+                "Maximum 5 quantities allowed per product"
+            )
+
+            return redirect(
+                "user_products:cart"
+            )
+
+        # STOCK CHECK
+
+        if new_quantity > variant.available_stock:
+
+            messages.error(
+                request,
+                f"Only {variant.available_stock} items available"
+            )
+
+            return redirect(
+                "user_products:cart"
+            )
+
+        cart_item.quantity = new_quantity
+
+        cart_item.save()
+
+        messages.success(
+            request,
+            "Cart quantity updated"
+        )
+
+    # =====================================
+    # NEW CART ITEM
+    # =====================================
+
+    else:
+
+        # MAXIMUM 5 LIMIT
+
+        if quantity > 5:
+
+            messages.error(
+                request,
+                "Maximum 5 quantities allowed per product"
+            )
+
+            return redirect(
+                "user_products:cart"
+            )
+
+        CartItem.objects.create(
 
             cart=cart,
 
-            variant=variant
+            variant=variant,
 
-        ).first()
+            quantity=quantity
 
-
-        if cart_item:
-
-            new_quantity = (
-
-                cart_item.quantity +
-
-                quantity
-
-            )
-
-            if new_quantity > variant.stock:
-
-                messages.error(
-
-                    request,
-
-                    f"Only {variant.stock} items available"
-
-                )
-
-                return redirect(
-                    'user_products:cart'
-                )
-
-            cart_item.quantity = new_quantity
-
-            cart_item.save()
-
-            messages.success(
-
-                request,
-
-                "Cart quantity updated"
-
-            )
-
-        else:
-
-            CartItem.objects.create(
-
-                cart=cart,
-
-                variant=variant,
-
-                quantity=quantity
-
-            )
-
-            messages.success(
-
-                request,
-
-                "Product added to cart"
-
-            )
-
-        return redirect(
-            'user_products:cart'
         )
 
-    return redirect(
-        "user_products:shop"
-    )
+        cart_count = CartItem.objects.filter(
+            cart__user=request.user
+        ).count()
+
+        return JsonResponse({
+
+            "success": True,
+
+            "message": "Product added to cart",
+
+            "cart_count": cart_count
+
+        })
+
 
 @login_required(login_url='login')
 def cart(request):
@@ -664,7 +699,6 @@ def cart(request):
 @login_required(login_url='login')
 def update_cart_quantity(request, item_id):
 
-
     cart_item = CartItem.objects.filter(
 
         id=item_id,
@@ -675,74 +709,129 @@ def update_cart_quantity(request, item_id):
 
     if not cart_item:
 
-        messages.error(
+        return JsonResponse({
 
-            request,
+            "success": False,
 
-            "Cart item not found"
+            "message": "Cart item not found"
 
-        )
+        })
 
-        return redirect(
-            'user_products:cart'
-        )
+    action = request.GET.get("action")
 
-    action = request.GET.get(
-        'action'
-    )
-
+    # =========================
+    # INCREASE
+    # =========================
 
     if action == "increase":
 
-        # STOCK LIMIT
+        if cart_item.quantity >= 5:
 
-        if cart_item.quantity >= cart_item.variant.stock:
+            return JsonResponse({
 
-            messages.error(
+                "success": False,
 
-                request,
+                "message": "Maximum 5 quantities allowed",
 
-                f"Only {cart_item.variant.stock} items available"
+                "quantity": cart_item.quantity,
 
-            )
+                "subtotal":cart_item.variant.price * cart_item.quantity,
 
-            return redirect(
-                'user_products:cart'
-            )
+                "cart_total":cart_item.cart.total_price
+
+            })
+
+        total_reserved = CartItem.objects.filter(
+
+            variant=cart_item.variant
+
+        ).exclude(
+
+            id=cart_item.id
+
+        ).aggregate(
+
+            total=Sum("quantity")
+
+        )["total"] or 0
+
+        remaining_stock = (
+
+            cart_item.variant.stock - total_reserved
+
+        )
+
+        if cart_item.quantity + 1 > remaining_stock:
+
+            return JsonResponse({
+
+                "success": False,
+
+                "message": f"Only {remaining_stock} items available",
+
+                "quantity": cart_item.quantity,
+
+                "subtotal":cart_item.variant.price * cart_item.quantity,
+
+                "cart_total":cart_item.cart.total_price
+
+            })
 
         cart_item.quantity += 1
 
         cart_item.save()
 
+        message = "Quantity increased"
+
+    # =========================
+    # DECREASE
+    # =========================
 
     elif action == "decrease":
-
-        # DELETE IF 1
 
         if cart_item.quantity <= 1:
 
             cart_item.delete()
 
-            messages.success(
+            return JsonResponse({
 
-                request,
+                "success": True,
 
-                "Product removed from cart"
+                "removed": True,
 
-            )
+                "message": "Product removed from cart",
 
-            return redirect(
-                'user_products:cart'
-            )
+                "cart_count": CartItem.objects.filter(
+                    cart__user=request.user
+                ).count()
+
+            })
 
         cart_item.quantity -= 1
 
         cart_item.save()
 
-    return redirect(
-        'user_products:cart'
-    )
+        message = "Quantity decreased"
 
+    cart_count = CartItem.objects.filter(
+        cart__user=request.user
+    ).count()
+
+    return JsonResponse({
+
+        "success": True,
+
+        "message": message,
+
+        "quantity": cart_item.quantity,
+
+        "subtotal": cart_item.variant.price * cart_item.quantity,
+
+        "cart_total": cart_item.cart.total_price,
+
+        "cart_count": cart_count
+
+    })
 
 
 @login_required(login_url='login')
@@ -776,19 +865,27 @@ def remove_cart_item(request, item_id):
     cart_item.delete()
 
 
+    cart_count = CartItem.objects.filter(
+    cart__user=request.user
+    ).count()
 
-    messages.success(
+    wishlist_count = Wishlist.objects.filter(
+        user=request.user
+    ).count()
 
-        request,
+    return JsonResponse({
 
-        "Product removed from cart"
+        "success": True,
 
-    )
+        "message": "Product moved to cart",
 
+        "cart_count": cart_count,
 
-    return redirect(
-        'user_products:cart'
-    )
+        "wishlist_count": wishlist_count
+
+    })
+
+ 
 
 
 
@@ -814,9 +911,13 @@ def toggle_wishlist(request, product_id):
 
         return JsonResponse({
 
-            "success": False,
+            "success": True,
 
-            "message": "Product unavailable"
+            "action": action,
+
+            "message": message,
+
+            "wishlist_count": wishlist_count
 
         })
 
@@ -878,9 +979,11 @@ def toggle_wishlist(request, product_id):
 
     })
 
+from django.db.models import Sum
+
+
 @login_required(login_url='login')
 def wishlist_page(request):
-
 
     wishlist_items = Wishlist.objects.filter(
 
@@ -906,7 +1009,6 @@ def wishlist_page(request):
 
     )
 
-
     context = {
 
         'wishlist_items': wishlist_items
@@ -923,10 +1025,13 @@ def wishlist_page(request):
 
     )
 
+
 @login_required(login_url='login')
 def wishlist_to_cart(request, product_id):
 
-
+    # =====================================
+    # GET PRODUCT
+    # =====================================
 
     product = Product.objects.filter(
 
@@ -937,7 +1042,6 @@ def wishlist_to_cart(request, product_id):
         is_active=True
 
     ).first()
-
 
     if not product:
 
@@ -953,6 +1057,9 @@ def wishlist_to_cart(request, product_id):
             "user_products:wishlist"
         )
 
+    # =====================================
+    # GET VARIANT
+    # =====================================
 
     variant = product.default_variant
 
@@ -970,8 +1077,11 @@ def wishlist_to_cart(request, product_id):
             "user_products:wishlist"
         )
 
+    # =====================================
+    # OUT OF STOCK
+    # =====================================
 
-    if variant.stock <= 0:
+    if variant.available_stock <= 0:
 
         messages.error(
 
@@ -985,12 +1095,19 @@ def wishlist_to_cart(request, product_id):
             "user_products:wishlist"
         )
 
+    # =====================================
+    # GET CART
+    # =====================================
+
     cart, created = Cart.objects.get_or_create(
 
         user=request.user
 
     )
 
+    # =====================================
+    # EXISTING CART ITEM
+    # =====================================
 
     cart_item = CartItem.objects.filter(
 
@@ -1000,17 +1117,51 @@ def wishlist_to_cart(request, product_id):
 
     ).first()
 
-
+    # =====================================
+    # UPDATE EXISTING ITEM
+    # =====================================
 
     if cart_item:
 
-        if cart_item.quantity >= variant.stock:
+        # MAXIMUM 5 LIMIT
+
+        if cart_item.quantity >= 5:
 
             messages.error(
 
                 request,
 
-                f"Only {variant.stock} items available"
+                "Maximum 5 quantities allowed"
+
+            )
+
+            return redirect(
+                "user_products:wishlist"
+            )
+
+        # RESERVED STOCK BY OTHER USERS
+
+        total_reserved = CartItem.objects.filter(
+            variant=variant
+        ).exclude(
+            id=cart_item.id
+        ).aggregate(
+            total=Sum("quantity")
+        )["total"] or 0
+
+        remaining_stock = (
+            variant.stock - total_reserved
+        )
+
+        # STOCK CHECK
+
+        if cart_item.quantity + 1 > remaining_stock:
+
+            messages.error(
+
+                request,
+
+                f"Only {remaining_stock} items available"
 
             )
 
@@ -1022,6 +1173,9 @@ def wishlist_to_cart(request, product_id):
 
         cart_item.save()
 
+    # =====================================
+    # CREATE NEW CART ITEM
+    # =====================================
 
     else:
 
@@ -1035,6 +1189,9 @@ def wishlist_to_cart(request, product_id):
 
         )
 
+    # =====================================
+    # REMOVE FROM WISHLIST
+    # =====================================
 
     Wishlist.objects.filter(
 
@@ -1044,14 +1201,36 @@ def wishlist_to_cart(request, product_id):
 
     ).delete()
 
-    messages.success(
+    # =====================================
+    # COUNTS
+    # =====================================
 
-        request,
+    cart_count = CartItem.objects.filter(
 
-        "Product moved to cart"
+        cart__user=request.user
 
-    )
+    ).count()
 
-    return redirect(
-        "user_products:cart"
-    )
+    wishlist_count = Wishlist.objects.filter(
+
+        user=request.user
+
+    ).count()
+
+    # =====================================
+    # AJAX RESPONSE
+    # =====================================
+
+    return JsonResponse({
+
+        "success": True,
+
+        "message": "Product moved to cart",
+
+        "cart_count": cart_count,
+
+        "wishlist_count": wishlist_count
+
+    })
+
+    

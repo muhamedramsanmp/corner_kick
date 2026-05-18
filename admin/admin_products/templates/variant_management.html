@@ -685,6 +685,42 @@ a{
     }
 
 }
+.variant-icon{
+
+    width:56px;
+
+    height:56px;
+
+    border-radius:16px;
+
+    overflow:hidden;
+
+    background:#111827;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    flex-shrink:0;
+}
+
+.variant-img{
+
+    width:100%;
+
+    height:100%;
+
+    object-fit:cover;
+}
+
+.variant-icon span{
+
+    color:#9ca3af;
+
+    font-size:26px;
+}
 </style>
 
 </head>
@@ -774,15 +810,19 @@ a{
 
            <div class="product-image">
 
-    {% if default_variant and default_variant.images.first %}
+   {% if default_variant and default_variant.primary_image %}
 
     <img
-        src="{{ default_variant.images.first.image.url }}"
+        src="{{ default_variant.primary_image }}"
+        alt="{{ product.product_name }}"
     >
 
 {% else %}
 
-    <img src="{% static 'images/default.png' %}">
+    <img
+        src="{% static 'images/default.png' %}"
+        alt="Default Image"
+    >
 
 {% endif %}
 </div>
@@ -921,13 +961,25 @@ a{
 
     <div class="variant-info">
 
-        <div class="variant-icon blue">
+<div class="variant-icon">
 
-            <span class="material-symbols-outlined">
-                checkroom
-            </span>
+    {% if variant.primary_image %}
 
-        </div>
+        <img
+            src="{{ variant.primary_image }}"
+            alt="{{ variant.color }}"
+            class="variant-img"
+        >
+
+    {% else %}
+
+        <span class="material-symbols-outlined">
+            checkroom
+        </span>
+
+    {% endif %}
+
+</div>
 
         <div class="variant-name">
 
