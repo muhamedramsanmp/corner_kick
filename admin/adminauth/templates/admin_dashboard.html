@@ -1,203 +1,13 @@
+{% extends 'admin_base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<title>Admin Dashboard</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+{% block title %}
+Admin Dashboard
+{% endblock %}
 
+{% block content %}
 <style>
 
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-}
-
-body{
-    font-family:'Inter',sans-serif;
-    background:#000;
-    color:#fff;
-}
-
-/* SIDEBAR */
-
-.sidebar{
-    position:fixed;
-    width:250px;
-    height:100vh;
-    background:linear-gradient(to bottom,#05080f,#000);
-    padding:20px 15px;
-    display:flex;
-    flex-direction:column;
-    justify-content:space-between;
-    border-right:1px solid #0f172a;
-}
-
-.logo{
-    color:#3b82f6;
-    font-weight:700;
-    font-size:15px;
-}
-
-.sublogo{
-    font-size:10px;
-    color:#6b7280;
-    margin-bottom:25px;
-    letter-spacing:1px;
-}
-
-/* MENU */
-
-.menu{
-    display:flex;
-    flex-direction:column;
-    gap:8px;
-}
-
-.menu a{
-    display:flex;
-    align-items:center;
-    gap:12px;
-    padding:10px 14px;
-    color:#9ca3af;
-    text-decoration:none;
-    border-radius:8px;
-    font-size:13px;
-    position:relative;
-    transition:.2s;
-}
-
-.menu a span{
-    font-size:18px;
-}
-
-.menu a:hover{
-    background:#0f172a;
-    color:#fff;
-}
-
-.menu a.active{
-    background:linear-gradient(90deg,#0f172a,#0b1220);
-    color:#60a5fa;
-}
-
-.menu a.active::before{
-    content:"";
-    position:absolute;
-    left:0;
-    top:6px;
-    bottom:6px;
-    width:3px;
-    background:#3b82f6;
-    border-radius:3px;
-}
-
-/* FOOTER */
-
-.sidebar-footer{
-    border-top:1px solid #0f172a;
-    padding-top:15px;
-}
-
-.user-box{
-    display:flex;
-    align-items:center;
-    gap:10px;
-    background:#0b1220;
-    padding:10px;
-    border-radius:10px;
-}
-
-.user-box img{
-    width:34px;
-    height:34px;
-    border-radius:50%;
-    object-fit:cover;
-}
-
-.user-name{
-    font-size:13px;
-}
-
-.user-role{
-    font-size:11px;
-    color:#6b7280;
-}
-
-/* TOPBAR */
-
-.topbar{
-    position:fixed;
-    left:250px;
-    right:0;
-    height:70px;
-    background:#0b0b0b;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    padding:0 25px;
-    border-bottom:1px solid #111;
-    z-index:100;
-}
-
-.search-box{
-    display:flex;
-    align-items:center;
-    background:linear-gradient(135deg,#0f172a,#020617);
-    padding:10px 15px;
-    border-radius:14px;
-    width:320px;
-    border:1px solid #1f2937;
-    gap:10px;
-}
-
-.search-box input{
-    flex:1;
-    background:transparent;
-    border:none;
-    outline:none;
-    color:#fff;
-    font-size:14px;
-}
-
-.search-box input::placeholder{
-    color:#9ca3af;
-}
-
-.search-icon{
-    color:#60a5fa;
-    font-size:22px;
-}
-
-/* LOGOUT */
-
-.logout-btn{
-    display:flex;
-    align-items:center;
-    gap:8px;
-    background:#111827;
-    color:#ef4444;
-    padding:10px 16px;
-    border-radius:10px;
-    text-decoration:none;
-    font-size:13px;
-    transition:.2s;
-}
-
-.logout-btn:hover{
-    background:#7f1d1d;
-    color:#fff;
-}
-
-/* MAIN */
-
-.main{
-    margin-left:250px;
-    padding:100px 30px;
-}
 
 h1{
     font-size:30px;
@@ -360,58 +170,72 @@ h1{
     background:#3b0764;
     color:#c084fc;
 }
+/* TOPBAR */
+
+.topbar{
+    position:fixed;
+    left:250px;
+    right:0;
+    height:70px;
+    background:#0b0b0b;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 25px;
+    border-bottom:1px solid #111;
+    z-index:100;
+}
+
+.search-box{
+    display:flex;
+    align-items:center;
+    background:linear-gradient(135deg,#0f172a,#020617);
+    padding:10px 15px;
+    border-radius:14px;
+    width:320px;
+    border:1px solid #1f2937;
+    gap:10px;
+}
+
+.search-box input{
+    flex:1;
+    background:transparent;
+    border:none;
+    outline:none;
+    color:#fff;
+    font-size:14px;
+}
+
+.search-box input::placeholder{
+    color:#9ca3af;
+}
+
+.search-icon{
+    color:#60a5fa;
+    font-size:22px;
+}
+
+/* LOGOUT */
+
+.logout-btn{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    background:#111827;
+    color:#ef4444;
+    padding:10px 16px;
+    border-radius:10px;
+    text-decoration:none;
+    font-size:13px;
+    transition:.2s;
+}
+
+.logout-btn:hover{
+    background:#7f1d1d;
+    color:#fff;
+}
 
 </style>
-</head>
-
-<body>
-
-<!-- SIDEBAR -->
-
-<div class="sidebar">
-
-    <div>
-
-        <div class="logo">CORNER KICK</div>
-        <div class="sublogo">ADMIN DASHBOARD</div>
-
-        <div class="menu">
-
-            <a class="active">
-                <span class="material-symbols-outlined">dashboard</span>
-                Dashboard
-            </a>
-
-            <a><span class="material-symbols-outlined">shopping_cart</span>Orders</a>
-            <a href="{% url 'admin_products:product_management' %}"><span class="material-symbols-outlined">inventory_2</span>Products</a>
-            <a href="{% url "category_management" %}"><span class="material-symbols-outlined">category</span>Categories</a>
-            <a><span class="material-symbols-outlined">confirmation_number</span>Coupons</a>
-            <a><span class="material-symbols-outlined">local_offer</span>Offers</a>
-            <a href="{% url "user_management" %}" ><span class="material-symbols-outlined">group</span>Customers</a>
-            <a><span class="material-symbols-outlined">assignment_return</span>Returns</a>
-            <a><span class="material-symbols-outlined">rate_review</span>Reviews</a>
-            <a><span class="material-symbols-outlined">campaign</span>Banners</a>
-
-        </div>
-
-    </div>
-
-    <div class="sidebar-footer">
-
-        <div class="user-box">
-
-            <img src="{% static 'images/default.png' %}">
-
-            <div>
-                <div class="user-name">Admin User</div>
-                <div class="user-role">System Admin</div>
-            </div>
-
-        </div>
-
-    </div>
-
-</div>
 
 <!-- TOPBAR -->
 
@@ -625,5 +449,4 @@ h1{
 
 </div>
 
-</body>
-</html>
+{% endblock %}

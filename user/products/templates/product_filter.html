@@ -75,15 +75,17 @@ Shop
 /* ================= MAIN ================= */
 
 .wrapper{
+
     display:grid;
 
-    grid-template-columns:240px 1fr;
+    grid-template-columns:220px 1fr;
 
-    gap:22px;
+    gap:28px;
 
-    padding:0 40px 50px;
+    padding:0 48px 60px;
 
     align-items:start;
+
 }
 /* ================= SIDEBAR ================= */
 
@@ -189,7 +191,6 @@ Shop
 
     font-weight:500;
 }
-/* ================= SEARCH BOX ================= */
 /* ================= SEARCH BOX ================= */
 
 /* ================= FILTER SEARCH ================= */
@@ -414,44 +415,92 @@ Shop
 }
 
 /* GRID */
+/* ================= GRID ================= */
 
 .product-grid{
 
     display:grid;
 
-    grid-template-columns:
-    repeat(3, 1fr);
+    grid-template-columns:repeat(3,minmax(0,1fr));
 
-    gap:20px;
+    gap:28px;
 
 }
+
+/* ================= CARD ================= */
+
 .card{
+
     background:#ffffff;
+
     border:1px solid #e2e8f0;
 
-    border-radius:22px;
+    border-radius:28px;
 
     overflow:hidden;
 
+    position:relative;
+
     transition:.25s;
 
-    position:relative;
 }
 
 .card:hover{
+
     transform:translateY(-4px);
 
-    box-shadow:
-        0 14px 40px rgba(0,0,0,.35);
+    box-shadow:0 14px 30px rgba(0,0,0,.08);
+
 }
+
+/* ================= IMAGE ================= */
+
+.card-image{
+
+    width:100%;
+
+    height:280px;
+
+    overflow:hidden;
+
+    background:#0f172a;
+
+}
+
+.card-image img{
+
+    width:100%;
+
+    height:100%;
+
+    object-fit:cover;
+
+    transition:.3s;
+
+}
+
+.card:hover .card-image img{
+
+    transform:scale(1.05);
+
+}
+
+/* ================= BODY ================= */
+
+.card-body{
+
+    padding:20px;
+
+}
+
 .wishlist-btn{
     position:absolute;
 
     top:16px;
     right:16px;
 
-    width:42px;
-    height:42px;
+    width:40px;
+    height:40px;
 
     border-radius:50%;
 
@@ -496,47 +545,6 @@ Shop
 .wishlist-btn.active span{
     color:#ffffff;
 }
-/* IMAGE */
-
-.card-image{
-
-    width:100%;
-
-    height:320px;
-
-    background:#f8fafc;
-
-    overflow:hidden;
-
-    position:relative;
-}
-
-.card-image img{
-
-    width:100%;
-
-    height:100%;
-
-    object-fit:cover;
-
-    object-position:center;
-
-    padding:0;
-
-    background:#fff;
-
-    transition:.3s;
-}
-
-.card:hover .card-image img{
-    transform:scale(1.05);
-}
-
-/* BODY */
-
-.card-body{
-    padding:20px;
-}
 
 .category{
     font-size:10px;
@@ -565,9 +573,15 @@ Shop
 }
 
 .price-row{
+
     display:flex;
+
     align-items:center;
+
     justify-content:space-between;
+
+    margin-bottom:20px;
+
 }
 
 .price{
@@ -579,9 +593,9 @@ Shop
 }
 
 .stock{
-    font-size:10px;
+    font-size:11px;
 
-    padding:7px 12px;
+    padding:8px 12px;
 
     border-radius:20px;
 
@@ -591,15 +605,20 @@ Shop
 }
 
 .in-stock{
-    background:#064e3b;
+
+    background:#ecfdf5;
+
     color:#10b981;
+
 }
 
 .out-stock{
-    background:#3f1111;
-    color:#ef4444;
-}
 
+    background:#fef2f2;
+
+    color:#ef4444;
+
+}
 /* ================= PAGINATION ================= */
 
 .pagination{
@@ -671,7 +690,7 @@ Shop
 
 /* ================= RESPONSIVE ================= */
 
-@media(max-width:1300px){
+@media(max-width:1000px){
 
     .product-grid{
         grid-template-columns:repeat(2,1fr);
@@ -1043,7 +1062,7 @@ class="product-link"
 
     </div>
 
-</a>
+
             {% endfor %}
 
         </div>

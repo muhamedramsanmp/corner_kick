@@ -1,5 +1,3 @@
-# admin_products/views.py
-
 from django.shortcuts import render,redirect,get_object_or_404
 from django.core.paginator import Paginator
 from django.db.models import Q
@@ -193,8 +191,6 @@ def edit_product(request, product_id):
 
     if request.method == "POST":
 
-        # ================= PRODUCT =================
-
         product.product_name = request.POST.get(
             "product_name"
         )
@@ -227,8 +223,6 @@ def edit_product(request, product_id):
             True if request.POST.get("is_active")
             else False
         )
-
-        # ================= CATEGORY =================
 
         try:
 
@@ -346,8 +340,6 @@ def variant_management(request, product_id):
         is_deleted=False
     ).order_by('-created_at')
 
-    # SEARCH
-
     search = request.GET.get("search")
 
     if search:
@@ -356,15 +348,11 @@ def variant_management(request, product_id):
             sku__icontains=search
         )
 
-    # PAGINATION
-
     paginator = Paginator(variants, 5)
 
     page_number = request.GET.get('page')
 
     page_obj = paginator.get_page(page_number)
-
-    # STATS
 
     total_stock = sum(
         variant.stock
@@ -408,7 +396,6 @@ def variant_management(request, product_id):
 
     )
 
-
 @login_required(login_url='login')
 def add_variant(request, product_id):
 
@@ -434,15 +421,10 @@ def add_variant(request, product_id):
 
         is_active = True if request.POST.get("is_active") else False
 
-
-        # 🔥 COMMON CONTEXT
         context = {
             "product": product,
             "form_data": request.POST
         }
-
-
-        # ================= VALIDATIONS =================
 
         if not color:
 
@@ -491,8 +473,6 @@ def add_variant(request, product_id):
             return render(request, "add_variant.html", context)
 
 
-        # ================= STOCK =================
-
         try:
 
             stock = int(stock)
@@ -517,9 +497,6 @@ def add_variant(request, product_id):
 
             return render(request, "add_variant.html", context)
 
-
-        # ================= PRICE =================
-
         try:
 
             price = float(price)
@@ -543,9 +520,6 @@ def add_variant(request, product_id):
             )
 
             return render(request, "add_variant.html", context)
-
-
-        # ================= IMAGES =================
 
         images = request.FILES.getlist("images")
 
@@ -577,8 +551,6 @@ def add_variant(request, product_id):
             return render(request, "add_variant.html", context)
 
 
-        # ================= DUPLICATE VARIANT =================
-
         if Variant.objects.filter(
             product=product,
             color=color,
@@ -594,9 +566,6 @@ def add_variant(request, product_id):
 
             return render(request, "add_variant.html", context)
 
-
-        # ================= DEFAULT =================
-
         if is_default:
 
             Variant.objects.filter(
@@ -604,9 +573,6 @@ def add_variant(request, product_id):
             ).update(
                 is_default=False
             )
-
-
-        # ================= CREATE VARIANT =================
 
         variant = Variant.objects.create(
 
@@ -626,9 +592,6 @@ def add_variant(request, product_id):
 
             is_default=is_default
         )
-
-
-        # ================= SAVE IMAGES =================
 
         for index, image in enumerate(valid_images):
 
@@ -677,10 +640,6 @@ def edit_variant(request, variant_id):
 
     product = variant.product
 
-    # =========================================
-    # EDIT VARIANT
-    # =========================================
-
     if request.method == "POST":
 
         color = request.POST.get(
@@ -719,11 +678,6 @@ def edit_variant(request, variant_id):
             else False
         )
         
-
-        # =========================================
-        # REQUIRED VALIDATION
-        # =========================================
-
         if not color:
 
             messages.error(
@@ -760,10 +714,6 @@ def edit_variant(request, variant_id):
                 variant_id=variant.id
             )
 
-        # =========================================
-        # SKU VALIDATION
-        # =========================================
-
         if Variant.objects.filter(
             sku=sku,
             is_deleted=False
@@ -781,10 +731,7 @@ def edit_variant(request, variant_id):
                 "admin_products:edit_variant",
                 variant_id=variant.id
             )
-
-        # =========================================
-        # DUPLICATE VARIANT VALIDATION
-        # =========================================
+        
 
         if Variant.objects.filter(
 
@@ -809,10 +756,6 @@ def edit_variant(request, variant_id):
                 "admin_products:edit_variant",
                 variant_id=variant.id
             )
-
-        # =========================================
-        # STOCK VALIDATION
-        # =========================================
 
         try:
 
@@ -842,9 +785,6 @@ def edit_variant(request, variant_id):
                 variant_id=variant.id
             )
 
-        # =========================================
-        # PRICE VALIDATION
-        # =========================================
 
         try:
 
@@ -874,10 +814,6 @@ def edit_variant(request, variant_id):
                 variant_id=variant.id
             )
 
-        # =========================================
-        # UPDATE VARIANT
-        # =========================================
-
         variant.color = color
 
         variant.size = size
@@ -892,10 +828,6 @@ def edit_variant(request, variant_id):
 
         variant.is_default = is_default
 
-        # =========================================
-        # SINGLE DEFAULT VARIANT
-        # =========================================
-
         if is_default:
 
             Variant.objects.filter(
@@ -908,11 +840,7 @@ def edit_variant(request, variant_id):
 
         variant.save()
 
-        
 
-        # =========================================
-        # IMAGE VALIDATION
-        # =========================================
 
         images = request.FILES.getlist("images")
 
@@ -923,9 +851,6 @@ def edit_variant(request, variant_id):
 
         existing_image_count = variant.images.count()
 
-        # IF USER UPLOADS NEW IMAGES,
-        # OLD IMAGES WILL BE REPLACED
-
         if valid_images:
 
             total_images = len(valid_images)
@@ -933,8 +858,6 @@ def edit_variant(request, variant_id):
         else:
 
             total_images = existing_image_count
-
-        # MINIMUM 3 IMAGES REQUIRED
 
         if total_images < 3:
 
@@ -948,8 +871,6 @@ def edit_variant(request, variant_id):
                 variant_id=variant.id
             )
 
-        # MAXIMUM 4 IMAGES
-
         if total_images > 4:
 
             messages.error(
@@ -961,10 +882,6 @@ def edit_variant(request, variant_id):
                 "admin_products:edit_variant",
                 variant_id=variant.id
             )
-
-        # =========================================
-        # UPDATE IMAGES
-        # =========================================
 
         if valid_images:
 
@@ -981,9 +898,6 @@ def edit_variant(request, variant_id):
                     is_primary=True if index == 0 else False
 
                 )
-        # =========================================
-        # SUCCESS
-        # =========================================
 
         messages.success(
             request,
@@ -995,9 +909,6 @@ def edit_variant(request, variant_id):
             product_id=product.id
         )
 
-    # =========================================
-    # GET PAGE
-    # =========================================
 
     existing_images = variant.images.count()
 
@@ -1029,7 +940,6 @@ def delete_variant(request, variant_id):
         id=variant_id
     ).first()
 
-    # already deleted or missing
     if not variant:
 
         messages.error(
@@ -1045,7 +955,6 @@ def delete_variant(request, variant_id):
 
         product_id = variant.product.id
 
-        # 🔥 FULL DELETE
         variant.delete()
 
         messages.success(

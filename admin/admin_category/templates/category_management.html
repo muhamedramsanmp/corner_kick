@@ -1,139 +1,12 @@
+{% extends 'admin_base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
 
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+{% block title %}
+Admin Dashboard
+{% endblock %}
 
-<title>Category Management</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
-
+{% block content %}
 <style>
-
-/* RESET */
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-}
-
-body{
-    font-family:'Inter',sans-serif;
-    background:#000;
-    color:#fff;
-}
-
-/* SIDEBAR */
-
-.sidebar{
-    position:fixed;
-    width:250px;
-    height:100vh;
-    background:linear-gradient(to bottom,#05080f,#000);
-    padding:20px 15px;
-    display:flex;
-    flex-direction:column;
-    justify-content:space-between;
-    border-right:1px solid #0f172a;
-}
-
-.logo{
-    color:#3b82f6;
-    font-weight:700;
-    font-size:15px;
-}
-
-.sublogo{
-    font-size:10px;
-    color:#6b7280;
-    margin-bottom:25px;
-    letter-spacing:1px;
-}
-
-/* MENU */
-
-.menu{
-    display:flex;
-    flex-direction:column;
-    gap:8px;
-}
-
-.menu a{
-    display:flex;
-    align-items:center;
-    gap:12px;
-    padding:10px 14px;
-    color:#9ca3af;
-    text-decoration:none;
-    border-radius:8px;
-    font-size:13px;
-    position:relative;
-    transition:.2s;
-}
-
-.menu a span{
-    font-size:18px;
-}
-
-.menu a:hover{
-    background:#0f172a;
-    color:#fff;
-}
-
-.menu a.active{
-    background:linear-gradient(90deg,#0f172a,#0b1220);
-    color:#60a5fa;
-}
-
-.menu a.active::before{
-    content:"";
-    position:absolute;
-    left:0;
-    top:6px;
-    bottom:6px;
-    width:3px;
-    background:#3b82f6;
-    border-radius:3px;
-}
-
-/* FOOTER */
-
-.sidebar-footer{
-    border-top:1px solid #0f172a;
-    padding-top:15px;
-}
-
-.user-box{
-    display:flex;
-    align-items:center;
-    gap:10px;
-    background:#0b1220;
-    padding:10px;
-    border-radius:10px;
-}
-
-.user-box img{
-    width:34px;
-    height:34px;
-    border-radius:50%;
-    object-fit:cover;
-}
-
-.user-name{
-    font-size:13px;
-}
-
-.user-role{
-    font-size:11px;
-    color:#6b7280;
-}
-
 /* TOPBAR */
 
 .topbar{
@@ -532,63 +405,6 @@ h1{
     z-index:99999;
 }
 
-.toast{
-    min-width:280px;
-
-    background:#0f172a;
-
-    border:1px solid #1e293b;
-
-    color:#fff;
-
-    padding:14px 16px;
-
-    margin-bottom:12px;
-
-    border-radius:12px;
-
-    display:flex;
-    align-items:center;
-    gap:12px;
-
-    box-shadow:0 10px 30px rgba(0,0,0,.5);
-
-    animation:slideIn .35s ease;
-
-    font-size:13px;
-    font-weight:500;
-}
-
-/* SUCCESS */
-
-.toast.success{
-    border-left:4px solid #22c55e;
-}
-
-/* ERROR */
-
-.toast.error{
-    border-left:4px solid #ef4444;
-}
-
-/* ICON */
-
-.toast-icon{
-    font-size:20px;
-}
-
-/* SUCCESS ICON */
-
-.toast.success .toast-icon{
-    color:#22c55e;
-}
-
-/* ERROR ICON */
-
-.toast.error .toast-icon{
-    color:#ef4444;
-}
-
 /* ANIMATION */
 
 @keyframes slideIn{
@@ -606,114 +422,24 @@ h1{
 }
 
 </style>
-</head>
 
 <body>
-
-<!-- SIDEBAR -->
-
-<div class="sidebar">
-
-    <div>
-
-        <div class="logo">CORNER KICK</div>
-        <div class="sublogo">CATEGORY MANAGEMENT</div>
-
-        <div class="menu">
-
-            <a  href="{% url "admin_dashboard" %}">
-                <span class="material-symbols-outlined">dashboard</span>
-                Dashboard
-            </a>
-
-            <a><span class="material-symbols-outlined">shopping_cart</span>Orders</a>
-            <a href="{% url "admin_products:product_management" %}"><span class="material-symbols-outlined">inventory_2</span>Products</a>
-            <a class="active"><span class="material-symbols-outlined">category</span>Categories</a>
-            <a><span class="material-symbols-outlined">confirmation_number</span>Coupons</a>
-            <a><span class="material-symbols-outlined">local_offer</span>Offers</a>
-            <a href="{% url "user_management" %}"><span class="material-symbols-outlined">group</span>Customers</a>
-            <a><span class="material-symbols-outlined">assignment_return</span>Returns</a>
-            <a><span class="material-symbols-outlined">rate_review</span>Reviews</a>
-            <a><span class="material-symbols-outlined">campaign</span>Banners</a>
-
-        </div>
-
-    </div>
-
-    <div class="sidebar-footer">
-
-        <div class="user-box">
-
-            <img src="{% static 'images/default.png' %}">
-
-            <div>
-                <div class="user-name">Admin User</div>
-                <div class="user-role">System Admin</div>
-            </div>
-
-        </div>
-
-    </div>
-
-</div>
 
 <!-- TOPBAR -->
 
 <div class="topbar">
-    {% if messages %}
 
-<div id="toast-container">
-
-    {% for message in messages %}
-
-        <div class="toast {{ message.tags }}">
-
-            <span class="material-symbols-outlined toast-icon">
-
-                {% if message.tags == 'success' %}
-                    check_circle
-                {% elif message.tags == 'error' %}
-                    error
-                {% else %}
-                    info
-                {% endif %}
-
-            </span>
-
-            <span>{{ message }}</span>
-
-        </div>
-
-    {% endfor %}
-
-</div>
-
-{% endif %}
-
-   <form method="GET" class="search-box">
-
-    <input
+<form method="GET" class="search-box">
+    <input 
         type="text"
         name="q"
         value="{{ query }}"
-        placeholder="Search categories..."
+        placeholder="Search users..."
+        
     >
-
-    {% if query %}
-
-    {% endif %}
-
-    <span class="material-symbols-outlined search-icon">
-        search
-    </span>
-
+    <span class="material-symbols-outlined search-icon">search</span>
 </form>
-
 </div>
-
-<!-- MAIN -->
-
-<div class="main">
 
     <h1>Category Management</h1>
 
@@ -971,7 +697,7 @@ h1{
 
             {% else %}
 
-                <a href="?page={{ num }}">
+                <a href="?page={{ num }}&q={{ query }}">
 
                     <span>{{ num }}</span>
 
@@ -998,40 +724,6 @@ h1{
 </div>
 
     </div>
-
-</div>
-<script>
-
-setTimeout(() => {
-
-    const toasts =
-        document.querySelectorAll('.toast');
-
-    toasts.forEach((toast) => {
-
-        toast.style.opacity = '0';
-
-        toast.style.transform =
-            'translateX(50px)';
-
-    });
-
-    setTimeout(() => {
-
-        const container =
-            document.getElementById(
-                'toast-container'
-            );
-
-        if(container){
-            container.remove();
-        }
-
-    }, 500);
-
-}, 2500);
-
-</script>
 <script>
 
 let timer;
@@ -1054,5 +746,4 @@ document
 });
 
 </script>
-</body>
-</html>
+{% endblock %}

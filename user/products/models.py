@@ -1,4 +1,3 @@
-
 from django.utils.text import slugify
 from django.db import models
 from django.conf import settings
@@ -30,11 +29,6 @@ def save(self, *args, **kwargs):
 
     super().save(*args, **kwargs)
 
-
-# =========================================
-# CART
-# =========================================
-
 class Cart(models.Model):
 
     user = models.OneToOneField(
@@ -63,10 +57,6 @@ class Cart(models.Model):
 
         return f"{self.user}'s Cart"
 
-    # =====================================
-    # TOTAL PRICE
-    # =====================================
-
     @property
     def total_price(self):
 
@@ -78,10 +68,6 @@ class Cart(models.Model):
 
         )
 
-    # =====================================
-    # TOTAL ITEMS
-    # =====================================
-
     @property
     def total_items(self):
 
@@ -92,11 +78,6 @@ class Cart(models.Model):
             for item in self.items.all()
 
         )
-
-
-# =========================================
-# CART ITEM
-# =========================================
 
 class CartItem(models.Model):
 
@@ -150,10 +131,6 @@ class CartItem(models.Model):
 
         return f"{self.variant} x {self.quantity}"
 
-    # =====================================
-    # TOTAL PRICE
-    # =====================================
-
     @property
     def total_price(self):
 
@@ -164,7 +141,7 @@ class CartItem(models.Model):
             self.quantity
 
         )
-    
+        
 
 class Wishlist(models.Model):
 

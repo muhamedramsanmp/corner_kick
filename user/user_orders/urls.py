@@ -15,4 +15,39 @@ urlpatterns = [
     name='order_success'
 ),
 
+    path(
+        'my-orders/',
+        views.my_orders,
+        name='my_orders'
+),
+
+    path(
+    'details/<str:order_id>/',
+    views.order_details,
+    name='order_details'
+),
+
+  path(
+    'cancel-item/<int:item_id>/',
+    views.cancel_order_item,
+    name='cancel_order_item'
+),
+
+path(
+    'cancel-order/<str:order_id>/',
+    views.cancel_entire_order,
+    name='cancel_entire_order'
+),
+
+path(
+    'return-item/<int:item_id>/',
+    views.return_single_item,
+    name='return_single_item'
+),
+
+path(
+    'return-order/<str:order_id>/',
+    views.return_entire_order,
+    name='return_entire_order'
+),
 ]

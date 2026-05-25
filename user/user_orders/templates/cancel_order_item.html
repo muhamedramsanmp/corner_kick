@@ -1,0 +1,264 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Cancel Item
+{% endblock %}
+
+{% block content %}
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    background:#f5f6fa;
+    font-family:Arial,sans-serif;
+}
+
+.cancel-page{
+    width:100%;
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:40px 20px;
+}
+
+.cancel-card{
+    width:100%;
+    max-width:650px;
+    background:white;
+    border-radius:18px;
+    padding:40px;
+    border:1px solid #ececec;
+}
+
+.cancel-card h1{
+    font-size:38px;
+    margin-bottom:15px;
+    color:#111827;
+}
+
+.cancel-card p{
+    color:#666;
+    margin-bottom:30px;
+    line-height:1.7;
+}
+
+.product-box{
+    display:flex;
+    align-items:center;
+    gap:20px;
+    background:#f8f9fc;
+    border-radius:14px;
+    padding:20px;
+    margin-bottom:30px;
+}
+
+.product-box img{
+    width:100px;
+    height:100px;
+    object-fit:cover;
+    border-radius:14px;
+}
+
+.product-info h3{
+    font-size:22px;
+    margin-bottom:10px;
+}
+
+.product-info p{
+    margin-bottom:8px;
+}
+
+.form-group{
+    margin-bottom:25px;
+}
+
+.form-group label{
+    display:block;
+    margin-bottom:12px;
+    font-weight:700;
+    color:#111827;
+}
+
+.form-group textarea{
+    width:100%;
+    height:140px;
+    border:1px solid #ddd;
+    border-radius:12px;
+    padding:15px;
+    resize:none;
+    outline:none;
+    font-size:15px;
+}
+
+.button-group{
+    display:flex;
+    gap:15px;
+    flex-wrap:wrap;
+}
+
+.cancel-btn{
+    flex:1;
+    height:55px;
+    border:none;
+    background:#d62828;
+    color:white;
+    border-radius:12px;
+    font-size:15px;
+    font-weight:700;
+    cursor:pointer;
+}
+
+.back-btn{
+    flex:1;
+    height:55px;
+    border:1px solid #ddd;
+    background:white;
+    color:#111827;
+    border-radius:12px;
+    font-size:15px;
+    font-weight:700;
+    text-decoration:none;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+
+@media(max-width:576px){
+
+    .cancel-card{
+        padding:25px;
+    }
+
+    .cancel-card h1{
+        font-size:30px;
+    }
+
+    .product-box{
+        flex-direction:column;
+        align-items:flex-start;
+    }
+
+    .button-group{
+        flex-direction:column;
+    }
+
+}
+
+</style>
+
+
+<div class="cancel-page">
+
+    <div class="cancel-card">
+
+        <h1>
+            Cancel Item
+        </h1>
+
+        <p>
+            Are you sure you want to cancel this product?
+            Stock will automatically be restored.
+        </p>
+
+
+        <div class="product-box">
+
+            {% if order_item.variant.images.first %}
+
+                <img
+                src="{{ order_item.variant.images.first.image.url }}"
+                alt=""
+                >
+
+            {% endif %}
+
+
+            <div class="product-info">
+
+                <h3>
+
+                    {{ order_item.product.product_name }}
+
+                </h3>
+
+                <p>
+
+                    Size :
+                    {{ order_item.variant.size }}
+
+                </p>
+
+                <p>
+
+                    Quantity :
+                    {{ order_item.quantity }}
+
+                </p>
+
+                <p>
+
+                    Amount :
+                    ₹{{ order_item.total_price }}
+
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <form method="POST">
+
+            {% csrf_token %}
+
+            <div class="form-group">
+
+                <label>
+                    Cancellation Reason (Optional)
+                </label>
+
+                <textarea
+                name="cancel_reason"
+                placeholder="Tell us why you want to cancel..."
+                ></textarea>
+
+            </div>
+
+
+            <div class="button-group">
+
+                <button
+                type="submit"
+                class="cancel-btn"
+                >
+
+                    CONFIRM CANCELLATION
+
+                </button>
+
+
+                <a
+                href="{% url 'order_details' order_item.order.order_id %}"
+                class="back-btn"
+                >
+
+                    GO BACK
+
+                </a>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}

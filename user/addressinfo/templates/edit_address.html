@@ -10,160 +10,155 @@ Edit Address
 <style>
 
 
-/* LAYOUT */
-.layout {
-    display: flex;
-}
-
-.sidebar {
-    width: 260px;
-    background: #f8fafc;
-    padding: 25px;
-}
-
-/* PROFILE */
-.profile-box {
-    display: flex;
-    gap: 12px;
-    align-items: center;
-    margin-bottom: 25px;
-}
-
-.profile-img {
-    width: 55px;
-    height: 55px;
-    border-radius: 50%;
-    object-fit: cover;
-}
-
-.profile-name {
-    font-weight: 600;
-}
-
-.profile-role {
-    font-size: 12px;
-    color: #64748b;
-}
-
-/* TITLE */
-.menu-title {
-    font-size: 12px;
-    font-weight: 700;
-    color: #6b7280;
-    margin-bottom: 15px;
-    letter-spacing: 2px;
-}
-
-/* SIDEBAR ITEMS */
-.sidebar-item {
-    display: flex;
-    align-items: center;   /* 🔥 FIX */
-    gap: 14px;
-    padding: 14px 16px;
-    margin-bottom: 10px;
-    text-decoration: none;
-    color: #64748b;
-    font-weight: 600;
-    border-radius: 10px;
-    transition: 0.2s;
-    position: relative;
-}
-
-/* ICON */
-.icon {
-    width: 22px;
-    height: 22px;
-    display: flex;         /* 🔥 FIX */
-    align-items: center;   /* 🔥 FIX */
-    justify-content: center;
-    fill: currentColor;
-}
-
-/* HOVER */
-.sidebar-item:hover {
-    background: #e8edff;
-    color: #2563eb;
-}
-
-/* ACTIVE */
-.sidebar-item.active {
-    background: #eaf0ff;
-    color: #2563eb;
-}
-
-/* RIGHT BLUE LINE */
-.sidebar-item.active::after {
-    content: "";
-    position: absolute;
-    right: 0;
-    top: 0;
-    height: 100%;
-    width: 4px;
-    background: #2563eb;
-    border-radius: 4px;
-}
-
 /* MAIN */
-.main {
-    flex: 1;
-    padding: 40px;
-    display: flex;
-    justify-content: center;
+.main{
+
+    width:100%;
+
+    padding:40px 48px 70px;
+
+    display:flex;
+
+    justify-content:center;
+
 }
 
 /* CARD */
-.card {
-    width: 100%;
-    max-width: 850px;
-    background: white;
-    padding: 30px;
-    border-radius: 16px;
+.card{
+
+    width:100%;
+
+    max-width:1000px;
+
+    background:#ffffff;
+
+    padding:50px;
+
+    border-radius:32px;
+
+    border:1px solid #e2e8f0;
+
+    box-shadow:
+        0 20px 40px rgba(15,23,42,.05);
+
 }
 
-/* TITLE */
-.title {
-    font-size: 22px;
-    font-weight: 700;
-    margin-bottom: 25px;
-    position: relative;
+.title{
+
+    font-size:34px;
+
+    font-weight:800;
+
+    color:#0f172a;
+
+    margin-bottom:30px;
+
+    position:relative;
+
+}
+.title::after{
+
+    content:"";
+
+    width:60px;
+
+    height:4px;
+
+    background:#2563eb;
+
+    position:absolute;
+
+    left:0;
+
+    bottom:-10px;
+
+    border-radius:999px;
+
 }
 
-.title::after {
-    content: "";
-    width: 40px;
-    height: 3px;
-    background: #2563eb;
-    position: absolute;
-    left: 0;
-    bottom: -8px;
-}
+.grid{
 
-/* GRID */
-.grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 20px;
+    display:grid;
+
+    grid-template-columns:
+        repeat(2,1fr);
+
+    gap:28px;
+
 }
 
 .full {
     grid-column: span 2;
 }
 
-/* INPUT */
-label {
-    font-size: 11px;
-    color: #64748b;
-    font-weight: 600;
-}
+label{
 
+    font-size:13px;
+
+    font-weight:700;
+
+    color:#475569;
+
+    letter-spacing:.4px;
+
+}
 .form-input,
 .form-textarea{
+
     width:100%;
-    padding:12px;
-    border-radius:8px;
-    border:none;
-    background:#eef2f7;
-    margin-top:5px;
+
+    background:#eef2f7 !important;
+
+    border:none !important;
+
+    border-radius:20px;
+
+    padding:18px 22px;
+
+    margin-top:10px;
+
+    font-size:15px;
+
+    color:#0f172a;
+
+    transition:.25s ease;
+
+    appearance:none;
+
+    -webkit-appearance:none;
+
+}
+
+/* INPUT */
+
+.form-input{
+
+    height:62px;
+
+}
+
+/* TEXTAREA */
+
+.form-textarea{
+
+    min-height:150px;
+
+    resize:none;
+
+}
+
+/* FOCUS */
+
+.form-input:focus,
+.form-textarea:focus{
+
+    outline:none;
+
+    background:#eef2f7 !important;
+
+    box-shadow:
+        0 0 0 4px rgba(37,99,235,.10);
+
 }
 
 textarea {
@@ -255,51 +250,6 @@ input:checked + .slider::before {
     text-decoration: none;
 }
 
-/* FOOTER */
-.footer {
-    background: #f1f5f9;
-    padding: 50px 20px;
-    margin-top: 80px;
-    text-align: center;
-}
-
-/* CONTAINER */
-.footer-container {
-    max-width: 900px;
-    margin: auto;
-}
-
-/* LOGO */
-.footer-logo {
-    font-size: 18px;
-    font-weight: 800;
-    color: #94a3b8;
-    font-style: italic;
-    margin-bottom: 20px;
-}
-
-/* LINKS */
-.footer-links {
-    display: flex;
-    justify-content: center;
-    gap: 30px;
-    flex-wrap: wrap;
-    margin-bottom: 20px;
-}
-
-.footer-links a {
-    font-size: 11px;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    color: #94a3b8;
-    text-decoration: none;
-    transition: 0.2s;
-}
-
-.footer-links a:hover {
-    color: #2563eb;
-}
-
 /* COPYRIGHT */
 .footer-copy {
     font-size: 11px;
@@ -356,6 +306,57 @@ input:checked + .slider::before {
     gap: 10px;
     font-size: 14px;
 }
+@media(max-width:768px){
+
+.main{
+
+    padding:24px 16px 50px;
+
+}
+
+.card{
+
+    padding:24px;
+
+}
+
+.grid{
+
+    grid-template-columns:1fr;
+
+}
+
+.full{
+
+    grid-column:span 1;
+
+}
+
+.type-toggle-row{
+
+    flex-direction:column;
+
+    align-items:flex-start;
+
+    gap:24px;
+
+}
+
+.actions{
+
+    flex-direction:column;
+
+    align-items:stretch;
+
+}
+
+.save-btn{
+
+    width:100%;
+
+}
+
+}
 
 </style>
 {% endblock %}
@@ -368,49 +369,6 @@ input:checked + .slider::before {
 
 <div class="layout">
 
-<!-- SIDEBAR -->
-<div class="sidebar">
-
-    <div class="profile-box">
-        {% if user.profile.image %}
-            <img src="{{ user.profile.image.url }}?{{ user.profile.image.name }}" class="profile-img">
-        {% else %}
-            <img src="/media/default.png" class="profile-img">
-        {% endif %}
-
-        <div>
-            <div class="profile-name">{{ user.first_name }}</div>
-            <div class="profile-role">PRO MEMBER</div>
-        </div>
-    </div>
-
-    <div class="menu-title">ACCOUNT SETTINGS</div>
-
-    <a href="#" class="sidebar-item">
-        <span class="material-symbols-outlined">person</span>
-        PROFILE
-    </a>
-
-    <a href="#" class="sidebar-item active">
-        <span class="material-symbols-outlined">location_on</span>
-        ADDRESS
-    </a>
-
-    <a href="#" class="sidebar-item">
-        <span class="material-symbols-outlined">shopping_bag</span>
-        MY ORDERS
-    </a>
-
-    <a href="#" class="sidebar-item">
-        <span class="material-symbols-outlined">favorite</span>
-        WISHLIST
-    </a>
-
-    <a href="#" class="sidebar-item">
-        <span class="material-symbols-outlined">account_balance_wallet</span>
-        WALLET
-    </a>
-</div>
 
 <!-- MAIN -->
 <div class="main">

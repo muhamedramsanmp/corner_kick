@@ -1,148 +1,12 @@
+{% extends 'admin_base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Product Management</title>
+{% block title %}
+Admin Dashboard
+{% endblock %}
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
-
+{% block content %}
 <style>
-
-/* ================= RESET ================= */
-
-/* ================= RESET ================= */
-
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-}
-
-body{
-    font-family:'Inter',sans-serif;
-    background:#000;
-    color:#fff;
-    overflow-x:hidden;
-}
-
-/* ================= SIDEBAR ================= */
-
-.sidebar{
-    position:fixed;
-    width:250px;
-    height:100vh;
-    background:linear-gradient(to bottom,#05080f,#000);
-    padding:20px 15px;
-    display:flex;
-    flex-direction:column;
-    justify-content:space-between;
-    border-right:1px solid #0f172a;
-}
-
-/* LOGO */
-
-.logo{
-    color:#3b82f6;
-    font-weight:600;
-    font-size:15px;
-}
-
-.sublogo{
-    font-size:10px;
-    color:#6b7280;
-    margin-bottom:25px;
-    letter-spacing:1px;
-}
-
-/* MENU */
-
-.menu{
-    display:flex;
-    flex-direction:column;
-    gap:8px;
-}
-
-.menu a{
-    display:flex;
-    align-items:center;
-    gap:12px;
-    padding:10px 14px;
-    color:#9ca3af;
-    text-decoration:none;
-    border-radius:8px;
-    font-size:13px;
-    position:relative;
-    transition:.2s;
-}
-
-.menu a span{
-    font-size:18px;
-    opacity:.8;
-}
-
-.menu a:hover{
-    background:#0f172a;
-    color:#fff;
-}
-
-.menu a.active{
-    background:linear-gradient(
-        90deg,
-        #0f172a,
-        #0b1220
-    );
-
-    color:#60a5fa;
-}
-
-.menu a.active::before{
-    content:"";
-    position:absolute;
-    left:0;
-    top:6px;
-    bottom:6px;
-    width:3px;
-    background:#3b82f6;
-    border-radius:3px;
-}
-
-/* FOOTER */
-
-.sidebar-footer{
-    border-top:1px solid #0f172a;
-    padding-top:15px;
-}
-
-.user-box{
-    display:flex;
-    align-items:center;
-    gap:10px;
-    background:#0b1220;
-    padding:10px;
-    border-radius:10px;
-}
-
-.user-box img{
-    width:34px;
-    height:34px;
-    border-radius:50%;
-    object-fit:cover;
-}
-
-.user-name{
-    font-size:13px;
-}
-
-.user-role{
-    font-size:11px;
-    color:#6b7280;
-}
-
 /* ================= TOPBAR ================= */
 
 .topbar{
@@ -786,150 +650,6 @@ h1{
 
 {% endif %}
 
-<!-- SIDEBAR -->
-
-<div class="sidebar">
-
-    <div>
-
-        <div class="logo">CORNER KICK</div>
-
-        <div class="sublogo">
-            PRODUCT MANAGEMENT
-        </div>
-
-        <div class="menu">
-
-            <a href="{% url 'admin_dashboard' %}">
-
-                <span class="material-symbols-outlined">
-                    dashboard
-                </span>
-
-                Dashboard
-
-            </a>
-
-            <a>
-
-                <span class="material-symbols-outlined">
-                    shopping_cart
-                </span>
-
-                Orders
-
-            </a>
-
-            <a class="active">
-
-                <span class="material-symbols-outlined">
-                    inventory_2
-                </span>
-
-                Products
-
-            </a>
-
-            <a href="{% url 'category_management' %}">
-
-                <span class="material-symbols-outlined">
-                    category
-                </span>
-
-                Categories
-
-            </a>
-
-            <a>
-
-                <span class="material-symbols-outlined">
-                    confirmation_number
-                </span>
-
-                Coupons
-
-            </a>
-
-            <a>
-
-                <span class="material-symbols-outlined">
-                    local_offer
-                </span>
-
-                Offers
-
-            </a>
-
-            <a href="{% url 'user_management' %}">
-
-                <span class="material-symbols-outlined">
-                    group
-                </span>
-
-                Customers
-
-            </a>
-
-            <a>
-
-                <span class="material-symbols-outlined">
-                    assignment_return
-                </span>
-
-                Returns
-
-            </a>
-
-            <a>
-
-                <span class="material-symbols-outlined">
-                    rate_review
-                </span>
-
-                Reviews
-
-            </a>
-
-            <a>
-
-                <span class="material-symbols-outlined">
-                    campaign
-                </span>
-
-                Banners
-
-            </a>
-
-        </div>
-
-    </div>
-
-    <!-- FOOTER -->
-
-    <div class="sidebar-footer">
-
-        <div class="user-box">
-
-            <img src="{% static 'images/default.png' %}">
-
-            <div>
-
-                <div class="user-name">
-                    Admin User
-                </div>
-
-                <div class="user-role">
-                    System Admin
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</div>
-
 <!-- TOPBAR -->
 
 <div class="topbar">
@@ -961,10 +681,6 @@ class="new-btn"
 </a>
 
 </div>
-
-<!-- MAIN -->
-
-<div class="main">
 
     <h1>Product Management</h1>
 
@@ -1367,8 +1083,6 @@ color:#6b7280;
 
 </div>
     </div>
-
-</div>
 <script>
 
 setTimeout(() => {
@@ -1401,5 +1115,4 @@ setTimeout(() => {
 }, 2500);
 
 </script>
-</body>
-</html>
+{% endblock %}

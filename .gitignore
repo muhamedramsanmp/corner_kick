@@ -7,10 +7,17 @@ venv/
 provenv/
 env/
 
+# Environment variables
+.env
+
 # Django
 db.sqlite3
 media/
 staticfiles/
+
+# Migrations
+*/migrations/*.py
+!*/migrations/__init__.py
 
 # VS Code
 .vscode/

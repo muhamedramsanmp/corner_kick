@@ -14,6 +14,9 @@ from .models import OTP
 import random
 import time 
 from django.contrib.messages import get_messages
+from admin.admin_category.models import Category
+from admin.admin_products.models import Product,Variant
+
 
 
 User = get_user_model()
@@ -160,7 +163,49 @@ def login_view(request):
 @never_cache
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def home_view(request):
-    return render(request, "landingpage.html")
+    categories = Category.objects.filter(
+        is_active=True
+    )
+
+    latest_products = Product.objects.filter(
+
+        is_deleted=False,
+
+        is_active=True,
+
+        category__is_deleted=False,
+
+        category__is_active=True,
+
+    ).prefetch_related(
+
+        'variants__images',
+
+        'category'
+
+    ).order_by(
+
+        '-created_at'
+
+    )[:5]
+
+    context = {
+
+        'categories': categories,
+
+        'latest_products': latest_products
+
+    }
+
+    return render(
+
+        request,
+
+        'landingpage.html',
+
+        context
+
+    )
 
 
 
@@ -486,8 +531,6 @@ def verify_signup_otp(request):
             return render(request, "signup_verify.html", {
                 "time_left": time_left
             })
-
-        # remaining signup logic...
 
     return render(request, "signup_verify.html", {
         "time_left": time_left

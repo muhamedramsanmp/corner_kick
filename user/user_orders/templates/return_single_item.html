@@ -1,0 +1,831 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+Return Item
+{% endblock %}
+
+{% block content %}
+
+<style>
+/* ====================================== */
+/* RESET */
+/* ====================================== */
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    background:#f5f7fb;
+    font-family:Arial,sans-serif;
+    color:#111827;
+}
+
+/* ====================================== */
+/* PAGE */
+/* ====================================== */
+
+.return-page{
+    width:100%;
+    max-width:1450px;
+    margin:auto;
+    padding:45px 40px 70px;
+}
+
+/* ====================================== */
+/* HEADER */
+/* ====================================== */
+
+.return-header{
+    margin-bottom:35px;
+}
+
+.return-header h1{
+    font-size:42px;
+    font-weight:800;
+    margin-bottom:10px;
+    letter-spacing:-1px;
+}
+
+.return-header p{
+    color:#64748b;
+    font-size:15px;
+    max-width:750px;
+    line-height:1.7;
+}
+
+/* ====================================== */
+/* LAYOUT */
+/* ====================================== */
+
+.return-layout{
+    display:grid;
+    grid-template-columns:1.5fr .7fr;
+    gap:24px;
+    align-items:start;
+}
+
+/* ====================================== */
+/* CARD */
+/* ====================================== */
+
+.return-card{
+    background:white;
+    border-radius:22px;
+    border:1px solid #e5e7eb;
+    box-shadow:0 4px 20px rgba(15,23,42,.03);
+}
+
+/* ====================================== */
+/* LEFT SIDE */
+/* ====================================== */
+
+.left-side{
+    display:flex;
+    flex-direction:column;
+    gap:24px;
+}
+
+
+/* ========================================= */
+/* ITEMS CARD */
+/* ========================================= */
+
+.items-card{
+    padding:35px;
+}
+
+.items-title{
+    font-size:13px;
+    font-weight:700;
+    letter-spacing:1px;
+    color:#2563eb;
+    text-transform:uppercase;
+    margin-bottom:30px;
+}
+
+/* ========================================= */
+/* ITEM */
+/* ========================================= */
+
+.return-item{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+
+    padding:22px;
+
+    border-radius:18px;
+
+    background:#f8fafc;
+
+    margin-bottom:20px;
+
+    transition:.25s;
+}
+
+.return-item:hover{
+    background:#eef2ff;
+}
+
+.item-left{
+    display:flex;
+    align-items:center;
+    gap:20px;
+}
+
+.item-check{
+    width:18px;
+    height:18px;
+    accent-color:#2563eb;
+    cursor:pointer;
+}
+
+.item-image{
+    width:90px;
+    height:90px;
+    border-radius:14px;
+    overflow:hidden;
+    background:#e2e8f0;
+    flex-shrink:0;
+}
+
+.item-image img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+}
+
+.item-info h3{
+    font-size:22px;
+    margin-bottom:8px;
+}
+
+.item-meta{
+    color:#64748b;
+    font-size:14px;
+    margin-bottom:10px;
+}
+
+.delivered-text{
+    color:#ea580c;
+    font-size:13px;
+    font-weight:700;
+}
+
+.item-price{
+    font-size:28px;
+    font-weight:800;
+}
+
+
+.delivered-text{
+    margin-top:22px;
+    color:#64748b;
+    font-size:14px;
+}
+
+/* ====================================== */
+/* FORM CARD */
+/* ====================================== */
+
+.reason-card{
+    padding:28px;
+}
+
+.reason-card h3{
+    font-size:20px;
+    margin-bottom:24px;
+}
+
+/* ====================================== */
+/* FORM */
+/* ====================================== */
+
+.form-group{
+    margin-bottom:24px;
+}
+
+.form-group label{
+    display:block;
+    margin-bottom:10px;
+    font-size:11px;
+    font-weight:700;
+    letter-spacing:1px;
+    color:#64748b;
+    text-transform:uppercase;
+}
+
+.form-group select,
+.form-group textarea{
+    width:100%;
+    border:1px solid #e2e8f0;
+    background:#f8fafc;
+    border-radius:16px;
+    padding:16px;
+    outline:none;
+    font-size:15px;
+    transition:.2s;
+}
+
+.form-group select:focus,
+.form-group textarea:focus{
+    border-color:#2563eb;
+    background:white;
+}
+
+.form-group select{
+    height:58px;
+}
+
+.form-group textarea{
+    height:160px;
+    resize:none;
+}
+
+/* ====================================== */
+/* SIDEBAR */
+/* ====================================== */
+
+.sidebar{
+    position:sticky;
+    top:30px;
+
+    display:flex;
+    flex-direction:column;
+    gap:22px;
+}
+
+/* ====================================== */
+/* REFUND CARD */
+/* ====================================== */
+
+.refund-card{
+    padding:28px;
+}
+
+.refund-card h3{
+    font-size:22px;
+    margin-bottom:24px;
+}
+
+.summary-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+
+    margin-bottom:18px;
+
+    font-size:15px;
+}
+
+.summary-row span:first-child{
+    color:#64748b;
+}
+.summary-card h2{
+    font-size:20px;
+}
+
+.free{
+    color:#10b981;
+    font-weight:700;
+}
+
+.total-refund{
+    margin-top:25px;
+    padding-top:22px;
+    border-top:1px solid #e5e7eb;
+
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.total-refund span{
+    font-size:16px;
+    font-weight:700;
+}
+
+.total-refund h2{
+    font-size:28px;
+    color:#111827;
+}
+
+/* ====================================== */
+/* METHODS */
+/* ====================================== */
+
+.refund-methods{
+    margin-top:28px;
+}
+
+.refund-methods h4{
+    margin-bottom:14px;
+    font-size:11px;
+    letter-spacing:1px;
+    color:#64748b;
+    text-transform:uppercase;
+}
+
+.method-option{
+    display:flex;
+    align-items:center;
+    gap:12px;
+
+    padding:16px;
+
+    border:2px solid #e5e7eb;
+
+    border-radius:14px;
+
+    margin-bottom:14px;
+
+    cursor:pointer;
+
+    transition:.2s;
+}
+
+.method-option:hover{
+    border-color:#2563eb;
+    background:#f8fbff;
+}
+
+.method-option input{
+    accent-color:#2563eb;
+}
+
+/* ====================================== */
+/* CHECKBOX */
+/* ====================================== */
+
+.policy-check{
+    display:flex;
+    align-items:flex-start;
+    gap:10px;
+
+    margin-top:18px;
+
+    font-size:13px;
+    line-height:1.7;
+    color:#64748b;
+}
+
+/* ====================================== */
+/* BUTTON */
+/* ====================================== */
+
+.return-btn{
+    width:100%;
+    height:58px;
+
+    margin-top:24px;
+
+    border:none;
+
+    border-radius:16px;
+
+    background:#2563eb;
+
+    color:white;
+
+    font-size:14px;
+    font-weight:700;
+
+    cursor:pointer;
+
+    transition:.25s;
+}
+
+.return-btn:hover{
+    background:#1d4ed8;
+    transform:translateY(-2px);
+}
+
+.cancel-link{
+    display:block;
+
+    margin-top:18px;
+
+    text-align:center;
+
+    text-decoration:none;
+
+    color:#64748b;
+
+    font-size:13px;
+    font-weight:700;
+}
+
+/* ====================================== */
+/* HELP CARD */
+/* ====================================== */
+
+.help-card{
+    padding:24px;
+    border-radius:22px;
+    background:linear-gradient(135deg,#2563eb,#1d4ed8);
+    color:white;
+}
+
+.help-card h4{
+    font-size:24px;
+    margin-bottom:10px;
+}
+
+.help-card p{
+    font-size:14px;
+    line-height:1.7;
+    opacity:.92;
+    margin-bottom:20px;
+}
+
+.help-card a{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+
+    height:44px;
+
+    padding:0 18px;
+
+    border-radius:12px;
+
+    background:white;
+
+    color:#2563eb;
+
+    text-decoration:none;
+
+    font-size:13px;
+    font-weight:700;
+}
+
+/* ====================================== */
+/* RESPONSIVE */
+/* ====================================== */
+
+@media(max-width:1100px){
+
+    .return-layout{
+        grid-template-columns:1fr;
+    }
+
+    .sidebar{
+        position:static;
+    }
+
+}
+
+@media(max-width:768px){
+
+    .return-page{
+        padding:30px 18px 60px;
+    }
+
+    .product-card{
+        flex-direction:column;
+        align-items:flex-start;
+    }
+
+    .product-image{
+        width:100%;
+        height:260px;
+    }
+
+    .product-info h2{
+        font-size:28px;
+    }
+
+    .product-meta{
+        grid-template-columns:1fr;
+    }
+
+    .return-header h1{
+        font-size:34px;
+    }
+
+}
+</style>
+
+<div class="return-page">
+
+    <!-- HEADER -->
+
+    <div class="return-header">
+
+        <h1>
+            RETURN ORDER
+        </h1>
+
+        <p>
+            You are returning selected items from this order.
+            Please provide the details below to complete your request.
+        </p>
+
+    </div>
+
+    <!-- LAYOUT -->
+
+    <div class="return-layout">
+
+        <!-- LEFT -->
+
+        <div class="left-side">
+
+            <!-- PRODUCT -->
+
+<div class="return-card items-card">
+
+    <div class="items-title">
+
+        Returning Item
+
+    </div>
+
+    <div class="return-item">
+
+        <div class="item-left">
+
+            <div class="item-image">
+
+                {% if order_item.variant.images.first %}
+
+                <img
+                src="{{ order_item.variant.images.first.image.url }}"
+                alt=""
+                >
+
+                {% endif %}
+
+            </div>
+
+            <div class="item-info">
+
+                <h3>
+
+                    {{ order_item.product.product_name }}
+
+                </h3>
+
+                <div class="item-meta">
+
+                    Size :
+                    {{ order_item.variant.size }}
+
+                </div>
+
+                <div class="item-meta">
+
+                    Quantity :
+                    {{ order_item.quantity }}
+
+                </div>
+
+                <div class="delivered-text">
+
+                    DELIVERED ON
+                    {{ order_item.order.delivered_at|date:"d M Y" }}
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="item-price">
+
+            ₹{{ order_item.total_price }}
+
+        </div>
+
+    </div>
+
+</div>
+
+            <!-- FORM -->
+
+            <div class="return-card reason-card">
+
+                <h3>
+                    WHY ARE YOU RETURNING THIS ORDER?
+                </h3>
+
+                <form method="POST">
+
+                    {% csrf_token %}
+
+                    <!-- REASON -->
+
+                    <div class="form-group">
+
+                        <label>
+                            Reason For Return
+                        </label>
+
+                        <select
+                        name="return_reason"
+                        required
+                        >
+
+                            <option value="">
+                                Select a reason
+                            </option>
+
+                            <option>
+                                Wrong Size
+                            </option>
+
+                            <option>
+                                Damaged Product
+                            </option>
+
+                            <option>
+                                Wrong Item Received
+                            </option>
+
+                            <option>
+                                Product Not Needed
+                            </option>
+
+                            <option>
+                                Quality Issue
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                    <!-- MESSAGE -->
+
+                    <div class="form-group">
+
+                        <label>
+                            Write Your Reason (Optional)
+                        </label>
+
+                        <textarea
+                        name="return_note"
+                        placeholder="Tell us more about the issue..."
+                        ></textarea>
+
+                    </div>
+
+        </div>
+
+        <!-- RIGHT -->
+
+        <div class="sidebar">
+
+            <!-- REFUND -->
+
+            <div class="return-card refund-card">
+
+                <h3>
+                    REFUND DETAILS
+                </h3>
+
+                <div class="summary-row">
+
+                    <span>
+                        Product Price
+                    </span>
+
+                    <strong>
+                        ₹{{ order_item.total_price }}
+                    </strong>
+
+                </div>
+
+                <div class="summary-row">
+
+                    <span>
+                        Shipping Fee
+                    </span>
+
+                    <strong class="free">
+                        FREE
+                    </strong>
+
+                </div>
+
+                <div class="total-refund">
+
+                    <span>
+                        Total Refund
+                    </span>
+
+                    <h2>
+                        ₹{{ order_item.total_price }}
+                    </h2>
+
+                </div>
+
+                <!-- REFUND METHODS -->
+
+                <div class="refund-methods">
+
+                    <h4>
+                        Refund Method
+                    </h4>
+
+                    <label class="method-option active">
+
+                        <input
+                        type="radio"
+                        name="refund_method"
+                        value="Original Payment"
+                        checked
+                        >
+
+                        Original Payment Method
+
+                    </label>
+
+                    <label class="method-option">
+
+                        <input
+                        type="radio"
+                        name="refund_method"
+                        value="Store Wallet"
+                        >
+
+                        Store Wallet (Faster)
+
+                    </label>
+
+                </div>
+
+                <!-- POLICY -->
+
+                <div class="policy-check">
+
+                    <input
+                    type="checkbox"
+                    required
+                    >
+
+                    <span>
+
+                        I confirm that the item is unused,
+                        in original packaging, and matches
+                        the return policy guidelines.
+
+                    </span>
+
+                </div>
+
+                <!-- BUTTON -->
+
+                <button
+                type="submit"
+                class="return-btn"
+                >
+
+                    CONFIRM RETURN
+
+                </button>
+
+                <a
+                href="{% url 'order_details' order_item.order.order_id %}"
+                class="cancel-link"
+                >
+
+                    CANCEL / KEEP ITEM
+
+                </a>
+
+            </div>
+
+            <!-- HELP -->
+
+            <div class="help-card">
+
+                <h4>
+                    NEED HELP?
+                </h4>
+
+                <p>
+                    Our support team is available 24/7
+                    for technical assistance with your returns.
+                </p>
+
+                <a href="#">
+
+                    CONTACT CARE
+
+                </a>
+
+            </div>
+
+        </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}

@@ -4,10 +4,6 @@ from admin.admin_category.models import Category
 from django.utils.text import slugify
 
 
-# =========================================================
-# PRODUCT MODEL
-# =========================================================
-
 class Product(models.Model):
 
     product_name = models.CharField(
@@ -107,9 +103,6 @@ class Product(models.Model):
 
         super().save(*args, **kwargs)
 
-    # =====================================================
-    # TOTAL STOCK
-    # =====================================================
 
     @property
     def total_stock(self):
@@ -121,9 +114,6 @@ class Product(models.Model):
             )
         )
 
-    # =====================================================
-    # ACTIVE VARIANTS
-    # =====================================================
 
     @property
     def active_variants(self):
@@ -133,9 +123,6 @@ class Product(models.Model):
             is_deleted=False
         ).count()
 
-    # =====================================================
-    # LOW STOCK VARIANTS
-    # =====================================================
 
     @property
     def low_stock_count(self):
@@ -169,10 +156,6 @@ class Product(models.Model):
 
         ).first()
 
-
-# =========================================================
-# PRODUCT VARIANT MODEL
-# =========================================================
 
 class Variant(models.Model):
 
@@ -254,11 +237,6 @@ class Variant(models.Model):
 
         return f"{self.product.product_name} - {self.color} - {self.size}"
 
-    # =====================================================
-    # STOCK STATUS
-    # =====================================================
-
-
 
     def save(self, *args, **kwargs):
 
@@ -313,11 +291,6 @@ class Variant(models.Model):
             return image.image.url
 
         return None
-
-
-# =========================================================
-# PRODUCT IMAGE MODEL
-# =========================================================
 
 class ProductImage(models.Model):
 

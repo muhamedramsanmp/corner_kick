@@ -34,6 +34,7 @@ urlpatterns = [
     path('adminauth/', include('admin.adminauth.urls')),
     path('admin-category/',include('admin.admin_category.urls')),
     path('admin-products/',include('admin.admin_products.urls')),
+    path('admin-orders/',include('admin.admin_orders.urls')),
     
     
 ]

@@ -1,0 +1,1084 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+Order Details
+{% endblock %}
+
+{% block content %}
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    background:#f5f6fa;
+    font-family:Arial,sans-serif;
+}
+
+.order-view-page{
+    width:100%;
+    min-height:100vh;
+    padding:40px 20px;
+}
+
+.order-view-container{
+    max-width:1400px;
+    margin:auto;
+}
+
+/* ====================================== */
+/* TOP HEADER */
+/* ====================================== */
+
+.order-topbar{
+    margin-bottom:35px;
+}
+
+.back-link{
+    display:inline-block;
+    margin-bottom:18px;
+    color:#6b7280;
+    text-decoration:none;
+    font-size:14px;
+    font-weight:600;
+}
+
+.order-title-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:20px;
+    flex-wrap:wrap;
+}
+
+.order-title h1{
+    font-size:44px;
+    font-weight:800;
+    color:#111827;
+    margin-bottom:10px;
+}
+
+.order-title p{
+    color:#7c8798;
+    font-size:15px;
+}
+
+.invoice-btn{
+    height:52px;
+    padding:0 28px;
+    background:#2d5cff;
+    color:white;
+    border-radius:12px;
+    text-decoration:none;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:14px;
+    font-weight:700;
+}
+
+/* ====================================== */
+/* MAIN GRID */
+/* ====================================== */
+
+.order-grid{
+    display:grid;
+    grid-template-columns:2fr 1fr;
+    gap:30px;
+}
+
+/* ====================================== */
+/* CARD */
+/* ====================================== */
+
+.order-card{
+    background:white;
+    border-radius:18px;
+    padding:30px;
+    border:1px solid #ececec;
+    margin-bottom:25px;
+}
+
+/* ====================================== */
+/* TRACKING */
+/* ====================================== */
+
+.tracking-wrapper{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    position:relative;
+}
+
+.tracking-wrapper::before{
+    content:'';
+
+    position:absolute;
+
+    top:22px;
+
+    left:10%;
+
+    right:10%;
+
+    height:3px;
+
+    background:#dbe4ff;
+
+    z-index:1;
+}
+
+.tracking-step{
+    position:relative;
+    z-index:2;
+    text-align:center;
+    flex:1;
+    min-width:120px;
+}
+
+.tracking-icon{
+    width:45px;
+    height:45px;
+    border-radius:50%;
+    background:#eef3ff;
+    color:#2d5cff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    margin:auto auto 12px;
+    font-size:14px;
+    font-weight:700;
+}
+
+.tracking-step.active .tracking-icon{
+    background:#2d5cff;
+    color:white;
+}
+
+.tracking-step p{
+    font-size:12px;
+    color:#7c8798;
+    font-weight:700;
+}
+
+/* ====================================== */
+/* PRODUCTS */
+/* ====================================== */
+
+.section-title{
+    font-size:15px;
+    color:#7c8798;
+    margin-bottom:30px;
+    font-weight:700;
+    letter-spacing:1px;
+}
+
+.shipment-item{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:25px;
+    padding-bottom:25px;
+    border-bottom:1px solid #eee;
+}
+
+.shipment-left{
+    display:flex;
+    align-items:center;
+    gap:20px;
+}
+
+.shipment-image img{
+    width:110px;
+    height:110px;
+    object-fit:cover;
+    border-radius:14px;
+    background:#f5f5f5;
+}
+
+.shipment-info h3{
+    font-size:24px;
+    margin-bottom:12px;
+    color:#111827;
+}
+
+.shipment-info p{
+    color:#666;
+    margin-bottom:7px;
+    font-size:15px;
+}
+
+.shipment-right{
+    text-align:right;
+}
+
+.shipment-right h2{
+    font-size:34px;
+    color:#111827;
+    margin-bottom:10px;
+}
+
+.stock-status{
+    color:#1ea75a;
+    font-size:13px;
+    font-weight:700;
+}
+
+/* ====================================== */
+/* ADDRESS GRID */
+/* ====================================== */
+
+.bottom-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:25px;
+}
+
+.info-box{
+    background:white;
+    border-radius:18px;
+    padding:30px;
+    border:1px solid #ececec;
+}
+
+.info-box h3{
+    font-size:15px;
+    color:#7c8798;
+    margin-bottom:25px;
+    font-weight:700;
+    letter-spacing:1px;
+}
+
+.info-box p{
+    margin-bottom:10px;
+    color:#4b5563;
+    line-height:1.7;
+}
+
+.track-link{
+    display:inline-block;
+    margin-top:15px;
+    color:#2d5cff;
+    text-decoration:none;
+    font-weight:700;
+}
+
+/* ====================================== */
+/* ACTION BUTTONS */
+/* ====================================== */
+
+.action-buttons{
+    margin-top:25px;
+    display:flex;
+    gap:15px;
+    flex-wrap:wrap;
+}
+
+.action-btn{
+    height:50px;
+    padding:0 25px;
+    border-radius:12px;
+    border:none;
+    text-decoration:none;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:14px;
+    font-weight:700;
+    cursor:pointer;
+}
+
+.cancel-btn{
+    background:#ffe8e8;
+    color:#d62828;
+}
+
+.return-btn{
+    background:#eef3ff;
+    color:#2d5cff;
+}
+
+/* ====================================== */
+/* SUMMARY */
+/* ====================================== */
+
+.summary-row{
+    display:flex;
+    justify-content:space-between;
+    margin-bottom:20px;
+}
+
+.summary-row span{
+    color:#7c8798;
+}
+
+.summary-row strong{
+    color:#111827;
+}
+
+.discount{
+    color:#1ea75a !important;
+}
+
+.total-row{
+    margin-top:25px;
+    padding-top:25px;
+    border-top:1px solid #eee;
+}
+
+.total-row strong{
+    font-size:34px;
+}
+
+/* ====================================== */
+/* PAYMENT BOX */
+/* ====================================== */
+
+.payment-box{
+    margin-top:30px;
+    background:#f8f9fc;
+    border-radius:14px;
+    padding:18px;
+}
+
+.payment-box h4{
+    font-size:14px;
+    margin-bottom:8px;
+    color:#111827;
+}
+
+.payment-box p{
+    color:#7c8798;
+    font-size:14px;
+}
+
+/* ====================================== */
+/* HELP */
+/* ====================================== */
+
+.help-box{
+    margin-top:30px;
+}
+
+.help-box h3{
+    font-size:14px;
+    color:#9ca3af;
+    margin-bottom:15px;
+}
+
+.help-box a{
+    display:block;
+    margin-bottom:12px;
+    text-decoration:none;
+    color:#6b7280;
+    font-size:14px;
+}
+
+/* ====================================== */
+/* RESPONSIVE */
+/* ====================================== */
+
+@media(max-width:992px){
+
+    .order-grid{
+        grid-template-columns:1fr;
+    }
+
+    .bottom-grid{
+        grid-template-columns:1fr;
+    }
+
+}
+
+@media(max-width:768px){
+
+    .shipment-item{
+        flex-direction:column;
+        align-items:flex-start;
+    }
+
+    .shipment-right{
+        text-align:left;
+    }
+
+    .tracking-wrapper{
+        flex-direction:column;
+        gap:25px;
+    }
+
+    .tracking-wrapper::before{
+        display:none;
+    }
+
+}
+
+@media(max-width:576px){
+
+    .order-title h1{
+        font-size:32px;
+    }
+
+    .shipment-left{
+        flex-direction:column;
+        align-items:flex-start;
+    }
+
+}
+.top-buttons{
+    display:flex;
+    gap:15px;
+    flex-wrap:wrap;
+}
+
+.cancel-order-btn{
+    height:52px;
+    padding:0 28px;
+    background:#ffe8e8;
+    color:#d62828;
+    border-radius:12px;
+    text-decoration:none;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:14px;
+    font-weight:700;
+}
+.top-action-buttons{
+    display:flex;
+    gap:15px;
+    flex-wrap:wrap;
+    align-items:center;
+}
+.cancelled-item{
+    color:#d62828;
+}
+</style>
+
+
+<div class="order-view-page">
+
+    <div class="order-view-container">
+
+
+        <!-- ====================================== -->
+        <!-- TOPBAR -->
+        <!-- ====================================== -->
+
+        <div class="order-topbar">
+
+            <a href="{% url 'my_orders' %}" class="back-link">
+
+                ← Back to Orders
+
+            </a>
+
+
+            <div class="order-title-row">
+
+                <div class="order-title">
+
+                    <h1>
+
+                        ORDER #{{ order.order_id }}
+
+                    </h1>
+
+                    <p>
+
+                        Placed on
+                        {{ order.created_at|date:"M d, Y" }}
+                        at
+                        {{ order.created_at|time:"h:i A" }}
+
+                    </p>
+
+                </div>
+
+<div class="top-action-buttons">
+
+{% if order.order_status == 'Cancelled' %}
+
+<div
+class="action-btn"
+style="
+background:#f3f4f6;
+color:#6b7280;
+cursor:not-allowed;
+"
+>
+
+    Cancelled
+
+</div>
+
+{% elif order.order_status != 'Shipped' and order.order_status != 'Out For Delivery' and order.order_status != 'Delivered' %}
+
+<a
+href="{% url 'cancel_entire_order' order.order_id %}"
+class="action-btn cancel-btn"
+>
+
+    CANCEL ENTIRE ORDER
+
+</a>
+
+{% endif %}
+
+
+<!-- RETURN ENTIRE ORDER -->
+
+{% if order.order_status == 'Delivered' and not order.has_return_request %}
+
+<a
+href="{% url 'return_entire_order' order.order_id %}"
+class="action-btn return-btn"
+>
+
+    Return Entire Order
+
+</a>
+
+{% endif %}
+
+
+<a href="#" class="invoice-btn">
+
+    DOWNLOAD INVOICE
+
+</a>
+
+</div>
+
+
+            </div>
+
+        </div>
+
+
+        <!-- ====================================== -->
+        <!-- MAIN GRID -->
+        <!-- ====================================== -->
+
+        <div class="order-grid">
+
+
+            <!-- ====================================== -->
+            <!-- LEFT -->
+            <!-- ====================================== -->
+
+            <div>
+
+
+                <!-- TRACKING -->
+{% if order.order_status != 'Cancelled' %}
+                <div class="order-card">
+
+                   <div class="tracking-wrapper">
+
+    <!-- ORDERED -->
+
+    <div class="tracking-step active">
+
+        <div class="tracking-icon">
+
+            ✓
+
+        </div>
+
+        <p>
+            ORDERED
+        </p>
+
+    </div>
+
+    <!-- PROCESSING -->
+
+    <div class="tracking-step
+    {% if order.order_status == 'Processing' or order.order_status == 'Shipped' or order.order_status == 'Out For Delivery' or order.order_status == 'Delivered' %}
+    active
+    {% endif %}
+    ">
+
+        <div class="tracking-icon">
+
+            ✓
+
+        </div>
+
+        <p>
+            PROCESSING
+        </p>
+
+    </div>
+
+    <!-- SHIPPED -->
+
+    <div class="tracking-step
+    {% if order.order_status == 'Shipped' or order.order_status == 'Out For Delivery' or order.order_status == 'Delivered' %}
+    active
+    {% endif %}
+    ">
+
+        <div class="tracking-icon">
+
+            ✓
+
+        </div>
+
+        <p>
+            SHIPPED
+        </p>
+
+    </div>
+
+    <!-- OUT FOR DELIVERY -->
+
+    <div class="tracking-step
+    {% if order.order_status == 'Out For Delivery' or order.order_status == 'Delivered' %}
+    active
+    {% endif %}
+    ">
+
+        <div class="tracking-icon">
+
+            ✓
+
+        </div>
+
+        <p>
+            OUT FOR DELIVERY
+        </p>
+
+    </div>
+
+    <!-- DELIVERED -->
+
+    <div class="tracking-step
+    {% if order.order_status == 'Delivered' %}
+    active
+    {% endif %}
+    ">
+
+        <div class="tracking-icon">
+
+            ✓
+
+        </div>
+
+        <p>
+            DELIVERED
+        </p>
+
+    </div>
+
+</div>
+{% endif %}
+
+                </div>
+                {% if order.order_status == 'Cancelled' %}
+
+<div style="
+margin-top:25px;
+padding:18px;
+border-radius:14px;
+background:#ffe8e8;
+color:#d62828;
+font-weight:700;
+text-align:center;
+">
+
+    THIS ORDER HAS BEEN CANCELLED
+
+</div>
+
+{% endif %}
+
+
+                <!-- PRODUCTS -->
+
+                <div class="order-card">
+
+                    <h2 class="section-title">
+
+                        SHIPMENT ITEMS
+
+                    </h2>
+
+
+                    {% for item in order.items.all %}
+
+                        <div class="shipment-item">
+
+                            <div class="shipment-left">
+
+
+                                <div class="shipment-image">
+
+                                    {% if item.variant.primary_image %}
+
+                                        <img
+                                        src="{{ item.variant.primary_image }}"
+                                        alt=""
+                                        >
+
+                                    {% endif %}
+
+                                </div>
+
+
+                                <div class="shipment-info">
+
+                                    <h3>
+
+                                        {{ item.product.product_name }}
+
+                                    </h3>
+
+                                    <p>
+
+                                        Size:
+                                        {{ item.variant.size }}
+
+                                    </p>
+
+                                    <p>
+
+                                        Quantity:
+                                        {{ item.quantity }}
+
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="shipment-right">
+
+    <h2>
+
+        ₹{{ item.total_price }}
+
+    </h2>
+
+<div class="
+stock-status
+{% if item.item_status == 'Cancelled' %}
+cancelled-item
+{% endif %}
+">
+
+    {{ item.item_status }}
+
+</div>
+
+
+<!-- CANCEL ITEM -->
+
+{% if item.item_status == 'Active' and order.order_status != 'Shipped' and order.order_status != 'Out For Delivery' and order.order_status != 'Delivered' and order.order_status != 'Cancelled' %}
+<a
+href="{% url 'cancel_order_item' item.id %}"
+class="action-btn cancel-btn"
+style="margin-top:15px;"
+>
+
+    Cancel Item
+
+</a>
+
+{% endif %}
+
+
+<!-- RETURN ITEM -->
+
+{% if order.order_status == 'Delivered' and item.item_status == 'Active' and not item.return_request %}
+
+<a
+href="{% url 'return_single_item' item.id %}"
+class="action-btn return-btn"
+style="margin-top:15px;"
+>
+
+    Return Item
+
+</a>
+
+{% endif %}
+
+
+{% if item.return_request %}
+
+    {% if item.return_request.return_status == 'requested' %}
+
+        <div
+        class="action-btn"
+        style="
+        margin-top:15px;
+        background:#fff7ed;
+        color:#ea580c;
+        cursor:default;
+        "
+        >
+
+            Return Requested
+
+        </div>
+
+    {% elif item.return_request.return_status == 'approved' %}
+
+        <div
+        class="action-btn"
+        style="
+        margin-top:15px;
+        background:#ecfdf5;
+        color:#059669;
+        cursor:default;
+        "
+        >
+
+            Return Approved
+
+        </div>
+
+    {% elif item.return_request.return_status == 'rejected' %}
+
+        <div
+        class="action-btn"
+        style="
+        margin-top:15px;
+        background:#fef2f2;
+        color:#dc2626;
+        cursor:default;
+        "
+        >
+
+            Return Rejected
+
+        </div>
+
+    {% endif %}
+
+{% endif %}
+
+
+
+
+
+
+</div>
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+
+
+                <!-- ADDRESS + SHIPPING -->
+
+                <div class="bottom-grid">
+
+
+                    <!-- ADDRESS -->
+
+                    <div class="info-box">
+
+                        <h3>
+                            SHIPPING ADDRESS
+                        </h3>
+
+                        <p>
+
+                            <strong>
+                                {{ order.address.full_name }}
+                            </strong>
+
+                        </p>
+
+                        <p>
+                            {{ order.address.address_line }}
+                        </p>
+
+                        <p>
+                            {{ order.address.city }},
+                            {{ order.address.state }}
+                            {{ order.address.pincode }}
+                        </p>
+
+                        <p>
+                            {{ order.address.country }}
+                        </p>
+
+                    </div>
+
+
+                    <!-- SHIPPING -->
+
+                    <div class="info-box">
+
+                        <h3>
+                            SHIPPING METHOD
+                        </h3>
+
+                        <p>
+                            Express Tracked Delivery
+                        </p>
+
+                        <p>
+                            Arriving by Thu, Oct 26
+                        </p>
+
+                        <a href="#" class="track-link">
+
+                            Track Package →
+
+                        </a>
+
+                    </div>
+
+                </div>
+
+</div>
+
+
+            <!-- ====================================== -->
+            <!-- RIGHT -->
+            <!-- ====================================== -->
+
+            <div>
+
+
+                <!-- SUMMARY -->
+
+                <div class="order-card">
+
+                    <h2 class="section-title">
+
+                        ORDER SUMMARY
+
+                    </h2>
+
+
+                    <div class="summary-row">
+
+                        <span>
+                            Subtotal
+                        </span>
+
+                        <strong>
+                            ₹{{ order.subtotal }}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="summary-row">
+
+                        <span>
+                            Discount Amount
+                        </span>
+
+                        <strong class="discount">
+
+                            - ₹{{ order.discount_amount }}
+
+                        </strong>
+
+                    </div>
+
+
+                    <div class="summary-row">
+
+                        <span>
+                            Delivery Charge
+                        </span>
+
+                        <strong>
+                            ₹{{ order.shipping_charge }}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="summary-row">
+
+                        <span>
+                            Tax Amount
+                        </span>
+
+                        <strong>
+                            ₹{{ order.tax_amount }}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="summary-row total-row">
+
+                        <span>
+                            TOTAL AMOUNT
+                        </span>
+
+                        <strong>
+                            ₹{{ order.total_amount }}
+                        </strong>
+
+                    </div>
+
+
+                    <!-- PAYMENT -->
+
+                    <div class="payment-box">
+
+                        <h4>
+
+                            PAYMENT METHOD
+
+                        </h4>
+
+                        <p>
+
+                            {{ order.payment_method }}
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <!-- HELP -->
+
+                <div class="help-box">
+
+                    <h3>
+                        NEED HELP?
+                    </h3>
+
+                    <a href="#">
+
+                        Contact support
+
+                    </a>
+
+                    <a href="#">
+
+                        Refund Policy
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,1950 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+name="viewport"
+content="width=device-width, initial-scale=1.0"
+>
+
+<title>
+Order Details
+</title>
+
+<link
+href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+rel="stylesheet"
+>
+
+<link
+href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined"
+rel="stylesheet"
+>
+
+<style>
+
+/* ====================================== */
+/* RESET */
+/* ====================================== */
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    background:#050505;
+    color:white;
+    font-family:'Inter',sans-serif;
+}
+
+/* ====================================== */
+/* CONTAINER */
+/* ====================================== */
+
+.container{
+    width:100%;
+    max-width:1450px;
+    margin:auto;
+    padding:40px;
+}
+
+/* ====================================== */
+/* TOPBAR */
+/* ====================================== */
+
+.topbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:35px;
+}
+
+.back-btn{
+    width:44px;
+    height:44px;
+
+    border-radius:12px;
+
+    background:#0f172a;
+
+    border:1px solid #1f2937;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    text-decoration:none;
+
+    color:white;
+
+    transition:.2s;
+}
+
+.back-btn:hover{
+    background:#172554;
+}
+
+.page-name{
+    font-size:28px;
+    font-weight:700;
+}
+
+/* ====================================== */
+/* HEADER */
+/* ====================================== */
+
+.page-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    margin-bottom:30px;
+}
+
+.order-title h1{
+    font-size:38px;
+    margin-bottom:10px;
+}
+
+.order-title p{
+    color:#6b7280;
+}
+
+.status-badge{
+    padding:16px 38px;
+    border-radius:12px;
+    font-size:14px;
+    font-weight:700;
+    letter-spacing:1px;
+    width:150px;
+    height:50px;
+}
+
+.pending{
+    background:#2b2205;
+    color:#facc15;
+}
+
+.confirmed{
+    background:#172554;
+    color:#60a5fa;
+}
+
+.shipped{
+    background:#082f49;
+    color:#38bdf8;
+}
+
+.delivered{
+    background:#064e3b;
+    color:#10b981;
+}
+
+.cancelled{
+    background:#7f1d1d;
+    color:#ef4444;
+}
+
+/* ====================================== */
+/* GRID */
+/* ====================================== */
+
+.grid{
+    display:grid;
+    grid-template-columns:2fr 1fr;
+    gap:28px;
+}
+
+/* ====================================== */
+/* CARD */
+/* ====================================== */
+
+.card{
+    background:#0b0b0b;
+    border:1px solid #1f2937;
+    border-radius:22px;
+    overflow:hidden;
+}
+
+.card-header{
+    padding:24px 28px;
+    border-bottom:1px solid #111827;
+}
+
+.card-header h3{
+    font-size:22px;
+}
+
+.card-body{
+    padding:28px;
+}
+
+/* ====================================== */
+/* ORDER ITEMS */
+/* ====================================== */
+
+.item-head{
+    display:grid;
+    grid-template-columns:2.5fr 1fr .7fr 1fr;
+
+    padding-bottom:18px;
+
+    margin-bottom:24px;
+
+    border-bottom:1px solid #111827;
+
+    color:#6b7280;
+
+    font-size:11px;
+
+    letter-spacing:1px;
+}
+
+.item-row{
+    display:grid;
+    grid-template-columns:2.5fr 1fr .7fr 1fr;
+
+    align-items:center;
+
+    margin-bottom:28px;
+}
+
+.product{
+    display:flex;
+    align-items:center;
+    gap:16px;
+}
+
+.product img{
+    width:72px;
+    height:72px;
+    border-radius:14px;
+    object-fit:cover;
+}
+
+.product-name{
+    font-size:16px;
+    font-weight:700;
+    margin-bottom:7px;
+}
+
+.product-meta{
+    font-size:12px;
+    color:#6b7280;
+    line-height:1.7;
+}
+
+.price,
+.qty,
+.total{
+    font-size:16px;
+    font-weight:600;
+}
+
+/* ====================================== */
+/* SUMMARY */
+/* ====================================== */
+
+.summary{
+    margin-top:30px;
+    padding-top:28px;
+    border-top:1px solid #111827;
+}
+
+.summary-row{
+    display:flex;
+    justify-content:space-between;
+    margin-bottom:20px;
+    color:#9ca3af;
+}
+
+.summary-total{
+    margin-top:28px;
+
+    padding-top:28px;
+
+    border-top:1px solid #111827;
+
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.summary-total h2{
+    font-size:30px;
+}
+
+/* ====================================== */
+/* CUSTOMER */
+/* ====================================== */
+
+.customer{
+    display:flex;
+    align-items:center;
+    gap:16px;
+    margin-bottom:28px;
+}
+
+.customer img{
+    width:65px;
+    height:65px;
+    border-radius:50%;
+}
+
+.customer-name{
+    font-size:22px;
+    font-weight:700;
+    margin-bottom:6px;
+}
+
+.customer-email{
+    color:#6b7280;
+    font-size:13px;
+}
+
+.info-box{
+    background:#111;
+    border-radius:14px;
+    padding:18px;
+    margin-bottom:16px;
+}
+
+.info-title{
+    font-size:11px;
+    color:#6b7280;
+    letter-spacing:1px;
+    margin-bottom:10px;
+}
+
+.info-text{
+    font-size:14px;
+    line-height:1.8;
+}
+
+/* ====================================== */
+/* PAYMENT */
+/* ====================================== */
+
+.payment-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:18px;
+}
+
+.payment-item{
+    background:#111;
+    border-radius:14px;
+    padding:18px;
+}
+
+.payment-item small{
+    display:block;
+    color:#6b7280;
+    margin-bottom:10px;
+    font-size:11px;
+    letter-spacing:1px;
+}
+
+.payment-item h4{
+    font-size:15px;
+}
+
+/* ====================================== */
+/* TIMELINE */
+/* ====================================== */
+
+.timeline-item{
+    position:relative;
+    padding-left:28px;
+    margin-bottom:32px;
+}
+
+.timeline-item::before{
+    content:"";
+
+    position:absolute;
+
+    left:0;
+    top:5px;
+
+    width:10px;
+    height:10px;
+
+    border-radius:50%;
+
+    background:#3b82f6;
+}
+
+.timeline-item::after{
+    content:"";
+
+    position:absolute;
+
+    left:4px;
+    top:18px;
+
+    width:2px;
+    height:45px;
+
+    background:#1f2937;
+}
+
+.timeline-item:last-child::after{
+    display:none;
+}
+
+.timeline-title{
+    font-size:15px;
+    font-weight:600;
+    margin-bottom:6px;
+}
+
+.timeline-date{
+    color:#6b7280;
+    font-size:12px;
+}
+
+/* ====================================== */
+/* RESPONSIVE */
+/* ====================================== */
+
+@media(max-width:1200px){
+
+    .grid{
+        grid-template-columns:1fr;
+    }
+
+}
+
+@media(max-width:768px){
+
+    .container{
+        padding:20px;
+    }
+
+    .page-header{
+        flex-direction:column;
+        gap:20px;
+    }
+
+    .item-head{
+        display:none;
+    }
+
+    .item-row{
+        grid-template-columns:1fr;
+        gap:18px;
+        padding-bottom:20px;
+        border-bottom:1px solid #111827;
+    }
+
+    .payment-grid{
+        grid-template-columns:1fr;
+    }
+
+}
+/* ====================================== */
+/* HEADER ACTIONS */
+/* ====================================== */
+
+.header-actions{
+    display:flex;
+    flex-direction:column;
+    align-items:flex-end;
+    gap:18px;
+}
+
+/* ====================================== */
+/* BUTTONS */
+/* ====================================== */
+
+.action-buttons{
+    display:flex;
+    align-items:center;
+    gap:14px;
+}
+
+.action-btn{
+    height:68px;
+
+    width:220px;
+
+    min-width:180px;
+
+    padding:0 24px;
+
+    border-radius:18px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    gap:12px;
+
+    text-decoration:none;
+
+    font-size:15px;
+
+    font-weight:700;
+
+    transition:.25s ease;
+
+    border:1px solid transparent;
+}
+
+/* PRIMARY */
+
+.primary-btn{
+    background:#2563eb;
+    color:white;
+}
+
+.primary-btn:hover{
+    background:#1d4ed8;
+    transform:translateY(-2px);
+}
+
+/* SECONDARY */
+
+.secondary-btn{
+    background:#111;
+
+    border:1px solid #1f2937;
+
+    color:white;
+}
+
+.secondary-btn:hover{
+    background:#172033;
+    border-color:#2563eb;
+    transform:translateY(-2px);
+}
+
+/* ICON */
+
+.action-btn span.material-symbols-outlined{
+    font-size:22px;
+}
+
+/* ====================================== */
+/* RESPONSIVE */
+/* ====================================== */
+
+@media(max-width:768px){
+
+    .page-header{
+        flex-direction:column;
+        gap:24px;
+    }
+
+    .header-actions{
+        width:100%;
+        align-items:flex-start;
+    }
+
+    .action-buttons{
+        width:100%;
+        flex-direction:column;
+    }
+
+    .action-btn{
+        width:100%;
+    }
+
+}
+/* ====================================== */
+/* PRICE SUMMARY */
+/* ====================================== */
+
+.price-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+
+    margin-bottom:24px;
+}
+
+.price-label{
+    color:#9ca3af;
+    font-size:15px;
+}
+
+.price-value{
+    font-size:18px;
+    font-weight:600;
+}
+
+.discount-left{
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+.coupon-badge{
+    background:rgba(239,68,68,.15);
+
+    color:#ef4444;
+
+    padding:5px 10px;
+
+    border-radius:8px;
+
+    font-size:11px;
+
+    font-weight:700;
+}
+
+.discount-value{
+    color:#ef4444;
+    font-size:18px;
+    font-weight:700;
+}
+
+.free-text{
+    color:#10b981;
+    font-size:18px;
+    font-weight:700;
+}
+
+/* ====================================== */
+/* GRAND TOTAL */
+/* ====================================== */
+
+.grand-total{
+    margin-top:30px;
+
+    padding-top:28px;
+
+    border-top:1px solid #111827;
+
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+
+    margin-bottom:30px;
+}
+
+.grand-total span{
+    font-size:16px;
+    font-weight:700;
+    letter-spacing:1px;
+    text-transform:uppercase;
+}
+
+.grand-total h2{
+    font-size:42px;
+    font-weight:800;
+}
+
+/* ====================================== */
+/* SUMMARY BUTTONS */
+/* ====================================== */
+
+.summary-btn{
+    height:62px;
+
+    border-radius:16px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    text-decoration:none;
+
+    font-size:15px;
+
+    font-weight:700;
+
+    transition:.25s ease;
+}
+
+/* UPDATE */
+
+.update-btn{
+    width:100%;
+
+    background:#2563eb;
+
+    color:white;
+
+    margin-bottom:18px;
+}
+
+.update-btn:hover{
+    background:#1d4ed8;
+    transform:translateY(-2px);
+}
+
+/* ACTION GROUP */
+
+.summary-actions{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:16px;
+}
+
+/* REFUND */
+
+.refund-btn{
+    background:#111;
+
+    border:1px solid #1f2937;
+
+    color:white;
+}
+
+.refund-btn:hover{
+    background:#172033;
+}
+
+/* CANCEL */
+
+.cancel-btn{
+    background:rgba(127,29,29,.15);
+
+    border:1px solid rgba(239,68,68,.25);
+
+    color:#ef4444;
+}
+
+.cancel-btn:hover{
+    background:rgba(127,29,29,.25);
+}
+/* ====================================== */
+/* MODAL OVERLAY */
+/* ====================================== */
+
+.status-modal-overlay{
+    position:fixed;
+    inset:0;
+
+    background:rgba(0,0,0,.75);
+
+    backdrop-filter:blur(5px);
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    z-index:9999;
+
+    opacity:0;
+    visibility:hidden;
+
+    transition:.25s ease;
+}
+
+.status-modal-overlay.active{
+    opacity:1;
+    visibility:visible;
+}
+
+/* ====================================== */
+/* MODAL */
+/* ====================================== */
+
+.status-modal{
+    width:100%;
+    max-width:700px;
+
+    background:#0b0b0b;
+
+    border:1px solid #1f2937;
+
+    border-radius:24px;
+
+    overflow:hidden;
+
+    transform:translateY(30px) scale(.96);
+
+    transition:.25s ease;
+}
+
+.status-modal-overlay.active .status-modal{
+    transform:translateY(0) scale(1);
+}
+
+/* ====================================== */
+/* HEADER */
+/* ====================================== */
+
+.modal-header{
+    padding:24px 28px;
+
+    border-bottom:1px solid #111827;
+
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.modal-header h2{
+    font-size:28px;
+}
+
+.close-modal{
+    width:44px;
+    height:44px;
+
+    border:none;
+
+    border-radius:12px;
+
+    background:#111827;
+
+    color:white;
+
+    cursor:pointer;
+
+    transition:.2s;
+}
+
+.close-modal:hover{
+    background:#1f2937;
+}
+
+/* ====================================== */
+/* BODY */
+/* ====================================== */
+
+.status-modal form{
+    padding:28px;
+}
+
+/* ====================================== */
+/* STATUS GRID */
+/* ====================================== */
+
+.status-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:16px;
+
+    margin-bottom:28px;
+}
+
+.status-option{
+    height:64px;
+
+    border:1px solid #1f2937;
+
+    border-radius:16px;
+
+    background:#0f172a;
+
+    display:flex;
+    align-items:center;
+
+    gap:12px;
+
+    padding:0 18px;
+
+    cursor:pointer;
+
+    font-weight:600;
+
+    transition:.2s ease;
+
+    position:relative;
+}
+
+.status-option:hover{
+    border-color:#2563eb;
+}
+
+.status-option input:checked + .dot{
+    box-shadow:0 0 0 5px rgba(37,99,235,.2);
+}
+
+.status-option:has(input:checked){
+    background:#2563eb;
+    border-color:#2563eb;
+}
+
+/* ====================================== */
+/* DOTS */
+/* ====================================== */
+
+.dot{
+    width:10px;
+    height:10px;
+    border-radius:50%;
+}
+
+.pending-dot{
+    background:#facc15;
+}
+
+.processing-dot{
+    background:#3b82f6;
+}
+
+.shipped-dot{
+    background:#38bdf8;
+}
+
+.out-dot{
+    background:#a855f7;
+}
+
+.delivered-dot{
+    background:#10b981;
+}
+
+.cancelled-dot{
+    background:#ef4444;
+}
+
+/* ====================================== */
+/* NOTES */
+/* ====================================== */
+
+.notes-group label{
+    display:block;
+
+    margin-bottom:12px;
+
+    font-size:13px;
+
+    color:#9ca3af;
+
+    letter-spacing:1px;
+}
+
+.notes-group textarea{
+    width:100%;
+    height:140px;
+
+    background:#0f172a;
+
+    border:1px solid #1f2937;
+
+    border-radius:18px;
+
+    padding:18px;
+
+    color:white;
+
+    resize:none;
+
+    outline:none;
+
+    font-size:15px;
+}
+
+/* ====================================== */
+/* FOOTER */
+/* ====================================== */
+
+.modal-footer{
+    margin-top:28px;
+
+    display:grid;
+    grid-template-columns:1fr 1fr;
+
+    gap:18px;
+}
+
+.modal-btn{
+    height:64px;
+
+    border:none;
+
+    border-radius:18px;
+
+    font-size:16px;
+
+    font-weight:700;
+
+    cursor:pointer;
+
+    transition:.25s ease;
+}
+
+/* CANCEL */
+
+.cancel-modal-btn{
+    background:#111;
+
+    border:1px solid #1f2937;
+
+    color:white;
+}
+
+/* UPDATE */
+
+.update-modal-btn{
+    background:#2563eb;
+
+    color:white;
+}
+
+.update-modal-btn:hover{
+    transform:translateY(-2px);
+}
+/* TOAST */
+
+.toast-container{
+
+    position:fixed;
+
+    top:20px;
+    right:20px;
+
+    z-index:9999;
+}
+
+.toast{
+
+    min-width:300px;
+
+    background:#0f172a;
+
+    border:1px solid #1e293b;
+
+    border-radius:14px;
+
+    padding:15px 18px;
+
+    margin-bottom:12px;
+
+    display:flex;
+    align-items:center;
+
+    gap:12px;
+
+    animation:slideIn .3s ease;
+}
+
+.toast.success{
+    border-left:4px solid #22c55e;
+}
+
+.toast.error{
+    border-left:4px solid #ef4444;
+}
+
+.toast.warning{
+    border-left:4px solid #f59e0b;
+}
+
+.toast-icon{
+    font-size:20px;
+}
+
+.toast.success .toast-icon{
+    color:#22c55e;
+}
+
+.toast.error .toast-icon{
+    color:#ef4444;
+}
+
+.toast.warning .toast-icon{
+    color:#f59e0b;
+}
+
+@keyframes slideIn{
+
+    from{
+        opacity:0;
+        transform:translateX(60px);
+    }
+
+    to{
+        opacity:1;
+        transform:translateX(0);
+    }
+
+}
+</style>
+
+</head>
+
+<body>
+{% if messages %}
+
+<div class="toast-container">
+
+    {% for message in messages %}
+
+    <div class="toast {{ message.tags }}">
+
+        <span class="material-symbols-outlined toast-icon">
+
+            {% if message.tags == 'success' %}
+                check_circle
+
+            {% elif message.tags == 'error' %}
+                error
+
+            {% elif message.tags == 'warning' %}
+                warning
+
+            {% else %}
+                info
+            {% endif %}
+
+        </span>
+
+        <span>
+
+            {{ message }}
+
+        </span>
+
+    </div>
+
+    {% endfor %}
+
+</div>
+
+{% endif %}
+<div class="container">
+
+    <!-- TOPBAR -->
+
+    <div class="topbar">
+
+        <div class="page-name">
+            Order Details
+        </div>
+
+        <a
+        href="{% url 'order_management' %}"
+        class="back-btn"
+        >
+
+            <span class="material-symbols-outlined">
+                arrow_back
+            </span>
+
+        </a>
+
+    </div>
+
+    <!-- HEADER -->
+
+    <div class="page-header">
+
+        <div class="order-title">
+
+            <h1>
+                Order #{{ order.order_id }}
+            </h1>
+
+            <p>
+                {{ order.created_at|date:"F d, Y" }}
+            </p>
+
+        </div>
+
+<div class="header-actions">
+
+    <!-- STATUS -->
+
+    <div class="status-badge {{ order.order_status|lower }}">
+
+        {{ order.order_status }}
+
+    </div>
+
+    <!-- ACTIONS -->
+
+    <div class="action-buttons">
+
+        <!-- PRINT -->
+
+        <a
+        href="#"
+        class="action-btn secondary-btn"
+        >
+
+            <span class="material-symbols-outlined">
+                receipt_long
+            </span>
+
+            <span>
+                Print Invoice
+            </span>
+
+        </a>
+
+        <!-- BACK -->
+
+        <a
+        href="{% url 'order_management' %}"
+        class="back-square"
+        >
+
+        </a>
+
+    </div>
+
+</div>
+
+    </div>
+
+    <!-- GRID -->
+
+    <div class="grid">
+
+        <!-- LEFT -->
+
+        <div>
+
+            <!-- ITEMS -->
+
+            <div class="card">
+
+                <div class="card-header">
+
+                    <h3>
+                        Order Items
+                    </h3>
+
+                </div>
+
+                <div class="card-body">
+
+                    <div class="item-head">
+
+                        <span>PRODUCT</span>
+                        <span>PRICE</span>
+                        <span>QTY</span>
+                        <span>TOTAL</span>
+
+                    </div>
+
+                    {% for item in order.items.all %}
+
+                    <div class="item-row">
+
+                        <div class="product">
+
+                            <img
+                            src="{{ item.variant.primary_image }}"
+                            alt=""
+                            >
+
+                            <div>
+
+                                <div class="product-name">
+
+                                    {{ item.product.product_name }}
+
+                                </div>
+
+                                <div class="product-meta">
+
+                                    Size:
+                                    {{ item.variant.size }}
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <div class="price">
+
+                            ₹{{ item.price }}
+
+                        </div>
+
+                        <div class="qty">
+
+                            {{ item.quantity }}
+
+                        </div>
+
+                        <div class="total">
+
+                            ₹{{ item.total_price }}
+
+                        </div>
+
+                    </div>
+
+                    {% endfor %}
+
+                    <!-- SUMMARY -->
+
+                    <div class="summary">
+
+                        <div class="summary-row">
+
+                            <span>Subtotal</span>
+
+                            <span>
+                                ₹{{ order.subtotal }}
+                            </span>
+
+                        </div>
+
+                        <div class="summary-row">
+
+                            <span>Shipping</span>
+
+                            <span>
+                                ₹{{ order.shipping_charge }}
+                            </span>
+
+                        </div>
+
+                        <div class="summary-row">
+
+                            <span>Tax Amount</span>
+
+                            <span>
+                                ₹{{ order.tax_amount }}
+                            </span>
+
+                        </div>
+
+                        <div class="summary-total">
+
+                            <h3>
+                                Total Amount
+                            </h3>
+
+                            <h2>
+                                ₹{{ order.total_amount }}
+                            </h2>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- PAYMENT -->
+
+            <div class="card" style="margin-top:28px;">
+
+                <div class="card-header">
+
+                    <h3>
+                        Payment Details
+                    </h3>
+
+                </div>
+
+                <div class="card-body">
+
+                    <div class="payment-grid">
+
+                        <div class="payment-item">
+
+                            <small>
+                                PAYMENT METHOD
+                            </small>
+
+                            <h4>
+                                {{ order.payment_method }}
+                            </h4>
+
+                        </div>
+
+                        <div class="payment-item">
+
+                            <small>
+                                PAYMENT STATUS
+                            </small>
+
+                            <h4>
+                                {{ order.payment_status }}
+                            </h4>
+
+                        </div>
+
+                        <div class="payment-item">
+
+                            <small>
+                                ORDER STATUS
+                            </small>
+
+                            <h4>
+                                {{ order.order_status }}
+                            </h4>
+
+                        </div>
+
+                        <div class="payment-item">
+
+                            <small>
+                                ORDER DATE
+                            </small>
+
+                            <h4>
+                                {{ order.created_at|date:"M d, Y - h:i A" }}
+                            </h4>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+            
+            <!-- TIMELINE -->
+
+            <div class="card" style="margin-top:28px;">
+
+                <div class="card-header">
+
+                    <h3>
+                        Order Timeline
+                    </h3>
+
+                </div>
+
+                <div class="card-body">
+
+<div class="timeline-item">
+
+    <div class="timeline-title">
+
+        Order Placed
+
+    </div>
+
+    <div class="timeline-date">
+
+        {{ order.created_at|date:"M d, Y - h:i A" }}
+
+    </div>
+
+</div>
+
+{% if order.order_status == 'Processing' or order.order_status == 'Shipped' or order.order_status == 'Delivered' %}
+
+<div class="timeline-item">
+
+    <div class="timeline-title">
+
+        Processing
+
+    </div>
+
+</div>
+
+{% endif %}
+
+{% if order.order_status == 'Shipped' or order.order_status == 'Delivered' %}
+
+<div class="timeline-item">
+
+    <div class="timeline-title">
+
+        Shipped
+
+    </div>
+
+</div>
+
+{% endif %}
+
+{% if order.order_status == 'Out For Delivery' or order.order_status == 'Delivered' %}
+
+<div class="timeline-item">
+
+    <div class="timeline-title">
+
+        Out For Delivery
+
+    </div>
+
+</div>
+
+{% endif %}
+
+{% if order.order_status == 'Delivered' %}
+
+<div class="timeline-item">
+
+    <div class="timeline-title">
+
+        Delivered
+
+    </div>
+
+    <div class="timeline-date">
+
+        {{ order.delivered_at|date:"M d, Y - h:i A" }}
+
+    </div>
+
+</div>
+
+{% endif %}
+
+{% if order.order_status == 'Cancelled' %}
+
+<div class="timeline-item">
+
+    <div class="timeline-title">
+
+        Order Cancelled
+
+    </div>
+
+</div>
+
+{% endif %}
+
+                </div>
+
+            </div>
+
+        </div>
+        
+
+        <!-- RIGHT -->
+
+        <div>
+            
+
+            <!-- CUSTOMER -->
+
+            <div class="card">
+
+                <div class="card-header">
+
+                    <h3>
+                        Customer
+                    </h3>
+
+                </div>
+
+                <div class="card-body">
+
+                    <div class="customer">
+
+                        <img
+                        src="{% static 'images/default.png' %}"
+                        alt=""
+                        >
+
+                        <div>
+
+                            <div class="customer-name">
+
+                                {{ order.user.first_name }}
+                                {{ order.user.last_name }}
+
+                            </div>
+
+                            <div class="customer-email">
+
+                                {{ order.user.email }}
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="info-box">
+
+                        <div class="info-title">
+
+                            PHONE NUMBER
+
+                        </div>
+
+                        <div class="info-text">
+
+                            {{ order.address.phone }}
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- ADDRESS -->
+
+            <div class="card" style="margin-top:28px;">
+
+                <div class="card-header">
+
+                    <h3>
+                        Shipping Address
+                    </h3>
+
+                </div>
+
+                <div class="card-body">
+
+                    <div class="info-box">
+
+                        <div class="info-text">
+
+                            {{ order.address.full_name }}
+                            <br>
+
+                            {{ order.address.address_line }}
+                            <br>
+
+                            {{ order.address.city }},
+                            {{ order.address.state }}
+
+                            -
+                            {{ order.address.pincode }}
+
+                            <br>
+
+                            {{ order.address.country }}
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- PRICE SUMMARY -->
+
+<div class="card" style="margin-top:28px;">
+
+    <div class="card-header">
+
+        <h3>
+            Price Summary
+        </h3>
+
+    </div>
+
+    <div class="card-body">
+
+        <!-- SUBTOTAL -->
+
+        <div class="price-row">
+
+            <span class="price-label">
+
+                Subtotal
+
+            </span>
+
+            <span class="price-value">
+
+                ₹{{ order.subtotal }}
+
+            </span>
+
+        </div>
+
+        <!-- DISCOUNT -->
+
+        <div class="price-row">
+
+            <div class="discount-left">
+
+                <span class="price-label">
+
+                    Discount
+
+                </span>
+
+                {% if order.discount_amount > 0 %}
+
+                <span class="coupon-badge">
+
+                    COUPON APPLIED
+
+                </span>
+
+                {% endif %}
+
+            </div>
+
+            <span class="discount-value">
+
+                -₹{{ order.discount_amount }}
+
+            </span>
+
+        </div>
+
+        <!-- SHIPPING -->
+
+        <div class="price-row">
+
+            <span class="price-label">
+
+                Shipping
+
+            </span>
+
+            <span class="free-text">
+
+                {% if order.shipping_charge == 0 %}
+
+                    Free
+
+                {% else %}
+
+                    ₹{{ order.shipping_charge }}
+
+                {% endif %}
+
+            </span>
+
+        </div>
+
+        <!-- TAX -->
+
+        <div class="price-row">
+
+            <span class="price-label">
+
+                Tax
+
+            </span>
+
+            <span class="price-value">
+
+                ₹{{ order.tax_amount }}
+
+            </span>
+
+        </div>
+
+        <!-- TOTAL -->
+
+        <div class="grand-total">
+
+            <span>
+
+                Total Amount
+
+            </span>
+
+            <h2>
+
+                ₹{{ order.total_amount }}
+
+            </h2>
+
+        </div>
+
+        <!-- UPDATE BUTTON -->
+
+<button
+type="button"
+class="summary-btn update-btn"
+onclick="openStatusModal()"
+>
+
+    UPDATE ORDER STATUS
+
+</button>
+
+        <!-- ACTION BUTTONS -->
+
+        <div class="summary-actions">
+
+            <!-- REFUND -->
+
+            <a
+            href="#"
+            class="summary-btn refund-btn"
+            >
+
+                REFUND
+
+            </a>
+
+            <!-- CANCEL -->
+
+            <a
+            href="#"
+            class="summary-btn cancel-btn"
+            >
+
+                CANCEL ORDER
+
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+        </div>
+
+    </div>
+
+</div>
+<!-- ====================================== -->
+<!-- STATUS MODAL -->
+<!-- ====================================== -->
+
+<div
+class="status-modal-overlay"
+id="statusModal"
+>
+
+    <div class="status-modal">
+
+        <!-- HEADER -->
+
+        <div class="modal-header">
+
+            <h2>
+                Select New Status
+            </h2>
+
+            <button
+            class="close-modal"
+            onclick="closeStatusModal()"
+            >
+
+                <span class="material-symbols-outlined">
+                    close
+                </span>
+
+            </button>
+
+        </div>
+
+        <!-- FORM -->
+
+        <form method="POST">
+
+            {% csrf_token %}
+
+            <!-- STATUS GRID -->
+
+           <div class="status-grid">
+
+    {% for status in allowed_statuses %}
+
+    <label class="status-option">
+
+        <input
+        type="radio"
+        name="order_status"
+        value="{{ status }}"
+        hidden
+        required
+        >
+
+        <span class="dot"></span>
+
+        {{ status }}
+
+    </label>
+
+    {% endfor %}
+
+</div>
+
+            <!-- NOTES -->
+
+            <div class="notes-group">
+
+                <label>
+                    Add Delivery Note
+                </label>
+
+                <textarea
+                name="admin_note"
+                placeholder="Internal notes or delivery instructions..."
+                ></textarea>
+
+            </div>
+
+            <!-- FOOTER -->
+
+            <div class="modal-footer">
+
+                <button
+                type="button"
+                class="modal-btn cancel-modal-btn"
+                onclick="closeStatusModal()"
+                >
+
+                    Cancel
+
+                </button>
+
+                <button
+                type="submit"
+                class="modal-btn update-modal-btn"
+                >
+
+                    Update Status
+
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+<script>
+
+function openStatusModal(){
+
+    document
+    .getElementById(
+        "statusModal"
+    )
+    .classList.add(
+        "active"
+    )
+
+}
+
+function closeStatusModal(){
+
+    document
+    .getElementById(
+        "statusModal"
+    )
+    .classList.remove(
+        "active"
+    )
+
+}
+
+</script>
+<script>
+
+setTimeout(() => {
+
+    const container = document.querySelector(
+        '.toast-container'
+    );
+
+    if(container){
+
+        container.remove();
+
+    }
+
+}, 2500);
+
+</script>
+</body>
+
+</html>

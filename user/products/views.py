@@ -15,7 +15,6 @@ from django.db.models import Sum
 
 
 
-
 def shop(request):
 
 
@@ -107,8 +106,6 @@ def shop(request):
 
         ).first()
 
-        # NO ACTIVE VARIANT
-        # SKIP PRODUCT
 
         if not active_variant:
             continue
@@ -204,7 +201,7 @@ def shop(request):
 
         filtered_products,
 
-        6
+        9
 
     )
 
@@ -386,9 +383,6 @@ def add_to_cart(request):
             "user_products:shop"
         )
 
-    # =====================================
-    # GET DATA
-    # =====================================
 
     variant_id = request.POST.get(
         "variant_id"
@@ -399,9 +393,6 @@ def add_to_cart(request):
         1
     )
 
-    # =====================================
-    # VALIDATE QUANTITY
-    # =====================================
 
     try:
 
@@ -429,9 +420,6 @@ def add_to_cart(request):
             "user_products:cart"
         )
 
-    # =====================================
-    # GET VARIANT
-    # =====================================
 
     variant = Variant.objects.filter(
 
@@ -458,9 +446,6 @@ def add_to_cart(request):
             "user_products:shop"
         )
 
-    # =====================================
-    # OUT OF STOCK
-    # =====================================
 
     if variant.available_stock <= 0:
 
@@ -473,9 +458,6 @@ def add_to_cart(request):
             "user_products:cart"
         )
 
-    # =====================================
-    # STOCK CHECK
-    # =====================================
 
     if quantity > variant.available_stock:
 
@@ -488,34 +470,23 @@ def add_to_cart(request):
             "user_products:cart"
         )
 
-    # =====================================
-    # GET CART
-    # =====================================
 
     cart, created = Cart.objects.get_or_create(
         user=request.user
     )
 
-    # =====================================
-    # EXISTING CART ITEM
-    # =====================================
 
     cart_item = CartItem.objects.filter(
         cart=cart,
         variant=variant
     ).first()
 
-    # =====================================
-    # UPDATE EXISTING ITEM
-    # =====================================
 
     if cart_item:
 
         new_quantity = (
             cart_item.quantity + quantity
         )
-
-        # MAXIMUM 5 LIMIT
 
         if new_quantity > 5:
 
@@ -528,7 +499,6 @@ def add_to_cart(request):
                 "user_products:cart"
             )
 
-        # STOCK CHECK
 
         if new_quantity > variant.available_stock:
 
@@ -544,19 +514,14 @@ def add_to_cart(request):
         cart_item.quantity = new_quantity
 
         cart_item.save()
+        
 
         messages.success(
             request,
             "Cart quantity updated"
         )
 
-    # =====================================
-    # NEW CART ITEM
-    # =====================================
-
     else:
-
-        # MAXIMUM 5 LIMIT
 
         if quantity > 5:
 
@@ -569,30 +534,51 @@ def add_to_cart(request):
                 "user_products:cart"
             )
 
-        CartItem.objects.create(
+    cart_item = CartItem.objects.create(
 
-            cart=cart,
+        cart=cart,
 
-            variant=variant,
+        variant=variant,
 
-            quantity=quantity
+        quantity=quantity
 
+    )
+
+    cart_items = CartItem.objects.filter(
+        cart=cart
+    )
+
+    cart_total = 0
+
+    for item in cart_items:
+
+        cart_total += (
+            item.variant.price *
+            item.quantity
         )
 
-        cart_count = CartItem.objects.filter(
-            cart__user=request.user
-        ).count()
+    cart_count = cart_items.count()
 
-        return JsonResponse({
+    subtotal = (
+        cart_item.variant.price *
+        cart_item.quantity
+    )
 
-            "success": True,
+    return JsonResponse({
 
-            "message": "Product added to cart",
+        "success": True,
 
-            "cart_count": cart_count
+        "message": "Product added to cart",
 
-        })
+        "cart_count": cart_count,
 
+        "subtotal": subtotal,
+
+        "cart_total": cart_total,
+
+        "quantity": cart_item.quantity
+
+    })
 
 @login_required(login_url='login')
 def cart(request):
@@ -664,8 +650,6 @@ def cart(request):
 
         subtotal += item.subtotal
 
-    # SHIPPING
-
     if subtotal > 0:
 
         shipping = 99
@@ -719,10 +703,6 @@ def update_cart_quantity(request, item_id):
 
     action = request.GET.get("action")
 
-    # =========================
-    # INCREASE
-    # =========================
-
     if action == "increase":
 
         if cart_item.quantity >= 5:
@@ -737,7 +717,13 @@ def update_cart_quantity(request, item_id):
 
                 "subtotal":cart_item.variant.price * cart_item.quantity,
 
-                "cart_total":cart_item.cart.total_price
+                "stock":cart_item.variant.available_stock,
+
+                "cart_total":cart_item.cart.total_price,
+
+                "cart_count": CartItem.objects.filter(
+                    cart__user=request.user
+                ).count()
 
             })
 
@@ -773,6 +759,8 @@ def update_cart_quantity(request, item_id):
 
                 "subtotal":cart_item.variant.price * cart_item.quantity,
 
+                "stock":cart_item.variant.available_stock,
+
                 "cart_total":cart_item.cart.total_price
 
             })
@@ -783,9 +771,6 @@ def update_cart_quantity(request, item_id):
 
         message = "Quantity increased"
 
-    # =========================
-    # DECREASE
-    # =========================
 
     elif action == "decrease":
 
@@ -817,6 +802,8 @@ def update_cart_quantity(request, item_id):
         cart__user=request.user
     ).count()
 
+    
+
     return JsonResponse({
 
         "success": True,
@@ -828,6 +815,8 @@ def update_cart_quantity(request, item_id):
         "subtotal": cart_item.variant.price * cart_item.quantity,
 
         "cart_total": cart_item.cart.total_price,
+
+        "stock": cart_item.variant.available_stock,
 
         "cart_count": cart_count
 
@@ -885,10 +874,6 @@ def remove_cart_item(request, item_id):
 
     })
 
- 
-
-
-
 @login_required(login_url='login')
 def toggle_wishlist(request, product_id):
 
@@ -902,10 +887,6 @@ def toggle_wishlist(request, product_id):
         is_active=True
 
     ).first()
-
-    # =====================================
-    # INVALID PRODUCT
-    # =====================================
 
     if not product:
 
@@ -921,10 +902,6 @@ def toggle_wishlist(request, product_id):
 
         })
 
-    # =====================================
-    # EXISTING WISHLIST
-    # =====================================
-
     wishlist_item = Wishlist.objects.filter(
 
         user=request.user,
@@ -932,10 +909,6 @@ def toggle_wishlist(request, product_id):
         product=product
 
     ).first()
-
-    # =====================================
-    # REMOVE WISHLIST
-    # =====================================
 
     if wishlist_item:
 
@@ -979,11 +952,19 @@ def toggle_wishlist(request, product_id):
 
     })
 
-from django.db.models import Sum
 
 
 @login_required(login_url='login')
 def wishlist_page(request):
+
+    # ================= SORT =================
+
+    sort = request.GET.get(
+        "sort",
+        ""
+    )
+
+    # ================= QUERYSET =================
 
     wishlist_items = Wishlist.objects.filter(
 
@@ -1003,15 +984,79 @@ def wishlist_page(request):
 
         'product__variants__images'
 
-    ).order_by(
+    )
 
-        '-created_at'
+    # ================= SORTING =================
+
+    if sort == "price_low":
+
+        wishlist_items = wishlist_items.order_by(
+
+            'product__variants__price'
+
+        )
+
+    elif sort == "price_high":
+
+        wishlist_items = wishlist_items.order_by(
+
+            '-product__variants__price'
+
+        )
+
+    elif sort == "a_z":
+
+        wishlist_items = wishlist_items.order_by(
+
+            'product__product_name'
+
+        )
+
+    elif sort == "z_a":
+
+        wishlist_items = wishlist_items.order_by(
+
+            '-product__product_name'
+
+        )
+
+    else:
+
+        # DEFAULT
+
+        wishlist_items = wishlist_items.order_by(
+
+            '-created_at'
+
+        )
+
+    # ================= PAGINATION =================
+
+    paginator = Paginator(
+
+        wishlist_items,
+
+        6
 
     )
 
+    page_number = request.GET.get(
+        "page"
+    )
+
+    page_obj = paginator.get_page(
+        page_number
+    )
+
+    # ================= CONTEXT =================
+
     context = {
 
-        'wishlist_items': wishlist_items
+        'wishlist_items': page_obj,
+
+        'page_obj': page_obj,
+
+        'sort': sort
 
     }
 
@@ -1025,13 +1070,8 @@ def wishlist_page(request):
 
     )
 
-
 @login_required(login_url='login')
 def wishlist_to_cart(request, product_id):
-
-    # =====================================
-    # GET PRODUCT
-    # =====================================
 
     product = Product.objects.filter(
 
@@ -1057,10 +1097,6 @@ def wishlist_to_cart(request, product_id):
             "user_products:wishlist"
         )
 
-    # =====================================
-    # GET VARIANT
-    # =====================================
-
     variant = product.default_variant
 
     if not variant:
@@ -1077,10 +1113,6 @@ def wishlist_to_cart(request, product_id):
             "user_products:wishlist"
         )
 
-    # =====================================
-    # OUT OF STOCK
-    # =====================================
-
     if variant.available_stock <= 0:
 
         messages.error(
@@ -1095,19 +1127,11 @@ def wishlist_to_cart(request, product_id):
             "user_products:wishlist"
         )
 
-    # =====================================
-    # GET CART
-    # =====================================
-
     cart, created = Cart.objects.get_or_create(
 
         user=request.user
 
     )
-
-    # =====================================
-    # EXISTING CART ITEM
-    # =====================================
 
     cart_item = CartItem.objects.filter(
 
@@ -1117,13 +1141,8 @@ def wishlist_to_cart(request, product_id):
 
     ).first()
 
-    # =====================================
-    # UPDATE EXISTING ITEM
-    # =====================================
 
     if cart_item:
-
-        # MAXIMUM 5 LIMIT
 
         if cart_item.quantity >= 5:
 
@@ -1139,8 +1158,6 @@ def wishlist_to_cart(request, product_id):
                 "user_products:wishlist"
             )
 
-        # RESERVED STOCK BY OTHER USERS
-
         total_reserved = CartItem.objects.filter(
             variant=variant
         ).exclude(
@@ -1152,8 +1169,6 @@ def wishlist_to_cart(request, product_id):
         remaining_stock = (
             variant.stock - total_reserved
         )
-
-        # STOCK CHECK
 
         if cart_item.quantity + 1 > remaining_stock:
 
@@ -1173,10 +1188,6 @@ def wishlist_to_cart(request, product_id):
 
         cart_item.save()
 
-    # =====================================
-    # CREATE NEW CART ITEM
-    # =====================================
-
     else:
 
         CartItem.objects.create(
@@ -1188,11 +1199,6 @@ def wishlist_to_cart(request, product_id):
             quantity=1
 
         )
-
-    # =====================================
-    # REMOVE FROM WISHLIST
-    # =====================================
-
     Wishlist.objects.filter(
 
         user=request.user,
@@ -1200,10 +1206,6 @@ def wishlist_to_cart(request, product_id):
         product=product
 
     ).delete()
-
-    # =====================================
-    # COUNTS
-    # =====================================
 
     cart_count = CartItem.objects.filter(
 
@@ -1216,10 +1218,6 @@ def wishlist_to_cart(request, product_id):
         user=request.user
 
     ).count()
-
-    # =====================================
-    # AJAX RESPONSE
-    # =====================================
 
     return JsonResponse({
 

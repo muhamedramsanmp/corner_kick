@@ -11,69 +11,34 @@ Wishlist
 /* ================= LAYOUT ================= */
 
 .wrapper{
-    display:grid;
-    grid-template-columns:260px 1fr;
-    gap:32px;
+
+    width:100%;
+
     padding:40px 48px 70px;
-}
 
-/* ================= SIDEBAR ================= */
-
-.sidebar{
-    background:#ffffff;
-    border:1px solid #e2e8f0;
-    border-radius:28px;
-    padding:28px;
-    height:fit-content;
-}
-
-.sidebar-title{
-    font-size:28px;
-    font-weight:800;
-    margin-bottom:10px;
-}
-
-.sidebar-subtitle{
-    color:#64748b;
-    font-size:13px;
-    margin-bottom:30px;
-}
-
-.menu{
-    display:flex;
-    flex-direction:column;
-    gap:10px;
-}
-
-.menu a{
-    height:52px;
-    border-radius:16px;
-    display:flex;
-    align-items:center;
-    gap:12px;
-    padding:0 16px;
-    text-decoration:none;
-    color:#475569;
-    font-size:14px;
-    font-weight:600;
-    transition:.2s;
-}
-
-.menu a:hover,
-.menu a.active{
-    background:#eff6ff;
-    color:#2563eb;
 }
 
 /* ================= CONTENT ================= */
 
 .content-header{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    margin-bottom:34px;
-}
 
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    margin-bottom:40px;
+
+    background:#ffffff;
+
+    padding:28px;
+
+    border-radius:24px;
+
+    border:1px solid #e2e8f0;
+
+}
 .page-title{
     font-size:42px;
     font-weight:800;
@@ -100,24 +65,42 @@ Wishlist
 /* ================= GRID ================= */
 
 .product-grid{
-    display:grid;
-    grid-template-columns:repeat(3,1fr);
-    gap:28px;
-}
 
+    display:grid;
+
+    grid-template-columns:
+        repeat(4,1fr);
+
+    gap:24px;
+
+}
 .product-card{
+
+    width:100%;
+
     background:#ffffff;
+
     border:1px solid #e2e8f0;
-    border-radius:28px;
+
+    border-radius:24px;
+
     overflow:hidden;
+
     position:relative;
-    transition:.25s;
+
+    transition:.25s ease;
+
 }
 
 .product-card:hover{
-    transform:translateY(-4px);
-    box-shadow:0 14px 30px rgba(0,0,0,.08);
+
+    transform:translateY(-6px);
+
+    box-shadow:
+        0 20px 40px rgba(37,99,235,.08);
+
 }
+
 
 /* ================= REMOVE ================= */
 
@@ -140,11 +123,17 @@ Wishlist
 /* ================= IMAGE ================= */
 
 .product-image{
+
     width:100%;
-    height:320px;
+
+    aspect-ratio:1 / 1;
+
     overflow:hidden;
-    background:#0f172a;
+
+    background:#f8fafc;
+
 }
+
 
 .product-image img{
     width:100%;
@@ -172,11 +161,19 @@ Wishlist
 }
 
 .product-name{
-    font-size:16px;
+
+    font-size:15px;
+
     font-weight:700;
-    line-height:1.6;
-    margin-bottom:16px;
-    min-height:52px;
+
+    line-height:1.5;
+
+    margin-bottom:14px;
+
+    min-height:48px;
+
+    color:#0f172a;
+
 }
 
 .price-row{
@@ -209,17 +206,44 @@ Wishlist
 /* ================= BUTTON ================= */
 
 .cart-btn{
-    width:100%;
-    height:52px;
+
+    width:calc(100% - 36px);
+
+    margin:
+        0 18px 18px;
+
+    height:50px;
+
     border:none;
-    border-radius:16px;
-    background:linear-gradient(90deg,#2563eb,#3b82f6);
+
+    border-radius:14px;
+
+    background:
+        linear-gradient(
+            90deg,
+            #2563eb,
+            #3b82f6
+        );
+
     color:#ffffff;
+
     font-size:14px;
     font-weight:700;
+
     cursor:pointer;
+
+    transition:.2s;
+
 }
 
+.cart-btn:hover{
+
+    transform:translateY(-2px);
+
+    box-shadow:
+        0 12px 24px rgba(37,99,235,.22);
+
+}
 .cart-btn:disabled{
 
     background:#cbd5e1;
@@ -278,14 +302,40 @@ Wishlist
 
 /* ================= RESPONSIVE ================= */
 
-@media(max-width:1200px){
+@media(max-width:768px){
 
 .wrapper{
-    grid-template-columns:1fr;
+
+    padding:24px 16px 50px;
+
 }
 
-.product-grid{
-    grid-template-columns:repeat(2,1fr);
+.product-card{
+
+    width:100%;
+
+}
+
+.content-header{
+
+    flex-direction:column;
+
+    align-items:flex-start;
+
+    gap:20px;
+
+}
+
+.page-title{
+
+    font-size:32px;
+
+}
+
+.sort-box{
+
+    width:100%;
+
 }
 
 }
@@ -305,7 +355,10 @@ Wishlist
 }
 
 .product-grid{
-    grid-template-columns:1fr;
+
+    grid-template-columns:
+        repeat(3,1fr);
+
 }
 
 .content-header{
@@ -323,6 +376,64 @@ Wishlist
 }
 
 }
+/* ================= PAGINATION ================= */
+
+.wishlist-pagination{
+
+    margin-top:50px;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    gap:14px;
+
+}
+
+.pagination-btn{
+
+    width:52px;
+    height:52px;
+
+    border-radius:16px;
+
+    background:#ffffff;
+
+    border:1px solid #dbe3ef;
+
+    display:flex;
+
+    align-items:center;
+    justify-content:center;
+
+    text-decoration:none;
+
+    color:#2563eb;
+
+    font-size:18px;
+    font-weight:700;
+
+    transition:.25s;
+
+}
+
+.pagination-btn:hover{
+
+    background:#2563eb;
+
+    color:#ffffff;
+
+}
+
+.pagination-btn.active{
+
+    background:#2563eb;
+
+    color:#ffffff;
+
+}
 
 </style>
 {% endblock %}
@@ -337,52 +448,6 @@ Wishlist
 <!-- ================= MAIN ================= -->
 
 <div class="wrapper">
-
-<!-- ================= SIDEBAR ================= -->
-
-<div class="sidebar">
-
-<h2 class="sidebar-title">
-My Wishlist
-</h2>
-
-<p class="sidebar-subtitle">
-Manage your saved items and products.
-</p>
-
-<div class="menu">
-
-<a href="#">
-<span class="material-symbols-outlined">
-person
-</span>
-My Account
-</a>
-
-<a href="#">
-<span class="material-symbols-outlined">
-shopping_bag
-</span>
-Orders
-</a>
-
-<a href="#" class="active">
-<span class="material-symbols-outlined">
-favorite
-</span>
-Wishlist
-</a>
-
-<a href="#">
-<span class="material-symbols-outlined">
-wallet
-</span>
-Wallet
-</a>
-
-</div>
-
-</div>
 
 <!-- ================= CONTENT ================= -->
 
@@ -405,12 +470,49 @@ id="wishlist-subtitle"
 
 </div>
 
-<select class="sort-box">
-<option>Sort By Recently Added</option>
-<option>Price Low To High</option>
-<option>Price High To Low</option>
-<option>A - Z</option>
+<form method="GET">
+
+<select
+name="sort"
+class="sort-box"
+onchange="this.form.submit()"
+>
+
+    <option value="">
+        Sort By Recently Added
+    </option>
+
+    <option
+    value="price_low"
+    {% if sort == "price_low" %}selected{% endif %}
+    >
+        Price Low To High
+    </option>
+
+    <option
+    value="price_high"
+    {% if sort == "price_high" %}selected{% endif %}
+    >
+        Price High To Low
+    </option>
+
+    <option
+    value="a_z"
+    {% if sort == "a_z" %}selected{% endif %}
+    >
+        A - Z
+    </option>
+
+    <option
+    value="z_a"
+    {% if sort == "z_a" %}selected{% endif %}
+    >
+        Z - A
+    </option>
+
 </select>
+
+</form>
 
 </div>
 
@@ -547,6 +649,62 @@ CONTINUE SHOPPING
 
 </div>
 
+
+
+<!-- ================= PAGINATION ================= -->
+
+{% if page_obj.has_other_pages %}
+
+<div class="wishlist-pagination">
+
+    {% if page_obj.has_previous %}
+
+    <a
+    href="?page={{ page_obj.previous_page_number }}"
+    class="pagination-btn"
+    >
+        ‹
+    </a>
+
+    {% endif %}
+
+    {% for num in page_obj.paginator.page_range %}
+
+        {% if page_obj.number == num %}
+
+        <span
+        class="pagination-btn active"
+        >
+            {{ num }}
+        </span>
+
+        {% else %}
+
+        <a
+        href="?page={{ num }}"
+        class="pagination-btn"
+        >
+            {{ num }}
+        </a>
+
+        {% endif %}
+
+    {% endfor %}
+
+    {% if page_obj.has_next %}
+
+    <a
+    href="?page={{ page_obj.next_page_number }}"
+    class="pagination-btn"
+    >
+        ›
+    </a>
+
+    {% endif %}
+
+</div>
+
+{% endif %}
 </div>
 
 

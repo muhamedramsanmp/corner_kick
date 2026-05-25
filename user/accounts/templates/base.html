@@ -369,7 +369,249 @@
     transform:translateY(0);
 
 }
+/* ================= PROFILE DROPDOWN ================= */
 
+.profile-dropdown-wrapper{
+    position:relative;
+}
+
+.profile-trigger{
+    border:none;
+    background:none;
+    cursor:pointer;
+}
+
+.nav-profile-img{
+    width:42px;
+    height:42px;
+    border-radius:50%;
+    object-fit:cover;
+    border:2px solid #2563eb;
+}
+
+/* ================= PROFILE DROPDOWN ================= */
+
+.profile-dropdown-wrapper{
+    position:relative;
+}
+
+.profile-trigger{
+    border:none;
+    background:none;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+}
+
+/* NAV IMAGE */
+
+.nav-profile-img{
+
+    width:42px;
+    height:42px;
+
+    border-radius:50%;
+
+    object-fit:cover;
+
+    border:2px solid #2563eb;
+
+    transition:.2s;
+}
+
+.nav-profile-img:hover{
+
+    transform:scale(1.05);
+
+}
+
+/* DROPDOWN */
+
+.profile-dropdown{
+
+    position:absolute;
+
+    top:58px;
+    right:0;
+
+    width:320px;
+
+    background:#ffffff;
+
+    border-radius:22px;
+
+    padding:20px;
+
+    border:1px solid #e2e8f0;
+
+    box-shadow:
+        0 20px 40px rgba(15,23,42,.08);
+
+    opacity:0;
+    visibility:hidden;
+
+    transform:
+        translateY(12px);
+
+    transition:.25s ease;
+
+    z-index:99999;
+
+}
+
+/* SHOW */
+
+.profile-dropdown.active{
+
+    opacity:1;
+    visibility:visible;
+
+    transform:
+        translateY(0);
+
+}
+
+/* TOP USER */
+
+.dropdown-user{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:14px;
+
+    padding-bottom:18px;
+
+    border-bottom:
+        1px solid #e2e8f0;
+
+    margin-bottom:18px;
+
+}
+
+.dropdown-profile-img{
+
+    width:60px;
+    height:60px;
+
+    border-radius:50%;
+
+    object-fit:cover;
+
+    border:2px solid #3b82f6;
+
+}
+
+.dropdown-user h3{
+
+    font-size:18px;
+    font-weight:700;
+
+    color:#0f172a;
+
+}
+
+.dropdown-user p{
+
+    font-size:13px;
+
+    color:#64748b;
+
+    margin-top:4px;
+
+}
+
+/* MENU */
+
+.dropdown-menu{
+
+    display:flex;
+    flex-direction:column;
+
+    gap:8px;
+
+}
+
+/* ITEM */
+
+.dropdown-item{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:14px;
+
+    padding:14px 16px;
+
+    border-radius:16px;
+
+    text-decoration:none;
+
+    color:#334155;
+
+    font-size:15px;
+    font-weight:600;
+
+    transition:.2s ease;
+
+}
+
+.dropdown-item span{
+
+    font-size:22px;
+
+    color:#2563eb;
+
+}
+
+/* HOVER */
+
+.dropdown-item:hover{
+
+    background:#eff6ff;
+
+    color:#2563eb;
+
+    transform:translateX(4px);
+
+}
+
+/* LOGOUT */
+
+.logout-btn{
+
+    color:#dc2626;
+
+}
+
+.logout-btn span{
+
+    color:#dc2626;
+
+}
+
+.logout-btn:hover{
+
+    background:#fef2f2;
+
+    color:#dc2626;
+
+}
+.alert{
+
+    cursor:pointer;
+
+    transition:.25s ease;
+}
+
+.alert:hover{
+
+    transform:translateX(-4px);
+
+    opacity:.9;
+}
     </style>
 
 </head>
@@ -381,9 +623,9 @@
 
     <div class="navbar">
 
-        <div class="nav-left">
+        <a href="{% url 'home' %}"><div class="nav-left">
             CORNER KICK
-        </div>
+        </div></a>
 
         <div class="nav-center">
 
@@ -451,13 +693,154 @@
 
     <!-- PROFILE -->
 
-    <a href="{% url 'userinfo:profile' %}">
+<!-- PROFILE -->
 
-        <span class="material-symbols-outlined icon-btn">
-            person
-        </span>
+<div class="profile-dropdown-wrapper">
 
-    </a>
+    <button
+    class="profile-trigger"
+    id="profileTrigger"
+    >
+
+        {% if profile.image %}
+            <img
+            src="{{ profile.image.url }}"
+            class="nav-profile-img"
+            >
+        {% else %}
+            <img
+            src="{% static 'images/default.png' %}"
+            class="nav-profile-img"
+            >
+        {% endif %}
+
+    </button>
+
+    <!-- DROPDOWN -->
+
+    <div
+    class="profile-dropdown"
+    id="profileDropdown"
+    >
+
+        <!-- TOP -->
+
+        <div class="dropdown-user">
+
+            {% if profile.image %}
+                <img
+                src="{{ profile.image.url }}"
+                class="dropdown-profile-img"
+                >
+            {% else %}
+                <img
+                src="{% static 'images/default.png' %}"
+                class="dropdown-profile-img"
+                >
+            {% endif %}
+
+            <div>
+
+                <h3>
+                    {{ user.first_name }}
+                    {{ user.last_name }}
+                </h3>
+
+                <p>
+                    {{ user.email }}
+                </p>
+
+            </div>
+
+        </div>
+
+        <!-- MENU -->
+
+        <div class="dropdown-menu">
+
+            <a
+            href="{% url 'userinfo:profile' %}"
+            class="dropdown-item"
+            >
+
+                <span class="material-symbols-outlined">
+                    person
+                </span>
+
+                My Profile
+
+            </a>
+
+            <a
+            href="{% url 'addressinfo:address_view' %}"
+            class="dropdown-item"
+            >
+
+                <span class="material-symbols-outlined">
+                    location_on
+                </span>
+
+                Address
+
+            </a>
+
+            <a
+            href="{% url "my_orders" %}"
+            class="dropdown-item"
+            >
+
+                <span class="material-symbols-outlined">
+                    shopping_bag
+                </span>
+
+                My Orders
+
+            </a>
+
+            <a
+            href="{% url 'user_products:wishlist' %}"
+            class="dropdown-item"
+            >
+
+                <span class="material-symbols-outlined">
+                    favorite
+                </span>
+
+                Wishlist
+
+            </a>
+
+            <a
+            href="#"
+            class="dropdown-item"
+            >
+
+                <span class="material-symbols-outlined">
+                    account_balance_wallet
+                </span>
+
+                Wallet
+
+            </a>
+
+            <a
+            href="{% url 'userinfo:logout_page' %}"
+            class="dropdown-item logout-btn"
+            >
+
+                <span class="material-symbols-outlined">
+                    logout
+                </span>
+
+                Logout
+
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
 
 </div>
 
@@ -465,13 +848,16 @@
 
     </div>
 
-    {% if messages %}
+{% if messages %}
 
 <div class="message-container">
 
     {% for message in messages %}
 
-    <div class="alert {{ message.tags }}">
+    <div
+    class="alert {{ message.tags }}"
+    onclick="this.remove()"
+    >
 
         <span class="material-symbols-outlined">
 
@@ -540,7 +926,7 @@
     {% block extra_js %}{% endblock %}
 
 
-    <script>
+    {% comment %} <script>
 
 setTimeout(()=>{
 
@@ -564,7 +950,7 @@ setTimeout(()=>{
 
 },3000);
 
-</script>
+</script> {% endcomment %}
 <script>
 
 function showAjaxPopup(message){
@@ -812,6 +1198,49 @@ document.querySelectorAll(".cart-form").forEach(form=>{
     })
 
 })
+
+</script>
+<script>
+
+const profileTrigger =
+    document.getElementById(
+        "profileTrigger"
+    )
+
+const profileDropdown =
+    document.getElementById(
+        "profileDropdown"
+    )
+
+profileTrigger.addEventListener(
+    "click",
+    function(e){
+
+        e.stopPropagation()
+
+        profileDropdown.classList.toggle(
+            "active"
+        )
+
+    }
+)
+
+document.addEventListener(
+    "click",
+    function(e){
+
+        if(
+            !profileDropdown.contains(e.target)
+        ){
+
+            profileDropdown.classList.remove(
+                "active"
+            )
+
+        }
+
+    }
+)
 
 </script>
 </body>
