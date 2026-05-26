@@ -460,38 +460,74 @@ Product Details
 }
 
 
-/* ACCORDION */
-
 .accordion{
     border-top:1px solid #e2e8f0;
 }
 
 .accordion-item{
     border-bottom:1px solid #e2e8f0;
-
-    padding:18px 0;
+    padding:22px 0;
 }
 
 .accordion-title{
+
     display:flex;
     align-items:center;
     justify-content:space-between;
 
-    font-size:13px;
+    cursor:pointer;
 
-    font-weight:700;
+    font-size:14px;
+    font-weight:800;
 
     color:#0f172a;
 
-    margin-bottom:14px;
+}
+
+.accordion-title span{
+
+    transition:.3s ease;
+
 }
 
 .accordion-content{
+
+    max-height:0;
+
+    overflow:hidden;
+
+    opacity:0;
+
+    transition:
+        max-height .45s ease,
+        opacity .3s ease,
+        margin-top .3s ease;
+
     color:#64748b;
 
     font-size:14px;
 
-    line-height:1.8;
+    line-height:1.9;
+
+    white-space:pre-line;
+
+}
+
+.accordion-item.active .accordion-content{
+
+    max-height:2000px;
+
+    opacity:1;
+
+    margin-top:18px;
+
+}
+
+.accordion-item.active
+.accordion-title span{
+
+    transform:rotate(180deg);
+
 }
 
 /* ================= RELATED ================= */
@@ -704,9 +740,7 @@ Product Details
         border-radius:14px;
 
     }
-
 }
-
 </style>
 
 </head>
@@ -959,65 +993,143 @@ favorite_border
 
         <!-- ACCORDION -->
 
-        <div class="accordion">
+<div class="accordion">
 
-            <div class="accordion-item">
+    <!-- DESCRIPTION -->
 
-                <div class="accordion-title">
+    {% if product.description %}
 
-                    DESCRIPTION
+    <div class="accordion-item">
 
-                    <span class="material-symbols-outlined">
-                        expand_more
-                    </span>
+        <div class="accordion-title">
 
-                </div>
+            DESCRIPTION
 
-                <div class="accordion-content">
-                    {{ product.description }}
-                </div>
-
-            </div>
-
-            <div class="accordion-item">
-
-                <div class="accordion-title">
-
-                    MATERIALS & CARE
-
-                    <span class="material-symbols-outlined">
-                        expand_more
-                    </span>
-
-                </div>
-
-                <div class="accordion-content">
-                    {{ product.materials }}
-                    <br><br>
-                    {{ product.care_guide }}
-                </div>
-
-            </div>
-
-            <div class="accordion-item">
-
-                <div class="accordion-title">
-
-                    DELIVERY & RETURNS
-
-                    <span class="material-symbols-outlined">
-                        expand_more
-                    </span>
-
-                </div>
-
-                <div class="accordion-content">
-                    {{ product.delivery_returns }}
-                </div>
-
-            </div>
+            <span class="material-symbols-outlined">
+                expand_more
+            </span>
 
         </div>
+
+        <div class="accordion-content">
+
+            {{ product.description }}
+
+        </div>
+
+    </div>
+
+    {% endif %}
+
+
+    <!-- DESCRIPTION & FIT -->
+
+    {% if product.description_fit %}
+
+    <div class="accordion-item">
+
+        <div class="accordion-title">
+
+            DESCRIPTION & FIT
+
+            <span class="material-symbols-outlined">
+                expand_more
+            </span>
+
+        </div>
+
+        <div class="accordion-content">
+
+            {{ product.description_fit }}
+
+        </div>
+
+    </div>
+
+    {% endif %}
+
+
+    <!-- MATERIALS & SUSTAINABILITY -->
+
+    {% if product.materials %}
+
+    <div class="accordion-item">
+
+        <div class="accordion-title">
+
+            MATERIALS & SUSTAINABILITY
+
+            <span class="material-symbols-outlined">
+                expand_more
+            </span>
+
+        </div>
+
+        <div class="accordion-content">
+
+            {{ product.materials }}
+
+        </div>
+
+    </div>
+
+    {% endif %}
+
+
+    <!-- CARE GUIDE -->
+
+    {% if product.care_guide %}
+
+    <div class="accordion-item">
+
+        <div class="accordion-title">
+
+            DETAILED CARE GUIDE
+
+            <span class="material-symbols-outlined">
+                expand_more
+            </span>
+
+        </div>
+
+        <div class="accordion-content">
+
+            {{ product.care_guide }}
+
+        </div>
+
+    </div>
+
+    {% endif %}
+
+
+    <!-- SHIPPING -->
+
+    {% if product.delivery_returns %}
+
+    <div class="accordion-item">
+
+        <div class="accordion-title">
+
+            SHIPPING & RETURNS POLICY
+
+            <span class="material-symbols-outlined">
+                expand_more
+            </span>
+
+        </div>
+
+        <div class="accordion-content">
+
+            {{ product.delivery_returns }}
+
+        </div>
+
+    </div>
+
+    {% endif %}
+
+</div>
 
     </div>
 
@@ -1613,6 +1725,28 @@ mainImage.addEventListener(
     }
 );
 </script>
+<script>
 
+document
+.querySelectorAll(".accordion-title")
+.forEach((title)=>{
+
+    title.addEventListener(
+        "click",
+        ()=>{
+
+            const item =
+                title.parentElement
+
+            item.classList.toggle(
+                "active"
+            )
+
+        }
+    )
+
+})
+
+</script>
 
 {% endblock %}

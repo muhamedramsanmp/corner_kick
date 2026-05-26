@@ -6,7 +6,9 @@
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache" >
+<meta http-equiv="Expires" content="0" >
 <title>Variant Management</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -721,6 +723,67 @@ a{
 
     font-size:26px;
 }
+/* FILTERS */
+
+.filters{
+    display:flex;
+    gap:15px;
+
+    padding:18px 20px;
+
+    border-bottom:1px solid #111;
+}
+
+/* FILTER SEARCH */
+
+.filter-search{
+    flex:1;
+
+    display:flex;
+    align-items:center;
+    gap:10px;
+
+    background:#0f172a;
+
+    border:1px solid #1f2937;
+
+    border-radius:12px;
+
+    padding:0 14px;
+
+    height:42px;
+}
+
+.filter-search input{
+    flex:1;
+    background:none;
+    border:none;
+    outline:none;
+    color:#fff;
+}
+
+.filter-search span{
+    color:#60a5fa;
+}
+
+/* SELECT */
+
+.filter-select{
+    width:180px;
+    height:42px;
+
+    background:#0f172a;
+
+    border:1px solid #1f2937;
+
+    border-radius:12px;
+
+    color:#fff;
+
+    padding:0 12px;
+
+    outline:none;
+}
 </style>
 
 </head>
@@ -775,24 +838,18 @@ a{
     </div>
 
     <!-- RIGHT -->
+     <a href="{% url "admin_products:add_variant" product.id %}">
+    <button class="add-btn">
 
-    <div class="top-actions">
+        <span class="material-symbols-outlined">
+            add
+        </span>
 
-        <div class="search-box">
+        ADD VARIANT
 
-            <span class="material-symbols-outlined">
-                search
-            </span>
+    </button>
+</a>
 
-            <input
-                type="text"
-                placeholder="Search variants..."
-            >
-
-        </div>
-
-
-    </div>
 
 </div>
 
@@ -868,16 +925,6 @@ a{
 
         <!-- BUTTON -->
 
-        <a href="{% url "admin_products:add_variant" product.id %}"><button class="add-btn">
-
-            <span class="material-symbols-outlined">
-                add
-            </span>
-
-            ADD VARIANT
-
-        </button>
-        </a>
 
     </div>
 
@@ -930,6 +977,89 @@ a{
         </div>
 
     </div>
+    <!-- FILTERS -->
+
+<form method="GET" class="filters">
+
+    <!-- SEARCH -->
+
+    <div class="filter-search">
+
+        <span class="material-symbols-outlined">
+            search
+        </span>
+
+        <input
+            type="text"
+            name="search"
+            value="{{ request.GET.search }}"
+            placeholder="Search by SKU or color..."
+        >
+
+    </div>
+
+    <!-- SIZE FILTER -->
+
+<select
+    name="size"
+    class="filter-select"
+    onchange="this.form.submit()"
+>
+
+    <option value="">
+        All Sizes
+    </option>
+
+    {% for item in sizes %}
+
+        <option
+            value="{{ item }}"
+            {% if request.GET.size == item %}
+                selected
+            {% endif %}
+        >
+
+            {{ item }}
+
+        </option>
+
+    {% endfor %}
+
+</select>
+
+    <!-- STATUS FILTER -->
+
+<select
+    name="status"
+    class="filter-select"
+    onchange="this.form.submit()"
+>
+
+    <option value="">
+        All Status
+    </option>
+
+    <option
+        value="active"
+        {% if request.GET.status == "active" %}
+            selected
+        {% endif %}
+    >
+        Active
+    </option>
+
+    <option
+        value="inactive"
+        {% if request.GET.status == "inactive" %}
+            selected
+        {% endif %}
+    >
+        Inactive
+    </option>
+
+</select>
+
+</form>
 
     <!-- TABLE -->
 

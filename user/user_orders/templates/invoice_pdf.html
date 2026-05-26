@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<style>
+
+body{
+    font-family:Arial,sans-serif;
+    color:#111827;
+    font-size:13px;
+}
+
+.header{
+    margin-bottom:30px;
+}
+
+.header h1{
+    color:#2563eb;
+    font-size:32px;
+}
+
+.section{
+    margin-bottom:25px;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:20px;
+}
+
+table th{
+    background:#f3f4f6;
+    padding:12px;
+    text-align:left;
+    border:1px solid #ddd;
+}
+
+table td{
+    padding:12px;
+    border:1px solid #ddd;
+}
+
+.total-box{
+    margin-top:30px;
+    width:300px;
+    margin-left:auto;
+}
+
+.total-row{
+    margin-bottom:10px;
+}
+
+.total-row strong{
+    float:right;
+}
+
+.footer{
+    margin-top:40px;
+    text-align:center;
+    color:#64748b;
+    font-size:12px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="header">
+
+    <h1>
+
+        CORNERKICK INVOICE
+
+    </h1>
+
+    <p>
+
+        Invoice ID :
+        {{ order.order_id }}
+
+    </p>
+
+    <p>
+
+        Date :
+        {{ order.created_at|date:"d M Y" }}
+
+    </p>
+
+</div>
+
+<div class="section">
+
+    <h3>
+
+        Shipping Address
+
+    </h3>
+
+    <p>
+
+        {{ order.address.full_name }}<br>
+
+        {{ order.address.address_line }}<br>
+
+        {{ order.address.city }},
+        {{ order.address.state }}<br>
+
+        {{ order.address.country }} -
+        {{ order.address.pincode }}
+
+    </p>
+
+</div>
+
+<table>
+
+    <thead>
+
+        <tr>
+
+            <th>
+                Product
+            </th>
+
+            <th>
+                Qty
+            </th>
+
+            <th>
+                Price
+            </th>
+
+            <th>
+                Total
+            </th>
+
+        </tr>
+
+    </thead>
+
+    <tbody>
+
+        {% for item in order.items.all %}
+
+        <tr>
+
+            <td>
+
+                {{ item.product.product_name }}
+
+            </td>
+
+            <td>
+
+                {{ item.quantity }}
+
+            </td>
+
+            <td>
+
+                ₹{{ item.price }}
+
+            </td>
+
+            <td>
+
+                ₹{{ item.total_price }}
+
+            </td>
+
+        </tr>
+
+        {% endfor %}
+
+    </tbody>
+
+</table>
+
+<div class="total-box">
+
+    <div class="total-row">
+
+        Subtotal
+
+        <strong>
+
+            ₹{{ order.subtotal }}
+
+        </strong>
+
+    </div>
+
+    <div class="total-row">
+
+        Discount
+
+        <strong>
+
+            ₹{{ order.discount_amount }}
+
+        </strong>
+
+    </div>
+
+    <div class="total-row">
+
+        Shipping
+
+        <strong>
+
+            ₹{{ order.shipping_charge }}
+
+        </strong>
+
+    </div>
+
+    <div class="total-row">
+
+        Tax
+
+        <strong>
+
+            ₹{{ order.tax_amount }}
+
+        </strong>
+
+    </div>
+
+    <hr>
+
+    <div class="total-row">
+
+        <strong style="font-size:18px;">
+
+            GRAND TOTAL :
+            ₹{{ order.total_amount }}
+
+        </strong>
+
+    </div>
+
+</div>
+
+<div class="footer">
+
+    Thank you for shopping with CornerKick.
+
+</div>
+
+</body>
+
+</html>

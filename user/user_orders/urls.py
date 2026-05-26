@@ -50,4 +50,18 @@ path(
     views.return_entire_order,
     name='return_entire_order'
 ),
+
+
+path(
+    'invoice/<str:order_id>/',
+    views.invoice_page,
+    name='invoice_page'
+),
+
+path(
+    'invoice/download/<str:order_id>/',
+    views.download_invoice,
+    name='download_invoice'
+),
+
 ]

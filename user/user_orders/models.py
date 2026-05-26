@@ -32,9 +32,7 @@ class Order(models.Model):
         ('Failed', 'Failed'),
         ('Refunded', 'Refunded'),
     )
-    # =====================================
-    # VALID STATUS FLOW
-    # =====================================
+
 
     STATUS_FLOW = {
 

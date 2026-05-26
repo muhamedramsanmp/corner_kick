@@ -3,8 +3,9 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .models import Address
 from user.accounts.models import Profile
+from user.decorators import user_required
 
-@login_required
+@user_required
 def address_view(request):
     profile, _ = Profile.objects.get_or_create(user=request.user)
 
@@ -17,7 +18,9 @@ def address_view(request):
 @login_required
 def add_address(request):
 
-    next_page = request.GET.get('next')
+    next_page = request.GET.get(
+        "next"
+    )
     if request.method == "POST":
 
         full_name = request.POST.get("full_name", "").strip()
@@ -77,9 +80,11 @@ def add_address(request):
                 'checkout_page'
             )
 
-        return redirect('addressinfo:address_view')
+        return redirect(
+            'addressinfo:address_view'
+        )
 
-    return render(request, 'add_address.html')
+    return render(request, 'add_address.html', {"next":next_page})
 
 
 def delete_address(request, id):
@@ -139,5 +144,6 @@ def edit_address(request, id):
         return redirect('addressinfo:address_view')
 
     return render(request, "edit_address.html", {
-        "address": address
+        "address": address,
+        "next": next_page
     })

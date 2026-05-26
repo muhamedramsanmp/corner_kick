@@ -8,22 +8,30 @@ from django.utils import timezone
 from django.db.models import Q
 from django.views.decorators.cache import never_cache
 from django.contrib.auth import logout
-
+from admin.decorators import admin_required
 
 User = get_user_model()
 
 @never_cache
 def admin_login(request):
 
-    # ✅ BLOCK access if already logged in
-    if request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser):
-        return redirect('admin_dashboard')
+    if request.user.is_authenticated:
+
+        if request.user.is_staff:
+
+            return redirect(
+                "admin_dashboard"
+            )
+
+        return redirect(
+            "home"
+        )
 
     if request.method == "POST":
         email = request.POST.get("email")
         password = request.POST.get("password")
 
-        user = authenticate(request, email=email, password=password)
+        user = authenticate(request, username=email, password=password)
 
         if user is not None:
             if user.is_staff or user.is_superuser:
@@ -38,7 +46,7 @@ def admin_login(request):
 
 
 @never_cache
-@login_required(login_url='admin_login')
+@admin_required
 def admin_dashboard(request):
     return render(request, 'admin_dashboard.html')
 
@@ -50,10 +58,15 @@ def admin_logout(request):
 
 
 
-@login_required(login_url='admin_login')
+@admin_required
 def user_management(request):
 
     query = request.GET.get('q', '').strip()
+
+    status = request.GET.get(
+        'status',
+        ''
+    )
 
     users_list = User.objects.filter(is_staff=False).order_by('-id')
 
@@ -64,6 +77,17 @@ def user_management(request):
             Q(email__istartswith=query) |
             Q(first_name__istartswith=query) |
             Q(last_name__istartswith=query)
+        )
+    if status == "active":
+
+        users_list = users_list.filter(
+            is_active=True
+        )
+
+    elif status == "blocked":
+
+        users_list = users_list.filter(
+            is_active=False
         )
 
     paginator = Paginator(users_list, 5)
@@ -85,6 +109,7 @@ def user_management(request):
         'active_users': active_users,
         'banned_users': banned_users,
         'new_today': new_today,
+        'status': status,
     })
 
 

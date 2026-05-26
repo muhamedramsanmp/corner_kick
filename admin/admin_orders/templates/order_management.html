@@ -246,28 +246,25 @@ h1{
     align-items:center;
     gap:16px;
 }
-
 .user-avatar{
-    width:54px;
-    height:54px;
-
+    width:50px;
+    height:50px;
     border-radius:50%;
-
-    background:#0f172a;
+    overflow:hidden;
 
     display:flex;
     align-items:center;
     justify-content:center;
 
-    font-size:20px;
-
-    font-weight:700;
-
-    color:white;
-
-    flex-shrink:0;
+    background:#ddd;
+    font-weight:600;
 }
 
+.profile-img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+}
 .order-id{
     color:#3b82f6;
     font-weight:700;
@@ -396,22 +393,119 @@ h1{
     background:#2563eb;
     color:#fff;
 }
+/* ================= FILTER WRAPPER ================= */
 
+.filter-wrapper{
+
+    background:#0b0b0b;
+
+    border:1px solid #1f2937;
+
+    border-radius:16px;
+
+    padding:18px;
+
+    margin-bottom:24px;
+}
+
+/* ================= FILTERS ================= */
+
+.filters{
+
+    display:grid;
+
+    grid-template-columns:
+        minmax(0,1fr)
+        240px;
+
+    gap:16px;
+
+    align-items:center;
+}
+
+/* ================= SEARCH ================= */
+
+.search-box{
+
+    height:52px;
+
+    display:flex;
+
+    align-items:center;
+
+    gap:12px;
+
+    padding:0 18px;
+
+    background:#0f172a;
+
+    border:1px solid #1f2937;
+
+    border-radius:14px;
+
+    transition:.2s;
+    width:650px;
+}
+
+.search-box:focus-within{
+
+    border-color:#2563eb;
+
+    box-shadow:
+        0 0 0 3px rgba(37,99,235,.12);
+}
+
+.search-box input{
+
+    flex:1;
+
+    background:none;
+
+    border:none;
+
+    outline:none;
+
+    color:#fff;
+
+    font-size:14px;
+}
+
+.search-box input::placeholder{
+
+    color:#6b7280;
+}
+
+.search-icon{
+
+    color:#60a5fa;
+
+    font-size:24px;
+}
+
+/* ================= SELECT ================= */
+
+.filter-select{
+
+    height:52px;
+
+    background:#0f172a;
+
+    border:1px solid #1f2937;
+
+    border-radius:14px;
+
+    color:#fff;
+
+    padding:0 14px;
+
+    font-size:14px;
+
+    outline:none;
+
+    cursor:pointer;
+}
 </style>
 
-<div class="topbar">
-
-<form method="GET" class="search-box">
-    <input 
-        type="text"
-        name="q"
-        value="{{ query }}"
-        placeholder="Search users..."
-        
-    >
-    <span class="material-symbols-outlined search-icon">search</span>
-</form>
-</div>
     <h1>
         Order Management
     </h1>
@@ -514,7 +608,100 @@ h1{
 
         </div>
     </div>
+<!-- FILTER WRAPPER -->
 
+<div class="filter-wrapper">
+
+    <form method="GET" class="filters">
+
+        <!-- SEARCH -->
+
+        <div class="search-box">
+
+            <span class="material-symbols-outlined search-icon">
+                search
+            </span>
+
+            <input 
+                type="text"
+                name="q"
+                value="{{ query }}"
+                placeholder="Search order ID..."
+            >
+
+        </div>
+
+        <!-- STATUS FILTER -->
+
+        <select
+            name="status"
+            class="filter-select"
+            onchange="this.form.submit()"
+        >
+
+            <option value="">
+                All Status
+            </option>
+
+            <option
+                value="Pending"
+                {% if status == "Pending" %}
+                    selected
+                {% endif %}
+            >
+                Pending
+            </option>
+
+            <option
+                value="Processing"
+                {% if status == "Processing" %}
+                    selected
+                {% endif %}
+            >
+                Processing
+            </option>
+
+            <option
+                value="Shipped"
+                {% if status == "Shipped" %}
+                    selected
+                {% endif %}
+            >
+                Shipping
+            </option>
+
+            <option
+                value="Out For Delivery"
+                {% if status == "Out For Delivery" %}
+                    selected
+                {% endif %}
+            >
+                Out For Delivery
+            </option>
+
+            <option
+                value="Delivered"
+                {% if status == "Delivered" %}
+                    selected
+                {% endif %}
+            >
+                Delivered
+            </option>
+
+            <option
+                value="Cancelled"
+                {% if status == "Cancelled" %}
+                    selected
+                {% endif %}
+            >
+                Cancelled
+            </option>
+
+        </select>
+
+    </form>
+
+</div>
     <!-- TABLE -->
 
     <div class="table-box">
@@ -543,11 +730,23 @@ h1{
 
     <div class="order-section">
 
-        <div class="user-avatar">
+<div class="user-avatar">
 
-            {{ order.user.first_name|slice:":1" }}
+    {% if order.user.account_profile.image %}
 
-        </div>
+        <img
+            src="{{ order.user.account_profile.image.url }}"
+            alt="Profile"
+            class="profile-img"
+        >
+
+    {% else %}
+
+        {{ order.user.first_name|slice:":1" }}
+
+    {% endif %}
+
+</div>
 
         <div>
 
@@ -676,7 +875,7 @@ h1{
         {% else %}
 
             <a
-            href="?page={{ num }}&q={{ query }}"
+            href="?page={{ num }}&q={{ query }}&status={{ status }}"
             >
 
                 <span>

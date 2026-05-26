@@ -431,7 +431,19 @@ input:checked + .slider::before {
 <div class="card">
 
 <div class="breadcrumb">
-    <a href="{% url 'addressinfo:address_view' %}">MY ADDRESS</a>
+    <a
+href="
+{% if next == 'checkout' %}
+
+    {% url 'checkout_page' %}
+
+{% else %}
+
+    {% url 'addressinfo:address_view' %}
+
+{% endif %}
+"
+>MY ADDRESS</a>
     <span> / ADD NEW ADDRESS</span>
 </div>
 <div class="title">ADD ADDRESS</div>
@@ -505,8 +517,26 @@ input:checked + .slider::before {
 <div class="actions">
 <button type="submit" class="save-btn">SAVE ADDRESS</button>
 
-<a href="{% url 'addressinfo:address_view' %}" class="cancel-btn">
-CANCEL
+
+<a
+
+href="
+{% if next == 'checkout' %}
+
+    {% url 'checkout_page' %}
+
+{% else %}
+
+    {% url 'addressinfo:address_view' %}
+
+{% endif %}
+"
+
+class="cancel-btn"
+>
+
+    CANCEL
+
 </a>
 </div>
 

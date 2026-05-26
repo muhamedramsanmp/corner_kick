@@ -7,24 +7,20 @@ from django.contrib import messages
 from django.utils import timezone
 from django.db.models import Q
 from user.user_orders.models import ReturnRequest,ReturnItem
+from admin.decorators import admin_required
 
 
-
-
+@admin_required
 def order_management(request):
-
-    # =====================================
-    # GET SEARCH
-    # =====================================
 
     query = request.GET.get(
         'q',
         ''
     )
-
-    # =====================================
-    # BASE QUERYSET
-    # =====================================
+    status = request.GET.get(
+        'status',
+        ''
+    )
 
     orders = Order.objects.select_related(
         'user'
@@ -34,9 +30,6 @@ def order_management(request):
         '-created_at'
     )
 
-    # =====================================
-    # SEARCH FILTER
-    # =====================================
 
     if query:
 
@@ -44,9 +37,12 @@ def order_management(request):
             order_id__icontains=query
         )
 
-    # =====================================
-    # PAGINATION
-    # =====================================
+    if status:
+
+        orders = orders.filter(
+            order_status=status
+        )
+
 
     paginator = Paginator(
         orders,
@@ -60,10 +56,6 @@ def order_management(request):
     orders = paginator.get_page(
         page_number
     )
-
-    # =====================================
-    # STATISTICS
-    # =====================================
 
     total_orders = Order.objects.count()
 
@@ -84,9 +76,7 @@ def order_management(request):
     ).aggregate(
         total=Sum('total_amount')
     )['total'] or 0
-    # =====================================
-    # CONTEXT
-    # =====================================
+   
 
     context = {
 
@@ -103,6 +93,8 @@ def order_management(request):
         'cancelled_orders': cancelled_orders,
 
         'total_revenue': total_revenue,
+
+        'status': status,
 
     }
 
@@ -201,19 +193,45 @@ def admin_order_view(request, order_id):
         # CANCEL
         # =================================
 
+        # =================================
+        # CANCEL
+        # =================================
+
         if new_status == 'Cancelled':
 
             order.is_cancelled = True
 
             # RESTORE STOCK
+            # UPDATE ITEM STATUS
 
             for item in order.items.all():
+
+                # ITEM STATUS
+
+                item.item_status = 'Cancelled'
+
+                item.save()
+
+                # RESTORE STOCK
 
                 item.variant.stock += item.quantity
 
                 item.variant.save()
 
+
+
         order.save()
+        # =================================
+        # UPDATE ITEM STATUS
+        # =================================
+
+        if new_status != 'Cancelled':
+
+            for item in order.items.all():
+
+                item.item_status = 'Active'
+
+                item.save()
 
         messages.success(
 
@@ -249,15 +267,7 @@ def admin_order_view(request, order_id):
 
     )
 
-
-
-
-
-
-# =========================================================
-# RETURN MANAGEMENT
-# =========================================================
-
+@admin_required
 def return_management(request):
 
     # =====================================
@@ -273,11 +283,7 @@ def return_management(request):
     # ONLY REQUESTED RETURNS
     # =====================================
 
-    returns = ReturnRequest.objects.filter(
-
-        return_status='requested'
-
-    ).select_related(
+    returns = ReturnRequest.objects.all().select_related(
 
         'user',
         'order'
@@ -293,6 +299,15 @@ def return_management(request):
         '-created_at'
 
     )
+    status = request.GET.get(
+        'status',
+        ''
+    )
+    if status:
+
+        returns = returns.filter(
+            return_status=status
+        )
 
     # =====================================
     # SEARCH FILTER
@@ -358,6 +373,8 @@ def return_management(request):
         'approved_returns': approved_returns,
 
         'rejected_returns': rejected_returns,
+
+        'status': status
 
     }
 

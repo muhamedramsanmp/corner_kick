@@ -12,7 +12,7 @@ from django.conf import settings
 from .models import PasswordResetOTP
 from django.contrib.auth.hashers import make_password
 from user.accounts.models import Profile
-
+from user.decorators import user_required
 
 User=get_user_model()
 
@@ -43,7 +43,7 @@ User = get_user_model()
 
 
 @never_cache
-@login_required(login_url='login')
+@user_required
 def profile_view(request):
     user = request.user
     profile, _ = Profile.objects.get_or_create(user=user)
@@ -98,13 +98,29 @@ def edit_profile(request):
         image = request.FILES.get("profile_image")
 
         if phone:
-            if not phone.isdigit():
-                messages.error(request, "Phone number must contain only digits")
-                return redirect("userinfo:edit_profile")
 
-        if len(phone) != 10:
-            messages.error(request, "Phone number must be exactly 10 digits")
-            return redirect("userinfo:edit_profile")
+            if not phone.isdigit():
+
+                messages.error(
+                    request,
+                    "Phone number must contain only digits"
+                )
+
+                return redirect(
+                    "userinfo:edit_profile"
+                )
+
+            if len(phone) != 10:
+
+                messages.error(
+                    request,
+                    "Phone number must be exactly 10 digits"
+                )
+
+                return redirect(
+                    "userinfo:edit_profile"
+                )
+
         
         profile.phone = phone
         profile.save()

@@ -16,7 +16,7 @@ import time
 from django.contrib.messages import get_messages
 from admin.admin_category.models import Category
 from admin.admin_products.models import Product,Variant
-
+from user.decorators import user_required
 
 
 User = get_user_model()
@@ -123,9 +123,12 @@ def signup_view(request):
 
 def login_view(request):
 
-    # 🔥 Prevent logged-in users
+
     if request.user.is_authenticated:
-        return redirect("home")
+
+        return redirect(
+            "home"
+        )
 
     if request.method == "POST":
         email = request.POST.get("email", "").strip().lower()
@@ -160,9 +163,23 @@ def login_view(request):
 
     return render(request, "login.html")
 
+
 @never_cache
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def home_view(request):
+
+    # =====================================
+    # BLOCK ADMIN FROM FRONTEND
+    # =====================================
+
+    if request.user.is_authenticated:
+
+        if request.user.is_staff or request.user.is_superuser:
+
+            return redirect(
+                "admin_dashboard"
+            )
+
     categories = Category.objects.filter(
         is_active=True
     )
@@ -452,6 +469,7 @@ def reset_password(request):
 
     return render(request, "resetpassword.html")
 
+
 def verify_signup_otp(request):
 
     from django.contrib.messages import get_messages
@@ -461,80 +479,297 @@ def verify_signup_otp(request):
     for _ in storage:
         pass
 
-    data = request.session.get("signup_data")
+    # =====================================
+    # SESSION DATA
+    # =====================================
+
+    data = request.session.get(
+        "signup_data"
+    )
 
     if not data:
-        return redirect("signup")
+
+        return redirect(
+            "signup"
+        )
 
     email = data.get("email")
 
-    # IMPORTANT
-    otp_obj = OTP.objects.filter(
-        email=email,
-        purpose='signup'
-    ).order_by('-created_at').first()
+    # =====================================
+    # GET OTP
+    # =====================================
 
-    time_left = otp_obj.time_left() if otp_obj else 60
+    otp_obj = OTP.objects.filter(
+
+        email=email,
+
+        purpose='signup'
+
+    ).order_by(
+
+        '-created_at'
+
+    ).first()
+
+    time_left = (
+        otp_obj.time_left()
+        if otp_obj else 60
+    )
+
+    # =====================================
+    # POST
+    # =====================================
 
     if request.method == "POST":
 
         entered_otp = (
+
             request.POST.get("otp1", "") +
+
             request.POST.get("otp2", "") +
+
             request.POST.get("otp3", "") +
+
             request.POST.get("otp4", "") +
+
             request.POST.get("otp5", "") +
+
             request.POST.get("otp6", "")
+
         )
 
+        # =====================================
+        # VALIDATE LENGTH
+        # =====================================
+
         if len(entered_otp) != 6:
+
             messages.error(
+
                 request,
+
                 "Enter complete OTP",
+
                 extra_tags="otp"
+
             )
 
-            return render(request, "signup_verify.html", {
-                "time_left": time_left
-            })
+            return render(
+
+                request,
+
+                "signup_verify.html",
+
+                {
+
+                    "time_left": time_left
+
+                }
+
+            )
+
+        # =====================================
+        # FETCH OTP AGAIN
+        # =====================================
 
         otp_obj = OTP.objects.filter(
+
             email=email,
+
             purpose='signup'
-        ).order_by('-created_at').first()
+
+        ).order_by(
+
+            '-created_at'
+
+        ).first()
+
+        # =====================================
+        # OTP NOT FOUND
+        # =====================================
 
         if not otp_obj:
-            messages.error(request, "OTP not found", extra_tags="otp")
 
-            return render(request, "signup_verify.html", {
-                "time_left": time_left
-            })
+            messages.error(
+
+                request,
+
+                "OTP not found",
+
+                extra_tags="otp"
+
+            )
+
+            return render(
+
+                request,
+
+                "signup_verify.html",
+
+                {
+
+                    "time_left": time_left
+
+                }
+
+            )
+
+        # =====================================
+        # OTP EXPIRED
+        # =====================================
 
         if otp_obj.is_expired():
+
             messages.error(
+
                 request,
+
                 "OTP expired. Please resend.",
+
                 extra_tags="otp"
+
             )
 
-            return render(request, "signup_verify.html", {
-                "time_left": 0
-            })
+            return render(
+
+                request,
+
+                "signup_verify.html",
+
+                {
+
+                    "time_left": 0
+
+                }
+
+            )
+
+        # =====================================
+        # INVALID OTP
+        # =====================================
 
         if entered_otp != otp_obj.code:
+
             messages.error(
+
                 request,
+
                 "Invalid OTP",
+
                 extra_tags="otp"
+
             )
 
-            return render(request, "signup_verify.html", {
-                "time_left": time_left
-            })
+            return render(
 
-    return render(request, "signup_verify.html", {
-        "time_left": time_left
-    })
+                request,
+
+                "signup_verify.html",
+
+                {
+
+                    "time_left": time_left
+
+                }
+
+            )
+
+        # =====================================
+        # CREATE USER
+        # =====================================
+
+        full_name = data.get(
+            "full_name",
+            ""
+        ).strip()
+
+        name_parts = full_name.split(" ", 1)
+
+        first_name = name_parts[0]
+
+        last_name = (
+            name_parts[1]
+            if len(name_parts) > 1
+            else ""
+        )
+
+        user = User.objects.create_user(
+
+            username=data["email"],
+
+            email=data["email"],
+
+            password=data["password"],
+
+            first_name=first_name,
+
+            last_name=last_name
+
+        )
+
+        # =====================================
+        # LOGIN USER
+        # =====================================
+
+        login(
+
+            request,
+
+            user,
+
+            backend='django.contrib.auth.backends.ModelBackend'
+
+        )
+
+        # =====================================
+        # DELETE OTP
+        # =====================================
+
+        otp_obj.delete()
+
+        # =====================================
+        # CLEAR SESSION
+        # =====================================
+
+        del request.session["signup_data"]
+
+        # =====================================
+        # SUCCESS MESSAGE
+        # =====================================
+
+        messages.success(
+
+            request,
+
+            "Account created successfully"
+
+        )
+
+        # =====================================
+        # REDIRECT
+        # =====================================
+
+        return redirect(
+            "home"
+        )
+
+    # =====================================
+    # GET REQUEST
+    # =====================================
+
+    return render(
+
+        request,
+
+        "signup_verify.html",
+
+        {
+
+            "time_left": time_left
+
+        }
+
+    )
 
 def resend_signup_otp(request):
     data = request.session.get("signup_data")

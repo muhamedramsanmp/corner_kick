@@ -7,8 +7,7 @@ Admin Dashboard
 
 {% block content %}
 <style>
-/* TOPBAR */
-
+/* ================= FILTER WRAPPER ================= */
 .topbar{
     position:fixed;
     left:250px;
@@ -17,43 +16,75 @@ Admin Dashboard
     background:#0b0b0b;
     display:flex;
     align-items:center;
-    justify-content:space-between;
     padding:0 25px;
     border-bottom:1px solid #111;
     z-index:100;
 }
 
-/* SEARCH BOX */
+.filter-wrapper{
 
-.search-box{
-    display:flex;
-    align-items:center;
-
-    background:linear-gradient(
-        135deg,
-        #0f172a,
-        #020617
-    );
-
-    padding:10px 15px;
-
-    border-radius:14px;
-
-    width:320px;
+    background:#0b0b0b;
 
     border:1px solid #1f2937;
 
-    gap:10px;
+    border-radius:16px;
+
+    padding:18px;
+
+    margin-bottom:24px;
+}
+
+/* ================= FILTERS ================= */
+
+.filters{
+
+    display:grid;
+
+    grid-template-columns:
+        minmax(0,1fr)
+        220px;
+
+    gap:16px;
+
+    align-items:center;
+}
+
+/* ================= SEARCH ================= */
+
+.search-box{
+
+    height:52px;
+
+    display:flex;
+
+    align-items:center;
+
+    gap:12px;
+
+    padding:0 18px;
+
+    background:#0f172a;
+
+    border:1px solid #1f2937;
+
+    border-radius:14px;
 
     transition:.2s;
 }
 
-/* INPUT */
+.search-box:focus-within{
+
+    border-color:#2563eb;
+
+    box-shadow:
+        0 0 0 3px rgba(37,99,235,.12);
+}
 
 .search-box input{
+
     flex:1;
 
-    background:transparent;
+    background:none;
 
     border:none;
 
@@ -64,29 +95,42 @@ Admin Dashboard
     font-size:14px;
 }
 
-/* PLACEHOLDER */
-
 .search-box input::placeholder{
-    color:#9ca3af;
+
+    color:#6b7280;
 }
 
-/* SEARCH ICON */
+/* ICON */
 
 .search-icon{
+
     color:#60a5fa;
-    font-size:22px;
+
+    font-size:24px;
+}
+
+/* ================= SELECT ================= */
+
+.filter-select{
+
+    height:52px;
+
+    background:#0f172a;
+
+    border:1px solid #1f2937;
+
+    border-radius:14px;
+
+    color:#fff;
+
+    padding:0 14px;
+
+    font-size:14px;
+
+    outline:none;
+
     cursor:pointer;
 }
-
-/* HOVER */
-
-.search-box:hover{
-    border-color:#3b82f6;
-
-    box-shadow:
-        0 0 8px rgba(59,130,246,.2);
-}
-
 /* CLEAR BUTTON */
 
 .clear-btn{
@@ -424,23 +468,19 @@ h1{
 </style>
 
 <body>
+    <div class="topbar">
+        <a href="{% url 'add_category' %}" class="add-btn">
 
-<!-- TOPBAR -->
+    <span class="material-symbols-outlined">
+        add
+    </span>
 
-<div class="topbar">
+    Add Category
 
-<form method="GET" class="search-box">
-    <input 
-        type="text"
-        name="q"
-        value="{{ query }}"
-        placeholder="Search users..."
-        
-    >
-    <span class="material-symbols-outlined search-icon">search</span>
-</form>
+</a>
+
+
 </div>
-
     <h1>Category Management</h1>
 
     <p class="sub">
@@ -513,20 +553,67 @@ h1{
 
         </div>
 
-        <a href="{% url 'add_category' %}" class="add-btn">
-
-    <span class="material-symbols-outlined">
-        add
-    </span>
-
-    Add Category
-
-</a>
-
     </div>
 
     <!-- TABLE -->
+<!-- FILTER WRAPPER -->
 
+<div class="filter-wrapper">
+
+    <form method="GET" class="filters">
+
+        <!-- SEARCH -->
+
+        <div class="search-box">
+
+            <span class="material-symbols-outlined search-icon">
+                search
+            </span>
+
+            <input 
+                type="text"
+                name="q"
+                value="{{ query }}"
+                placeholder="Search categories..."
+            >
+
+        </div>
+
+        <!-- STATUS -->
+
+        <select
+            name="status"
+            class="filter-select"
+            onchange="this.form.submit()"
+        >
+
+            <option value="">
+                All Categories
+            </option>
+
+            <option
+                value="active"
+                {% if status == "active" %}
+                    selected
+                {% endif %}
+            >
+                Active
+            </option>
+
+            <option
+                value="inactive"
+                {% if status == "inactive" %}
+                    selected
+                {% endif %}
+            >
+                Inactive
+            </option>
+
+        </select>
+
+    </form>
+
+</div>
     <div class="table-box">
 
         <div class="t-head">
@@ -697,7 +784,7 @@ h1{
 
             {% else %}
 
-                <a href="?page={{ num }}&q={{ query }}">
+                <a href="?page={{ num }}&q={{ query }}&status={{ status }}">
 
                     <span>{{ num }}</span>
 

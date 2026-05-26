@@ -6,15 +6,19 @@ from django.core.paginator import Paginator
 from django.db.models import Q,Count
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.cache import never_cache
-
+from admin.decorators import admin_required
 
 
 @never_cache
-@login_required(login_url='login')
+@admin_required
 def category_management(request):
 
     query = request.GET.get("q", "")
 
+    status = request.GET.get(
+        "status",
+        ""
+    )
     categories_list = Category.objects.filter(
         is_deleted=False
     ).annotate(
@@ -31,6 +35,18 @@ def category_management(request):
             Q(description__icontains=query)
 
         )
+    if status == "active":
+
+        categories_list = categories_list.filter(
+                is_active=True
+            )
+
+    elif status == "inactive":
+
+        categories_list = categories_list.filter(
+            is_active=False
+        )
+
 
     categories_list = categories_list.order_by(
         '-created_at'
@@ -61,6 +77,7 @@ def category_management(request):
         ).count(),
 
         "query": query,
+        "status": status,
     }
 
     return render(

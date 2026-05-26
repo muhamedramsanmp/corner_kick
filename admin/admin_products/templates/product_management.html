@@ -17,62 +17,12 @@ Admin Dashboard
     background:#0b0b0b;
     display:flex;
     align-items:center;
-    justify-content:space-between;
     padding:0 25px;
     border-bottom:1px solid #111;
     z-index:100;
 }
 
-/* SEARCH */
 
-.search-box{
-    display:flex;
-    align-items:center;
-
-    background:linear-gradient(
-        135deg,
-        #0f172a,
-        #020617
-    );
-
-    padding:10px 15px;
-
-    border-radius:14px;
-
-    width:320px;
-
-    border:1px solid #1f2937;
-
-    gap:10px;
-
-    transition:.2s;
-}
-
-.search-box input{
-    flex:1;
-    background:transparent;
-    border:none;
-    outline:none;
-    color:#fff;
-    font-size:14px;
-}
-
-.search-box input::placeholder{
-    color:#9ca3af;
-}
-
-.search-icon{
-    color:#60a5fa;
-    font-size:22px;
-    cursor:pointer;
-}
-
-.search-box:hover{
-    border-color:#3b82f6;
-
-    box-shadow:
-        0 0 8px rgba(59,130,246,.2);
-}
 
 /* NEW BUTTON */
 
@@ -359,31 +309,68 @@ h1{
     font-weight:700;
 }
 
-/* STATUS */
-
 .badge{
+
     display:flex;
+
     align-items:center;
+
     gap:6px;
 
     width:fit-content;
 
-    padding:4px 10px;
+    padding:5px 12px;
 
     border-radius:20px;
+
+    font-size:11px;
+
+    font-weight:700;
+
+}
+
+/* ACTIVE */
+
+.active-badge{
 
     background:#064e3b;
 
     color:#10b981;
 
-    font-size:11px;
 }
 
-.dot{
-    width:6px;
-    height:6px;
-    border-radius:50%;
+.active-badge .dot{
+
     background:#10b981;
+
+}
+
+/* INACTIVE */
+
+.inactive-badge{
+
+    background:#450a0a;
+
+    color:#ef4444;
+
+}
+
+.inactive-badge .dot{
+
+    background:#ef4444;
+
+}
+
+/* DOT */
+
+.dot{
+
+    width:7px;
+
+    height:7px;
+
+    border-radius:50%;
+
 }
 
 /* ACTIONS */
@@ -620,52 +607,10 @@ h1{
 </head>
 
 <body>
-    {% if messages %}
-
-<div id="toast-container">
-
-    {% for message in messages %}
-
-        <div class="toast {{ message.tags }}">
-
-            <span class="material-symbols-outlined toast-icon">
-
-                {% if message.tags == 'success' %}
-                    check_circle
-                {% elif message.tags == 'error' %}
-                    error
-                {% else %}
-                    info
-                {% endif %}
-
-            </span>
-
-            <span>{{ message }}</span>
-
-        </div>
-
-    {% endfor %}
-
-</div>
-
-{% endif %}
 
 <!-- TOPBAR -->
 
 <div class="topbar">
-
-    <form class="search-box">
-
-        <input
-            type="text"
-            placeholder="Search products..."
-        >
-
-        <span class="material-symbols-outlined search-icon">
-            search
-        </span>
-
-    </form>
 
     <a
 href="{% url 'admin_products:add_product' %}"
@@ -943,7 +888,7 @@ class="new-btn"
 
     <!-- STATUS -->
 
-    <div class="badge">
+    <div class="badge {% if product.is_active %}active-badge{% else %}inactive-badge{% endif %}">
 
         <span class="dot"></span>
 

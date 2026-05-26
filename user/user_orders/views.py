@@ -10,11 +10,14 @@ from django.utils import timezone
 from django.core.paginator import Paginator
 import uuid
 from django.db.models import Q
+from user.decorators import user_required
+from django.shortcuts import render, get_object_or_404
 
+
+from .models import Order
 from datetime import timedelta
 
-
-@login_required(login_url='login')
+@user_required
 def checkout_page(request):
 
     cart_items = CartItem.objects.filter(
@@ -267,7 +270,7 @@ def order_success(request, order_id):
     )
 
 
-@login_required(login_url='login')
+@user_required
 def my_orders(request):
 
     # =====================================
@@ -1021,3 +1024,97 @@ def return_entire_order(request, order_id):
         context
 
     )
+
+
+@login_required(login_url='login')
+def invoice_page(request, order_id):
+
+    order = get_object_or_404(
+
+        Order.objects.prefetch_related(
+            'items',
+            'items__variant',
+            'items__variant__images',
+            'items__product'
+        ),
+
+        order_id=order_id,
+        user=request.user
+
+    )
+
+    context = {
+
+        'order': order
+
+    }
+
+    return render(
+
+        request,
+
+        'invoice.html',
+
+        context
+
+    )
+
+
+from django.shortcuts import get_object_or_404
+from django.template.loader import get_template
+from django.http import HttpResponse
+from django.contrib.auth.decorators import login_required
+
+from xhtml2pdf import pisa
+
+from .models import Order
+
+
+@login_required(login_url='login')
+def download_invoice(request, order_id):
+
+    order = get_object_or_404(
+
+        Order.objects.prefetch_related(
+            'items',
+            'items__variant',
+            'items__variant__images',
+            'items__product'
+        ),
+
+        order_id=order_id,
+        user=request.user
+
+    )
+
+    template = get_template('invoice_pdf.html')
+
+    context = {
+
+        'order': order
+
+    }
+
+    html = template.render(context)
+
+    response = HttpResponse(
+
+        content_type='application/pdf'
+
+    )
+
+    response['Content-Disposition'] = (
+
+        f'attachment; filename="Invoice-{order.order_id}.pdf"'
+
+    )
+
+    pisa.CreatePDF(
+
+        html,
+
+        dest=response
+
+    )
+
+    return response

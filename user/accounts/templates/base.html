@@ -356,7 +356,7 @@
     z-index:99999;
 
     box-shadow:
-        0 12px 30px rgba(0,0,0,.16);
+        0 12px 30px rgba(18, 15, 15, 0.16);
 
 }
 
@@ -925,32 +925,6 @@
 
     {% block extra_js %}{% endblock %}
 
-
-    {% comment %} <script>
-
-setTimeout(()=>{
-
-    const alerts =
-        document.querySelectorAll('.alert');
-
-    alerts.forEach((alert)=>{
-
-        alert.style.opacity = '0';
-
-        alert.style.transform =
-            'translateX(40px)';
-
-        setTimeout(()=>{
-
-            alert.remove();
-
-        },300);
-
-    });
-
-},3000);
-
-</script> {% endcomment %}
 <script>
 
 function showAjaxPopup(message){

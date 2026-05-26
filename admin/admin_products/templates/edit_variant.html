@@ -714,10 +714,10 @@ body{
 
         <!-- CLOSE -->
 
-        <button
-            class="close-btn"
-            onclick="window.history.back()"
-        >
+<button
+    class="close-btn"
+    onclick="window.location.href='{% url "admin_products:variant_management" product.id %}'"
+>
 
             <span class="material-symbols-outlined">
                 close
@@ -1073,11 +1073,11 @@ body{
 
             <div class="buttons">
 
-                <button
-                    type="button"
-                    class="cancel-btn"
-                    onclick="window.history.back()"
-                >
+<button
+    type="button"
+    class="cancel-btn"
+    onclick="window.location.href='{% url "admin_products:variant_management" product.id %}'"
+>
                     Cancel
                 </button>
 

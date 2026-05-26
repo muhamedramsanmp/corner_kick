@@ -105,88 +105,6 @@ h1{
 }
 
 /* ====================================== */
-/* TOPBAR */
-/* ====================================== */
-
-.topbar{
-    position:fixed;
-    left:250px;
-    right:0;
-    top:0;
-
-    height:70px;
-
-    background:#0b0b0b;
-
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-
-    padding:0 25px;
-
-    border-bottom:1px solid #111;
-
-    z-index:100;
-}
-
-/* ====================================== */
-/* SEARCH BOX */
-/* ====================================== */
-
-.search-box{
-    display:flex;
-    align-items:center;
-
-    background:linear-gradient(
-        135deg,
-        #0f172a,
-        #020617
-    );
-
-    padding:10px 15px;
-
-    border-radius:14px;
-
-    width:320px;
-
-    border:1px solid #1f2937;
-
-    gap:10px;
-
-    transition:.2s;
-}
-
-.search-box input{
-    flex:1;
-
-    background:transparent;
-
-    border:none;
-
-    outline:none;
-
-    color:#fff;
-
-    font-size:14px;
-}
-
-.search-box input::placeholder{
-    color:#9ca3af;
-}
-
-.search-icon{
-    color:#60a5fa;
-    font-size:22px;
-}
-
-.search-box:hover{
-    border-color:#3b82f6;
-
-    box-shadow:
-        0 0 8px rgba(59,130,246,.2);
-}
-
-/* ====================================== */
 /* TABLE */
 /* ====================================== */
 
@@ -431,32 +349,171 @@ h1{
     background:#2563eb;
     color:#fff;
 }
+/* ================= FILTER WRAPPER ================= */
 
+.filter-wrapper{
+
+    background:#050505;
+
+    border:1px solid #13203a;
+
+    border-radius:28px;
+
+    padding:26px;
+
+    margin-bottom:30px;
+}
+
+/* ================= FILTERS ================= */
+
+.filters{
+
+    display:grid;
+
+    grid-template-columns:
+        1.7fr
+        .6fr
+        .6fr;
+
+    gap:22px;
+}
+
+/* ================= SEARCH ================= */
+
+/* ================= FILTER WRAPPER ================= */
+
+.filter-wrapper{
+
+    background:#0b0b0b;
+
+    border:1px solid #1f2937;
+
+    border-radius:14px;
+
+    padding:18px 20px;
+
+    margin-bottom:18px;
+}
+
+/* ================= FILTERS ================= */
+
+.filters{
+
+    display:grid;
+
+    grid-template-columns:
+        1fr
+        220px;
+
+    gap:14px;
+
+    align-items:center;
+}
+
+/* ================= SEARCH ================= */
+
+.filter-search{
+
+    height:48px;
+
+    display:flex;
+
+    align-items:center;
+
+    gap:12px;
+
+    padding:0 16px;
+
+    background:#0f172a;
+
+    border:1px solid #1f2937;
+
+    border-radius:12px;
+
+    transition:.2s;
+}
+
+.filter-search:focus-within{
+
+    border-color:#2563eb;
+}
+
+/* ICON */
+
+.filter-search span{
+
+    color:#60a5fa;
+
+    font-size:24px;
+}
+
+/* INPUT */
+
+.filter-search input{
+
+    flex:1;
+
+    background:none;
+
+    border:none;
+
+    outline:none;
+
+    color:#fff;
+
+    font-size:14px;
+}
+
+.filter-search input::placeholder{
+
+    color:#64748b;
+}
+
+/* ================= SELECT ================= */
+
+.filter-select{
+
+    height:48px;
+
+    background:#0f172a;
+
+    border:1px solid #1f2937;
+
+    border-radius:12px;
+
+    padding:0 14px;
+
+    color:#fff;
+
+    font-size:14px;
+
+    outline:none;
+
+    cursor:pointer;
+
+    transition:.2s;
+}
+
+.filter-select:focus{
+
+    border-color:#2563eb;
+}
+
+/* ================= MOBILE ================= */
+
+@media(max-width:900px){
+
+    .filters{
+
+        grid-template-columns:1fr;
+    }
+
+}
 
 </style>
 
 <!-- TOPBAR -->
 
-<div class="topbar">
-
-    <form method="GET" class="search-box">
-
-        <input
-        type="text"
-        name="search"
-        value="{{ search }}"
-        placeholder="Search returns..."
-        >
-
-        <span class="material-symbols-outlined search-icon">
-
-            search
-
-        </span>
-
-    </form>
-
-</div>
 
 
     <h1>
@@ -565,8 +622,75 @@ h1{
 
     <!-- TABLE -->
 
-    <div class="table-box">
+    
+        <!-- FILTER WRAPPER -->
 
+<div class="filter-wrapper">
+
+    <form method="GET" class="filters">
+
+        <!-- SEARCH -->
+
+        <div class="filter-search">
+
+            <span class="material-symbols-outlined">
+                search
+            </span>
+
+            <input
+                type="text"
+                name="search"
+                value="{{ search }}"
+                placeholder="Search by order ID or email..."
+            >
+
+        </div>
+
+        <!-- STATUS -->
+
+        <select
+            name="status"
+            class="filter-select"
+            onchange="this.form.submit()"
+        >
+
+            <option value="">
+                All Status
+            </option>
+
+            <option
+                value="requested"
+                {% if status == "requested" %}
+                    selected
+                {% endif %}
+            >
+                Pending
+            </option>
+
+            <option
+                value="approved"
+                {% if status == "approved" %}
+                    selected
+                {% endif %}
+            >
+                Approved
+            </option>
+
+            <option
+                value="rejected"
+                {% if status == "rejected" %}
+                    selected
+                {% endif %}
+            >
+                Rejected
+            </option>
+
+        </select>
+
+    </form>
+
+</div>
+<div class="table-box">
         <!-- HEAD -->
 
         <div class="t-head">
@@ -695,7 +819,7 @@ h1{
 
                 {% if returns.has_previous %}
 
-                <a href="?page={{ returns.previous_page_number }}&search={{ search }}">
+                <a href="?page={{ returns.previous_page_number }}&search={{ search }}&status={{ status }}">
 
                     <span>
 
@@ -719,7 +843,7 @@ h1{
 
                     {% else %}
 
-                        <a href="?page={{ num }}&search={{ search }}">
+                       <a href="?page={{ returns.next_page_number }}&search={{ search }}&status={{ status }}">
 
                             <span>
 

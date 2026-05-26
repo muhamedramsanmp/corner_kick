@@ -457,6 +457,50 @@ body{
 .cancelled-item{
     color:#d62828;
 }
+.cancelled-order-box{
+    width:100%;
+    height:90px;
+    border-radius:14px;
+    background:#fff5f5;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:18px;
+    padding:0 25px;
+}
+
+.cancelled-icon{
+    width:42px;
+    height:42px;
+    border-radius:50%;
+    background:#ffe1e1;
+    color:#d62828;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:18px;
+    font-weight:700;
+    flex-shrink:0;
+    margin-bottom:0;
+}
+
+.cancelled-order-box h2{
+    font-size:20px;
+    color:#d62828;
+    margin:0;
+    line-height:1;
+}
+
+.cancelled-order-box p{
+    color:#6b7280;
+    font-size:13px;
+    margin-top:6px;
+}
+
+.cancelled-content{
+    display:flex;
+    flex-direction:column;
+}
 </style>
 
 
@@ -546,11 +590,18 @@ class="action-btn return-btn"
 {% endif %}
 
 
-<a href="#" class="invoice-btn">
+{% if order.order_status != 'Cancelled' %}
+
+<a
+href="{% url 'invoice_page' order.order_id %}"
+class="invoice-btn"
+>
 
     DOWNLOAD INVOICE
 
 </a>
+
+{% endif %}
 
 </div>
 
@@ -574,11 +625,41 @@ class="action-btn return-btn"
             <div>
 
 
-                <!-- TRACKING -->
-{% if order.order_status != 'Cancelled' %}
-                <div class="order-card">
+<!-- TRACKING -->
 
-                   <div class="tracking-wrapper">
+<div class="order-card">
+
+{% if order.order_status == 'Cancelled' %}
+
+<div class="cancelled-order-box">
+
+    <div class="cancelled-icon">
+
+        ✕
+
+    </div>
+
+    <div class="cancelled-content">
+
+        <h2>
+
+            ORDER CANCELLED
+
+        </h2>
+
+        <p>
+
+            This order has been cancelled successfully.
+
+        </p>
+
+    </div>
+
+</div>
+
+{% else %}
+
+<div class="tracking-wrapper">
 
     <!-- ORDERED -->
 
@@ -591,7 +672,9 @@ class="action-btn return-btn"
         </div>
 
         <p>
+
             ORDERED
+
         </p>
 
     </div>
@@ -611,7 +694,9 @@ class="action-btn return-btn"
         </div>
 
         <p>
+
             PROCESSING
+
         </p>
 
     </div>
@@ -631,7 +716,9 @@ class="action-btn return-btn"
         </div>
 
         <p>
+
             SHIPPED
+
         </p>
 
     </div>
@@ -651,7 +738,9 @@ class="action-btn return-btn"
         </div>
 
         <p>
+
             OUT FOR DELIVERY
+
         </p>
 
     </div>
@@ -671,32 +760,19 @@ class="action-btn return-btn"
         </div>
 
         <p>
+
             DELIVERED
+
         </p>
 
     </div>
 
 </div>
+
 {% endif %}
-
-                </div>
-                {% if order.order_status == 'Cancelled' %}
-
-<div style="
-margin-top:25px;
-padding:18px;
-border-radius:14px;
-background:#ffe8e8;
-color:#d62828;
-font-weight:700;
-text-align:center;
-">
-
-    THIS ORDER HAS BEEN CANCELLED
 
 </div>
-
-{% endif %}
+    
 
 
                 <!-- PRODUCTS -->

@@ -274,9 +274,16 @@ Edit profile
     display: inline-block;
     font-size: 14px;
 }
+.actions a{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-size: 14px;
+}
 .cancel {
     background: #e5e7eb;
     color: black;
+
 }
 
 .save {
@@ -475,7 +482,6 @@ Edit profile
     </label>
 </div>
 
-<!-- ✅ MOVE HERE -->
 <input type="hidden" name="remove_image" id="removeImageInput">
 
     <button type="button" class="remove-photo-btn" onclick="removePhoto()">
@@ -500,9 +506,13 @@ Edit profile
 
     <div class="field">
         <label>PHONE NUMBER</label>
-        <input type="tel" name="phone"
-       value="{{ profile.phone|default:'' }}"
-       pattern="[0-9]{10}" maxlength="10" required>
+<input
+    type="tel"
+    name="phone"
+    value="{{ profile.phone|default:'' }}"
+    maxlength="10"
+    required
+>
     </div>
 
     <div class="actions">

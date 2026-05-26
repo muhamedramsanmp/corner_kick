@@ -450,7 +450,26 @@ input:checked + .slider::before {
 <!-- BUTTONS -->
 <div class="actions">
 <button type="submit" class="save-btn">SAVE ADDRESS</button>
-<a href="{% url "addressinfo:address_view" %}" class="cancel-btn">CANCEL</a>
+<a
+
+href="
+{% if next == 'checkout' %}
+
+    {% url 'checkout_page' %}
+
+{% else %}
+
+    {% url 'addressinfo:address_view' %}
+
+{% endif %}
+"
+
+class="cancel-btn"
+>
+
+    CANCEL
+
+</a>
 </div>
 
 </form>

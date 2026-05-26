@@ -12,7 +12,7 @@ from .models import Cart, CartItem
 from .models import Wishlist
 from django.http import JsonResponse
 from django.db.models import Sum
-
+from user.decorators import user_required
 
 
 def shop(request):
@@ -580,7 +580,7 @@ def add_to_cart(request):
 
     })
 
-@login_required(login_url='login')
+@user_required
 def cart(request):
 
 
@@ -954,7 +954,7 @@ def toggle_wishlist(request, product_id):
 
 
 
-@login_required(login_url='login')
+@user_required
 def wishlist_page(request):
 
     # ================= SORT =================

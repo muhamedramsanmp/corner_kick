@@ -1,0 +1,672 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+Invoice
+{% endblock %}
+
+{% block content %}
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    background:#eef2f7;
+    font-family:Arial,sans-serif;
+    color:#111827;
+}
+
+.invoice-page{
+    width:100%;
+    min-height:100vh;
+    padding:50px 5%;
+}
+
+/* ====================================== */
+/* TOPBAR */
+/* ====================================== */
+
+.invoice-topbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:35px;
+    flex-wrap:wrap;
+    gap:20px;
+}
+
+.brand{
+    font-size:30px;
+    font-weight:900;
+    letter-spacing:-1px;
+}
+
+.top-actions{
+    display:flex;
+    gap:15px;
+    align-items:center;
+}
+
+.top-link{
+    text-decoration:none;
+    color:#64748b;
+    font-size:14px;
+    font-weight:700;
+}
+
+.print-btn{
+    height:48px;
+    padding:0 22px;
+    border-radius:12px;
+    background:#2563eb;
+    color:white;
+    border:none;
+    cursor:pointer;
+    font-size:14px;
+    font-weight:700;
+}
+
+/* ====================================== */
+/* CARD */
+/* ====================================== */
+
+.invoice-card{
+    max-width:1100px;
+    margin:auto;
+    background:white;
+    border-radius:24px;
+    overflow:hidden;
+    border:1px solid #e5e7eb;
+    box-shadow:0 10px 35px rgba(15,23,42,.06);
+}
+
+/* ====================================== */
+/* HEADER */
+/* ====================================== */
+
+.invoice-header{
+    padding:45px;
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    border-bottom:1px solid #f1f5f9;
+}
+
+.company-info h1{
+    font-size:34px;
+    margin-bottom:10px;
+}
+
+.company-info p{
+    color:#64748b;
+    line-height:1.8;
+    font-size:14px;
+}
+
+.invoice-info{
+    text-align:right;
+}
+
+.invoice-info h2{
+    font-size:42px;
+    color:#2563eb;
+    margin-bottom:15px;
+}
+
+.invoice-info p{
+    font-size:14px;
+    color:#64748b;
+    margin-bottom:8px;
+}
+
+/* ====================================== */
+/* SHIPPING */
+/* ====================================== */
+
+.invoice-meta{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:25px;
+    padding:40px 45px;
+    background:#f8fafc;
+}
+
+.meta-box h3{
+    font-size:12px;
+    letter-spacing:1px;
+    text-transform:uppercase;
+    color:#64748b;
+    margin-bottom:15px;
+}
+
+.meta-box p{
+    color:#111827;
+    line-height:1.8;
+    font-size:14px;
+}
+
+/* ====================================== */
+/* TABLE */
+/* ====================================== */
+
+.invoice-table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+.invoice-table thead{
+    background:#f8fafc;
+}
+
+.invoice-table th{
+    padding:20px;
+    text-align:left;
+    font-size:12px;
+    color:#64748b;
+    letter-spacing:1px;
+    text-transform:uppercase;
+}
+
+.invoice-table td{
+    padding:22px 20px;
+    border-top:1px solid #f1f5f9;
+    vertical-align:middle;
+}
+
+.product-cell{
+    display:flex;
+    align-items:center;
+    gap:18px;
+}
+
+.product-cell img{
+    width:65px;
+    height:65px;
+    border-radius:12px;
+    object-fit:cover;
+    background:#f3f4f6;
+}
+
+.product-name{
+    font-size:16px;
+    font-weight:700;
+    margin-bottom:5px;
+}
+
+.product-size{
+    font-size:13px;
+    color:#64748b;
+}
+
+.status-badge{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    height:28px;
+    padding:0 12px;
+    border-radius:999px;
+    background:#fff7ed;
+    color:#ea580c;
+    font-size:11px;
+    font-weight:700;
+}
+
+.total-cell{
+    font-size:16px;
+    font-weight:800;
+}
+
+/* ====================================== */
+/* SUMMARY */
+/* ====================================== */
+
+.invoice-summary{
+    padding:40px 45px;
+    display:flex;
+    justify-content:flex-end;
+}
+
+.summary-box{
+    width:340px;
+}
+
+.summary-row{
+    display:flex;
+    justify-content:space-between;
+    margin-bottom:18px;
+    font-size:15px;
+}
+
+.summary-row span{
+    color:#64748b;
+}
+
+.summary-row strong{
+    color:#111827;
+}
+
+.final-total{
+    margin-top:25px;
+    padding-top:25px;
+    border-top:1px solid #e5e7eb;
+}
+
+.final-total h2{
+    font-size:36px;
+    color:#2563eb;
+}
+
+/* ====================================== */
+/* FOOTER */
+/* ====================================== */
+
+.invoice-footer{
+    padding:35px;
+    text-align:center;
+    border-top:1px solid #f1f5f9;
+    color:#64748b;
+    font-size:13px;
+    line-height:1.8;
+}
+
+/* ====================================== */
+/* BOTTOM ACTIONS */
+/* ====================================== */
+
+.bottom-actions{
+    margin-top:35px;
+    display:flex;
+    justify-content:center;
+    gap:20px;
+    flex-wrap:wrap;
+}
+
+.back-btn,
+.download-btn{
+    height:52px;
+    padding:0 24px;
+    border-radius:14px;
+    text-decoration:none;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:14px;
+    font-weight:700;
+}
+
+.back-btn{
+    background:white;
+    color:#111827;
+    border:1px solid #e5e7eb;
+}
+
+.download-btn{
+    background:#2563eb;
+    color:white;
+}
+
+/* ====================================== */
+/* RESPONSIVE */
+/* ====================================== */
+
+@media(max-width:768px){
+
+    .invoice-header{
+        flex-direction:column;
+        gap:30px;
+    }
+
+    .invoice-info{
+        text-align:left;
+    }
+
+    .invoice-meta{
+        grid-template-columns:1fr;
+    }
+
+    .invoice-table{
+        display:block;
+        overflow-x:auto;
+    }
+
+}
+
+</style>
+
+<div class="invoice-page">
+
+    <!-- TOP -->
+
+    <div class="invoice-topbar">
+
+        <div class="brand">
+
+            CORNERKICK
+
+        </div>
+
+    </div>
+
+    <!-- CARD -->
+
+    <div class="invoice-card">
+
+        <!-- HEADER -->
+
+        <div class="invoice-header">
+
+            <div class="company-info">
+
+                <h1>
+
+                    CORNERKICK
+
+                </h1>
+
+                <p>
+
+                    Performance Sports Equipment<br>
+                    Kerala, India
+
+                </p>
+
+            </div>
+
+            <div class="invoice-info">
+
+                <h2>
+
+                    INVOICE
+
+                </h2>
+
+                <p>
+
+                    Invoice ID :
+                    #{{ order.order_id }}
+
+                </p>
+
+                <p>
+
+                    Date :
+                    {{ order.created_at|date:"d M Y" }}
+
+                </p>
+
+            </div>
+
+        </div>
+
+        <!-- META -->
+
+        <div class="invoice-meta">
+
+            <div class="meta-box">
+
+                <h3>
+
+                    Shipping To
+
+                </h3>
+
+                <p>
+
+                    {{ order.address.full_name }}<br>
+
+                    {{ order.address.address_line }}<br>
+
+                    {{ order.address.city }},
+                    {{ order.address.state }}<br>
+
+                    {{ order.address.country }} -
+                    {{ order.address.pincode }}
+
+                </p>
+
+            </div>
+
+            <div class="meta-box">
+
+                <h3>
+
+                    Payment Details
+
+                </h3>
+
+                <p>
+
+                    Payment Method :
+                    {{ order.payment_method }}<br>
+
+                    Order Status :
+                    {{ order.order_status }}
+
+                </p>
+
+            </div>
+
+        </div>
+
+        <!-- TABLE -->
+
+        <table class="invoice-table">
+
+            <thead>
+
+                <tr>
+
+                    <th>
+                        Product
+                    </th>
+
+                    <th>
+                        Status
+                    </th>
+
+                    <th>
+                        Qty
+                    </th>
+
+                    <th>
+                        Unit Price
+                    </th>
+
+                    <th>
+                        Total
+                    </th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                {% for item in order.items.all %}
+
+                <tr>
+
+                    <td>
+
+                        <div class="product-cell">
+
+                            {% if item.variant.images.first %}
+
+                            <img
+                            src="{{ item.variant.images.first.image.url }}"
+                            alt=""
+                            >
+
+                            {% endif %}
+
+                            <div>
+
+                                <div class="product-name">
+
+                                    {{ item.product.product_name }}
+
+                                </div>
+
+                                <div class="product-size">
+
+                                    Size :
+                                    {{ item.variant.size }}
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </td>
+
+                    <td>
+
+                        <span class="status-badge">
+
+                            {{ item.item_status }}
+
+                        </span>
+
+                    </td>
+
+                    <td>
+
+                        {{ item.quantity }}
+
+                    </td>
+
+                    <td>
+
+                        ₹{{ item.price }}
+
+                    </td>
+
+                    <td class="total-cell">
+
+                        ₹{{ item.total_price }}
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+        <!-- SUMMARY -->
+
+        <div class="invoice-summary">
+
+            <div class="summary-box">
+
+                <div class="summary-row">
+
+                    <span>
+                        Subtotal
+                    </span>
+
+                    <strong>
+                        ₹{{ order.subtotal }}
+                    </strong>
+
+                </div>
+
+                <div class="summary-row">
+
+                    <span>
+                        Discount
+                    </span>
+
+                    <strong>
+                        - ₹{{ order.discount_amount }}
+                    </strong>
+
+                </div>
+
+                <div class="summary-row">
+
+                    <span>
+                        Shipping
+                    </span>
+
+                    <strong>
+                        ₹{{ order.shipping_charge }}
+                    </strong>
+
+                </div>
+
+                <div class="summary-row">
+
+                    <span>
+                        Tax
+                    </span>
+
+                    <strong>
+                        ₹{{ order.tax_amount }}
+                    </strong>
+
+                </div>
+
+                <div class="summary-row final-total">
+
+                    <span>
+                        GRAND TOTAL
+                    </span>
+
+                    <h2>
+                        ₹{{ order.total_amount }}
+                    </h2>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- FOOTER -->
+
+        <div class="invoice-footer">
+
+            Thank you for shopping with us.<br>
+
+            This invoice was generated electronically.
+
+        </div>
+
+    </div>
+
+    <!-- ACTIONS -->
+
+    <div class="bottom-actions">
+
+        <a
+        href="{% url 'my_orders' %}"
+        class="back-btn"
+        >
+
+            ← RETURN TO ORDERS
+
+        </a>
+<a
+href="{% url 'download_invoice' order.order_id %}"
+download
+class="download-btn"
+>
+
+    DOWNLOAD PDF
+
+</a>
+
+    </div>
+
+</div>
+
+{% endblock %}

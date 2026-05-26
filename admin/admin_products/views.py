@@ -8,10 +8,10 @@ from admin.admin_category.models import Category
 from django.contrib import messages
 from .models import Product,Variant,ProductImage,Category  
 from django.views.decorators.cache import never_cache 
-
+from admin.decorators import admin_required
 
 @never_cache
-@login_required(login_url='login')
+@admin_required
 def product_management(request):
 
     search = request.GET.get('search', '')
@@ -110,7 +110,9 @@ def product_management(request):
         context
     )
 
-@login_required(login_url='login')
+
+@never_cache
+@admin_required
 def add_product(request):
 
     categories = Category.objects.filter(is_active=True,is_deleted=False)
@@ -169,7 +171,8 @@ def add_product(request):
         }
     )
 
-@login_required(login_url='login')
+@never_cache
+@admin_required
 def edit_product(request, product_id):
 
     product = get_object_or_404(
@@ -326,7 +329,7 @@ def delete_product(request, product_id):
 
 
 @never_cache
-@login_required(login_url='login')
+@admin_required
 def variant_management(request, product_id):
 
     product = get_object_or_404(
@@ -340,12 +343,56 @@ def variant_management(request, product_id):
         is_deleted=False
     ).order_by('-created_at')
 
+    
+
     search = request.GET.get("search")
 
+    size = request.GET.get(
+        "size",
+        ""
+    )
+
+    status = request.GET.get("status")
+    sizes = Variant.objects.filter(
+
+        product=product,
+
+        is_deleted=False
+
+    ).values_list(
+
+        "size",
+
+        flat=True
+
+    ).distinct()
+    
     if search:
 
         variants = variants.filter(
-            sku__icontains=search
+
+            Q(sku__icontains=search) |
+
+            Q(color__icontains=search)
+
+        )
+
+    if size:
+
+        variants = variants.filter(
+            size=size
+        )
+
+    if status == "active":
+
+        variants = variants.filter(
+            is_active=True
+        )
+
+    elif status == "inactive":
+
+        variants = variants.filter(
+            is_active=False
         )
 
     paginator = Paginator(variants, 5)
@@ -392,11 +439,15 @@ def variant_management(request, product_id):
 
             "default_variant": default_variant,
 
+            "sizes": sizes,
+
         }
 
     )
 
-@login_required(login_url='login')
+
+@never_cache
+@admin_required
 def add_variant(request, product_id):
 
     product = get_object_or_404(
@@ -625,7 +676,8 @@ def add_variant(request, product_id):
         }
     )
 
-@login_required(login_url='login')
+@never_cache
+@admin_required
 def edit_variant(request, variant_id):
 
     variant = get_object_or_404(

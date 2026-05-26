@@ -47,6 +47,22 @@ Checkout
 
 .checkout-top-bar {
     margin-bottom: 25px;
+    width:200px;
+    color:#ffff;
+    border-radius:10px;
+    height:40px;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-weight:500;
+    background: #2d5cff;
+    color: white;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.3s;
+
 }
 
 .add-address-btn {
@@ -58,6 +74,9 @@ Checkout
     border-radius: 8px;
     font-size: 14px;
     font-weight: 600;
+    
+}.checkout-top-bar:hover{
+    opacity: 0.9;
 }
 
 .checkout-grid {
@@ -279,7 +298,7 @@ Checkout
 
         <span>/</span>
 
-        <a href="#">SHOPPING BAG</a>
+        <a href="{% url "user_products:cart" %}">SHOPPING BAG</a>
 
         <span>/</span>
 
