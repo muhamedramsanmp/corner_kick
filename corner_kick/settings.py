@@ -51,12 +51,15 @@ INSTALLED_APPS = [
     'user.addressinfo',
     'user.products',
     'user.user_orders',
+    'user.user_wallet',
 
     
     'admin.adminauth',
     'admin.admin_category',
     'admin.admin_products',
     'admin.admin_orders',
+    'admin.admin_coupon',
+    'admin.admin_offer',
 
 ]
 
@@ -191,5 +194,9 @@ STATICFILES_DIRS = [BASE_DIR / 'static']
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
+
+RAZORPAY_KEY_ID = "rzp_test_SvWlh7CdBA0YsF"
+
+RAZORPAY_KEY_SECRET = "hU0uiaLDTxZe7u0uhIO4hpgS"
 
 

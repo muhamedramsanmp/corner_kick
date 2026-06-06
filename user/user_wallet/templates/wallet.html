@@ -1,0 +1,1024 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block content %}
+
+<style>
+
+.wallet-wrapper{
+
+    max-width:1200px;
+
+    margin:40px auto;
+
+    padding:0 20px;
+
+}
+
+.wallet-title{
+
+    font-size:38px;
+
+    font-weight:700;
+
+    color:#1d2433;
+
+}
+
+.wallet-subtitle{
+
+    color:#6b7280;
+
+    margin-top:8px;
+
+    margin-bottom:30px;
+
+}
+
+.balance-card{
+
+    background:#fff;
+
+    border-radius:20px;
+
+    padding:35px;
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    box-shadow:0 2px 10px rgba(0,0,0,.05);
+
+}
+
+.balance-label{
+
+    color:#7b8190;
+
+    font-size:15px;
+
+    letter-spacing:2px;
+
+    font-weight:600;
+
+}
+
+.balance-amount{
+
+    font-size:52px;
+
+    font-weight:700;
+
+    margin-top:10px;
+
+    color:#172033;
+
+}
+
+.add-money-btn{
+
+    background:#0d5eff;
+
+    color:white;
+
+    border:none;
+
+    padding:16px 30px;
+
+    border-radius:12px;
+
+    font-weight:600;
+
+    cursor:pointer;
+
+    text-decoration:none;
+
+}
+
+.history-title{
+
+    margin-top:50px;
+
+    margin-bottom:20px;
+
+    font-size:30px;
+
+    font-weight:700;
+
+}
+
+.transaction-table{
+
+    width:100%;
+
+    background:white;
+
+    border-radius:20px;
+
+    overflow:hidden;
+
+    box-shadow:0 2px 10px rgba(0,0,0,.05);
+
+}
+
+.transaction-table table{
+
+    width:100%;
+
+    border-collapse:collapse;
+
+}
+
+.transaction-table th{
+
+    background:#f6f8fb;
+
+    padding:18px;
+
+    text-align:left;
+
+    font-size:14px;
+
+    color:#6b7280;
+
+}
+
+.transaction-table td{
+
+    padding:20px 18px;
+
+    border-top:1px solid #eee;
+
+}
+
+.status-success{
+
+    background:#e8fff0;
+
+    color:#16a34a;
+
+    padding:6px 12px;
+
+    border-radius:30px;
+
+    font-size:12px;
+
+    font-weight:600;
+
+}
+
+.status-failed{
+
+    background:#ffecec;
+
+    color:#dc2626;
+
+    padding:6px 12px;
+
+    border-radius:30px;
+
+    font-size:12px;
+
+    font-weight:600;
+
+}
+
+.status-pending{
+
+    background:#fff8dd;
+
+    color:#ca8a04;
+
+    padding:6px 12px;
+
+    border-radius:30px;
+
+    font-size:12px;
+
+    font-weight:600;
+
+}
+
+.credit{
+
+    color:#16a34a;
+
+    font-weight:700;
+
+}
+
+.debit{
+
+    color:#dc2626;
+
+    font-weight:700;
+
+}
+.pagination{
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    gap:12px;
+
+    margin-top:35px;
+
+    flex-wrap:wrap;
+
+}
+
+.page-number,
+.page-btn{
+
+    min-width:44px;
+
+    height:44px;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    text-decoration:none;
+
+    background:#fff;
+
+    border:1px solid #e5e7eb;
+
+    border-radius:10px;
+
+    color:#172033;
+
+    font-weight:600;
+
+    transition:.3s;
+
+    padding:0 16px;
+
+}
+
+.page-number:hover,
+.page-btn:hover{
+
+    background:#0d5eff;
+
+    color:#fff;
+
+    border-color:#0d5eff;
+
+}
+
+.page-number.active{
+
+    background:#0d5eff;
+
+    color:#fff;
+
+    border-color:#0d5eff;
+
+}
+
+@media(max-width:768px){
+
+    .pagination{
+
+        gap:8px;
+
+    }
+
+    .page-number,
+    .page-btn{
+
+        min-width:38px;
+
+        height:38px;
+
+        font-size:14px;
+
+    }
+
+}
+
+@media(max-width:768px){
+
+.balance-card{
+
+    flex-direction:column;
+
+    gap:20px;
+
+    text-align:center;
+
+}
+
+.balance-amount{
+
+    font-size:36px;
+
+}
+
+.transaction-table{
+
+    overflow-x:auto;
+
+}
+
+}
+.wallet-modal{
+
+    position:fixed;
+
+    inset:0;
+
+    background:rgba(
+        0,
+        0,
+        0,
+        .5
+    );
+
+    display:none;
+
+    justify-content:center;
+
+    align-items:center;
+
+    z-index:9999;
+
+}
+
+.wallet-popup{
+
+    width:420px;
+
+    background:#fff;
+
+    border-radius:20px;
+
+    padding:25px;
+
+    box-shadow:0 20px 50px rgba(
+        0,
+        0,
+        0,
+        .15
+    );
+
+}
+
+.wallet-header{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+}
+
+.wallet-header h3{
+
+    margin:0;
+
+    font-size:24px;
+
+}
+
+.wallet-header span{
+
+    cursor:pointer;
+
+    font-size:28px;
+
+}
+
+.wallet-sub{
+
+    color:#777;
+
+    margin-top:5px;
+
+}
+
+.wallet-balance{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    margin:20px 0;
+
+}
+
+.wallet-popup input{
+
+    width:100%;
+
+    padding:14px;
+
+    border:1px solid #ddd;
+
+    border-radius:10px;
+
+    font-size:16px;
+
+}
+
+.quick-amounts{
+
+    display:grid;
+
+    grid-template-columns:
+    repeat(
+        3,
+        1fr
+    );
+
+    gap:10px;
+
+    margin-top:15px;
+
+}
+
+.quick-amounts button{
+
+    border:none;
+
+    padding:12px;
+
+    border-radius:10px;
+
+    background:#f5f5f5;
+
+    cursor:pointer;
+
+}
+
+.wallet-submit{
+
+    width:100%;
+
+    margin-top:20px;
+
+    border:none;
+
+    background:#0d5eff;
+
+    color:white;
+
+    padding:15px;
+
+    border-radius:10px;
+
+    font-weight:700;
+
+    cursor:pointer;
+
+}
+
+</style>
+
+<div class="wallet-wrapper">
+
+    <h1 class="wallet-title">
+
+        My Wallet
+
+    </h1>
+
+    <p class="wallet-subtitle">
+
+        Manage your balance and transaction history
+
+    </p>
+
+    <div class="balance-card">
+
+        <div>
+
+            <div class="balance-label">
+
+                AVAILABLE BALANCE
+
+            </div>
+
+            <div class="balance-amount">
+
+                ₹{{ wallet.balance }}
+
+            </div>
+
+        </div>
+
+<button
+type="button"
+class="add-money-btn"
+onclick="openWalletModal()"
+>
+
+    + Add Money
+
+</button>
+
+    </div>
+
+    <h2 class="history-title">
+
+        Transaction History
+
+    </h2>
+
+    <div class="transaction-table">
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>Date</th>
+
+                    <th>Transaction</th>
+
+                    <th>Order</th>
+
+                    <th>Description</th>
+
+                    <th>Status</th>
+
+                    <th>Amount</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                {% for transaction in transactions %}
+
+                <tr>
+
+                    <td>
+
+                        {{ transaction.created_at|date:"M d, Y" }}
+
+                        <br>
+
+                        {{ transaction.created_at|time:"H:i" }}
+
+                    </td>
+
+                    <td>
+
+                        #TXN-{{ transaction.id }}
+
+                    </td>
+
+                    <td>
+
+                        {% if transaction.order %}
+
+                            {{ transaction.order.order_id }}
+
+                        {% else %}
+
+                            -
+
+                        {% endif %}
+
+                    </td>
+
+                    <td>
+
+                        {{ transaction.description }}
+
+                    </td>
+
+                    <td>
+
+                        {% if transaction.transaction_type == 'CREDIT' %}
+
+                        <span class="status-success">
+
+                            CREDIT
+
+                        </span>
+
+                        {% else %}
+
+                        <span class="status-failed">
+
+                            DEBIT
+
+                        </span>
+
+                        {% endif %}
+
+                    </td>
+
+                    <td>
+
+                        {% if transaction.transaction_type == 'CREDIT' %}
+
+                        <span class="credit">
+
+                            + ₹{{ transaction.amount }}
+
+                        </span>
+
+                        {% else %}
+
+                        <span class="debit">
+
+                            - ₹{{ transaction.amount }}
+
+                        </span>
+
+                        {% endif %}
+
+                    </td>
+
+                </tr>
+
+                {% empty %}
+
+                <tr>
+
+                    <td colspan="6">
+
+                        No wallet transactions found.
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+<div class="pagination">
+
+    {% if page_obj.has_previous %}
+
+    <a
+    href="?page={{ page_obj.previous_page_number }}"
+    class="page-btn"
+    >
+
+        Previous
+
+    </a>
+
+    {% endif %}
+
+    {% for num in page_obj.paginator.page_range %}
+
+        {% if page_obj.number == num %}
+
+            <span class="page-number active">
+
+                {{ num }}
+
+            </span>
+
+        {% else %}
+
+            <a
+            href="?page={{ num }}"
+            class="page-number"
+            >
+
+                {{ num }}
+
+            </a>
+
+        {% endif %}
+
+    {% endfor %}
+
+    {% if page_obj.has_next %}
+
+    <a
+    href="?page={{ page_obj.next_page_number }}"
+    class="page-btn"
+    >
+
+        Next
+
+    </a>
+
+    {% endif %}
+
+</div>
+
+</div>
+
+<div
+id="walletModal"
+class="wallet-modal"
+>
+
+    <div class="wallet-popup">
+
+        <div class="wallet-header">
+
+            <h3>
+
+                Add Money
+
+            </h3>
+
+            <span
+            onclick="closeWalletModal()"
+            >
+
+                ×
+
+            </span>
+
+        </div>
+
+        <p class="wallet-sub">
+
+            Secure wallet payment
+
+        </p>
+
+        <div class="wallet-balance">
+
+            <span>
+
+                Current Balance
+
+            </span>
+
+            <strong>
+
+                ₹{{ wallet.balance }}
+
+            </strong>
+
+        </div>
+
+<form id="walletForm">
+
+            {% csrf_token %}
+
+            <input
+
+            type="number"
+
+            name="amount"
+
+            id="amountInput"
+
+            placeholder="Enter Amount"
+
+            required
+
+            >
+
+            <div class="quick-amounts">
+
+                <button
+                type="button"
+                onclick="setAmount(500)"
+                >
+                    ₹500
+                </button>
+
+                <button
+                type="button"
+                onclick="setAmount(1000)"
+                >
+                    ₹1000
+                </button>
+
+                <button
+                type="button"
+                onclick="setAmount(2000)"
+                >
+                    ₹2000
+                </button>
+
+                <button
+                type="button"
+                onclick="setAmount(3000)"
+                >
+                    ₹3000
+                </button>
+
+                <button
+                type="button"
+                onclick="setAmount(5000)"
+                >
+                    ₹5000
+                </button>
+
+            </div>
+
+            <button
+            class="wallet-submit"
+            type="submit"
+            >
+
+                ADD MONEY
+
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<script>
+
+function openWalletModal(){
+
+    document
+    .getElementById(
+        "walletModal"
+    )
+    .style.display = "flex";
+
+}
+
+function closeWalletModal(){
+
+    document
+    .getElementById(
+        "walletModal"
+    )
+    .style.display = "none";
+
+}
+
+function setAmount(amount){
+
+    document
+    .getElementById(
+        "amountInput"
+    )
+    .value = amount;
+
+}
+
+</script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+<script>
+
+document
+.getElementById("walletForm")
+.addEventListener(
+
+    "submit",
+
+    function(e){
+
+        e.preventDefault();
+
+        let amount = document
+        .getElementById(
+            "amountInput"
+        ).value;
+
+        if(!amount){
+
+            alert(
+                "Please enter amount"
+            );
+
+            return;
+        }
+
+        fetch(
+
+            "{% url 'create_wallet_order' %}",
+
+            {
+
+                method:"POST",
+
+                headers:{
+
+                    "Content-Type":"application/json",
+
+                    "X-CSRFToken":
+                    "{{ csrf_token }}"
+
+                },
+
+                body:JSON.stringify({
+
+                    amount:amount
+
+                })
+
+            }
+
+        )
+
+        .then(response => response.json())
+
+        .then(data => {
+
+            var options = {
+
+                key:data.key,
+
+                amount:data.amount,
+
+                currency:"INR",
+
+                order_id:data.order_id,
+
+                name:"Corner Kick",
+
+                description:"Wallet Top Up",
+
+                retry:{
+
+                    enabled:false
+
+                },
+
+                handler:function(response){
+
+                    window.location.href =
+
+                    "{% url 'wallet_payment_success' %}" +
+
+                    "?amount=" + amount +
+
+                    "&payment_id=" +
+                    response.razorpay_payment_id +
+
+                    "&order_id=" +
+                    response.razorpay_order_id +
+
+                    "&signature=" +
+                    response.razorpay_signature;
+
+                },
+
+                modal:{
+
+                    ondismiss:function(){
+
+                        window.location.href =
+
+                        "{% url 'wallet_failed' %}" +
+
+                        "?amount=" + amount;
+
+                    }
+
+                }
+
+            };
+
+            var rzp = new Razorpay(
+
+                options
+
+            );
+
+            rzp.on(
+
+                "payment.failed",
+
+                function(){
+
+                    window.location.href =
+
+                    "{% url 'wallet_failed' %}" +
+
+                    "?amount=" + amount;
+
+                }
+
+            );
+
+            rzp.open();
+
+        });
+
+    }
+
+);
+
+</script>
+{% endblock %}

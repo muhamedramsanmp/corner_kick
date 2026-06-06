@@ -1,8 +1,7 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect,get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db import transaction
-
 from user.products.models import CartItem
 from user.addressinfo.models import Address
 from .models import Order, OrderItem
@@ -11,14 +10,34 @@ from django.core.paginator import Paginator
 import uuid
 from django.db.models import Q
 from user.decorators import user_required
-from django.shortcuts import render, get_object_or_404
-
-
-from .models import Order
+from django.template.loader import get_template
+from django.http import HttpResponse
+from xhtml2pdf import pisa
 from datetime import timedelta
+from decimal import Decimal
+from .models import OrderItem,ReturnRequest,ReturnItem
+from user.user_wallet.models import Wallet,WalletTransaction
+import uuid
+import razorpay
+from user.products.models import Cart
+import json
+from django.http import JsonResponse
+from django.conf import settings
+from user.user_wallet.models import Wallet
+from admin.admin_coupon.models import Coupon
+from user.user_orders.models import Order,OrderItem
+from user.accounts.models import Referral, ReferralReward
+from user.accounts.utils import credit_referral_reward
+from admin.admin_offer.utils import (
+    calculate_discounted_price
+)
 
 @user_required
 def checkout_page(request):
+    coupons = Coupon.objects.filter(
+        is_active=True,
+        
+    )
 
     cart_items = CartItem.objects.filter(
         cart__user=request.user
@@ -26,10 +45,6 @@ def checkout_page(request):
         'variant',
         'variant__product'
     )
-
-    # =====================================
-    # EMPTY CART
-    # =====================================
 
     if not cart_items.exists():
 
@@ -42,25 +57,42 @@ def checkout_page(request):
             'user_products:cart'
         )
 
-    # =====================================
-    # USER ADDRESSES
-    # =====================================
-
     addresses = Address.objects.filter(
         user=request.user
     ).order_by(
         '-is_default'
     )
 
-    # =====================================
-    # PRICE CALCULATIONS
-    # =====================================
+    subtotal = 0
+    offer_discount = 0
 
-    subtotal = sum(
-        item.total_price
-        for item in cart_items
-    )
+    for item in cart_items:
 
+        price_data = calculate_discounted_price(
+            item.variant
+        )
+        item.checkout_total = (
+            price_data["final_price"] *
+            item.quantity
+        )
+
+        item.original_total = (
+            price_data["original_price"] *
+            item.quantity
+        )
+
+        subtotal += (
+            price_data["original_price"] *
+            item.quantity
+        )
+
+        offer_discount += (
+
+            price_data["discount_amount"] *
+
+            item.quantity
+
+        )
     shipping_charge = 0
 
     tax_amount = 0
@@ -69,38 +101,88 @@ def checkout_page(request):
 
     total_amount = (
         subtotal
-        + shipping_charge
-        + tax_amount
+        - offer_discount
         - discount_amount
     )
+    amount_after_offer = (
+        subtotal -
+        offer_discount
+    )
 
-    # =====================================
-    # PLACE ORDER
-    # =====================================
-
-    if request.method == 'POST':
+    if request.method == "POST":
 
         address_id = request.POST.get(
-            'selected_address'
+            "selected_address"
         )
 
         payment_method = request.POST.get(
-            'payment_method'
+            "payment_method"
+        )
+        coupon_code = request.POST.get(
+            "coupon_code"
         )
 
-        # =================================
-        # ADDRESS VALIDATION
-        # =================================
+        discount_amount = 0
+
+        applied_coupon = None
+
+        if coupon_code:
+
+            try:
+
+                applied_coupon = Coupon.objects.get(
+                    code=coupon_code,
+                    is_active=True
+                )
+
+                amount_after_offer = (
+                    subtotal -
+                    offer_discount
+                )
+
+                if applied_coupon.discount_type == "PERCENTAGE":
+
+                    discount_amount = (
+                        amount_after_offer *
+                        applied_coupon.discount_value
+                    ) / 100
+
+                else:
+
+                    discount_amount = (
+                        applied_coupon.discount_value
+                    )
+
+            except Coupon.DoesNotExist:
+
+                pass
+
+        amount_after_offer = (
+            subtotal -
+            offer_discount
+        )
+
+        total_amount = (
+
+            amount_after_offer
+
+            - discount_amount
+
+            + shipping_charge
+
+            + tax_amount
+
+        )
 
         if not address_id:
 
             messages.error(
                 request,
-                'Please select address.'
+                "Please select address."
             )
 
             return redirect(
-                'checkout_page'
+                "checkout_page"
             )
 
         try:
@@ -114,16 +196,12 @@ def checkout_page(request):
 
             messages.error(
                 request,
-                'Invalid address.'
+                "Invalid address."
             )
 
             return redirect(
-                'checkout_page'
+                "checkout_page"
             )
-
-        # =================================
-        # STOCK VALIDATION
-        # =================================
 
         for item in cart_items:
 
@@ -133,122 +211,683 @@ def checkout_page(request):
 
                     request,
 
-                    f'Sorry, only {item.variant.stock} stock available for {item.variant.product.product_name}.'
+                    f"Only {item.variant.stock} stock available for {item.variant.product.product_name}"
 
                 )
 
                 return redirect(
-                    'checkout_page'
+                    "checkout_page"
                 )
 
-        # =================================
-        # DATABASE TRANSACTION
-        # =================================
+        # COD FLOW
 
-        with transaction.atomic():
+        if payment_method == "COD":
 
-            # =============================
-            # CREATE ORDER
-            # =============================
+            with transaction.atomic():
 
-            order = Order.objects.create(
+                order = Order.objects.create(
 
-                user=request.user,
+                    user=request.user,
 
-                order_id=str(uuid.uuid4()).replace(
-                    '-',
-                    ''
-                )[:12].upper(),
+                    order_id=str(uuid.uuid4()).replace(
+                        "-",
+                        ""
+                    )[:12].upper(),
 
-                # ADDRESS FOREIGN KEY
+                    coupon=applied_coupon,
 
-                address=selected_address,
+                    address=selected_address,
 
-                # PAYMENT
+                    payment_method="COD",
 
-                payment_method=payment_method,
+                    payment_status="Pending",
 
-                # PRICE
+                    subtotal=subtotal,
 
-                subtotal=subtotal,
+                    shipping_charge=shipping_charge,
 
-                shipping_charge=shipping_charge,
+                    tax_amount=tax_amount,
 
-                tax_amount=tax_amount,
+                    discount_amount=discount_amount,
 
-                discount_amount=discount_amount,
+                    total_amount=total_amount,
 
-                total_amount=total_amount,
+                    offer_discount=offer_discount,
+
+                    
+
+                )
+
+                for item in cart_items:
+
+                    price_data = calculate_discounted_price(
+                        item.variant
+                    )
+
+                    OrderItem.objects.create(
+
+                        order=order,
+
+                        product=item.variant.product,
+
+                        variant=item.variant,
+
+                        quantity=item.quantity,
+
+                         original_price=
+                            price_data["original_price"],
+
+                        offer_discount=
+                            price_data["discount_amount"],
+
+                        offer_name=(
+                            price_data["offer"].offer_name
+                            if price_data["offer"]
+                            else None
+                        ),
+
+                        price=price_data["final_price"],
+
+                        total_price=(
+                            price_data["final_price"] *
+                            item.quantity
+                        )
+
+                    )
+
+                    item.variant.stock -= item.quantity
+
+                    item.variant.save()
+
+                cart_items.delete()
+
+            return redirect(
+                "order_success",
+                order_id=order.order_id
+            )
+        # WALLET FLOW
+
+        elif payment_method == "WALLET":
+
+            wallet, created = Wallet.objects.get_or_create(
+
+                user=request.user
 
             )
 
-            # =============================
-            # CREATE ORDER ITEMS
-            # =============================
+            if wallet.balance < total_amount:
 
-            for item in cart_items:
+                messages.error(
 
-                OrderItem.objects.create(
+                    request,
 
-                    order=order,
-
-                    product=item.variant.product,
-
-                    variant=item.variant,
-
-                    quantity=item.quantity,
-
-                    price=item.variant.price,
-
-                    total_price=item.total_price
+                    f"Insufficient wallet balance. Available balance ₹{wallet.balance}"
 
                 )
 
-                # =========================
-                # REDUCE STOCK
-                # =========================
+                return redirect(
+                    "checkout_page"
+                )
 
-                item.variant.stock -= item.quantity
+            with transaction.atomic():
 
-                item.variant.save()
+                wallet.balance -= total_amount
 
-            # =============================
-            # CLEAR CART
-            # =============================
+                wallet.save()
 
-            cart_items.delete()
+                order = Order.objects.create(
 
-        # =================================
-        # SUCCESS PAGE
-        # =================================
+                    user=request.user,
 
-        return redirect(
-            'order_success',
-            order_id=order.order_id
-        )
+                    order_id=str(uuid.uuid4()).replace(
+                        "-",
+                        ""
+                    )[:12].upper(),
 
+                    address=selected_address,
+
+                    payment_method="WALLET",
+
+                    payment_status="Paid",
+
+                    subtotal=subtotal,
+
+                    shipping_charge=shipping_charge,
+
+                    tax_amount=tax_amount,
+
+                    discount_amount=discount_amount,
+
+                    total_amount=total_amount,
+
+                    offer_discount=offer_discount,
+
+                )
+
+                for item in cart_items:
+
+                    price_data = calculate_discounted_price(
+                        item.variant
+                    )
+
+                    OrderItem.objects.create(
+
+                        order=order,
+
+                        product=item.variant.product,
+
+                        variant=item.variant,
+
+                        quantity=item.quantity,
+
+                        original_price=
+                            price_data["original_price"],
+
+                        offer_discount=
+                            price_data["discount_amount"],
+
+                        offer_name=(
+                            price_data["offer"].offer_name
+                            if price_data["offer"]
+                            else None
+                        ),
+
+                        price=
+                            price_data["final_price"],
+
+                        total_price=(
+                            price_data["final_price"] *
+                            item.quantity
+                        )
+
+                    )
+
+                    item.variant.stock -= item.quantity
+
+                    item.variant.save()
+                credit_referral_reward(
+                    request,
+                    request.user,
+                    order
+                )
+
+                WalletTransaction.objects.create(
+
+                    wallet=wallet,
+
+                    order=order,
+
+                    transaction_type="DEBIT",
+
+                    status="SUCCESS",
+
+
+                    amount=total_amount,
+
+                    description=(
+                        f"Wallet payment for order "
+                        f"{order.order_id}"
+                    )
+
+                )
+
+                cart_items.delete()
+
+            return redirect(
+
+                "order_success",
+
+                order_id=order.order_id
+
+            )
+
+        # RAZORPAY FLOW
+
+        elif payment_method == "RAZORPAY":
+            request.session["checkout_data"] = {
+
+                "subtotal": str(subtotal),
+
+                "offer_discount": str(offer_discount),
+
+                "discount_amount": str(discount_amount),
+
+                "total_amount": str(total_amount),
+
+                "coupon_id": (
+                    applied_coupon.id
+                    if applied_coupon
+                    else None
+                ),
+
+            }
+
+            return render(
+
+                request,
+
+                "checkout.html",
+
+                {
+
+                    "cart_items": cart_items,
+
+                    "addresses": addresses,
+
+                    "subtotal": subtotal,
+
+                    "shipping_charge": shipping_charge,
+
+                    "tax_amount": tax_amount,
+
+                    "discount_amount": discount_amount,
+
+                    "total_amount": total_amount,
+
+                    "open_razorpay": True,
+
+                    "selected_address_id": address_id,
+
+                }
+
+            )
+        
+    wallet, created = Wallet.objects.get_or_create(
+
+        user=request.user
+
+    )
+    
+    
     context = {
 
-        'cart_items': cart_items,
+            'cart_items': cart_items,
 
-        'addresses': addresses,
+            'addresses': addresses,
 
-        'subtotal': subtotal,
+            'subtotal': subtotal,
 
-        'shipping_charge': shipping_charge,
+            'shipping_charge': shipping_charge,
 
-        'tax_amount': tax_amount,
+            'tax_amount': tax_amount,
 
-        'discount_amount': discount_amount,
+            'discount_amount': discount_amount,
 
-        'total_amount': total_amount,
+            'total_amount': total_amount,
+
+            'amount_after_offer': amount_after_offer,
+            
+            "wallet": wallet,
+
+            "coupons": coupons,
+
+            "offer_discount": offer_discount,
 
     }
 
     return render(
+
         request,
+
         'checkout.html',
+
         context
+
+    )
+
+
+@user_required
+def create_razorpay_order(request):
+
+    if request.method != "POST":
+
+        return JsonResponse(
+
+            {
+
+                "success": False
+
+            },
+
+            status=400
+
+        )
+
+    data = json.loads(
+        request.body
+    )
+    print(
+        "AMOUNT RECEIVED FROM JS =",
+        data["amount"]
+    )
+
+    amount = int(
+
+        float(
+            data["amount"]
+        ) * 100
+
+    )
+
+    client = razorpay.Client(
+
+        auth=(
+
+            settings.RAZORPAY_KEY_ID,
+
+            settings.RAZORPAY_KEY_SECRET
+
+        )
+
+    )
+
+    razorpay_order = client.order.create({
+
+        "amount": amount,
+
+        "currency": "INR",
+
+        "payment_capture": 1
+
+    })
+
+    return JsonResponse({
+
+        "key":
+        settings.RAZORPAY_KEY_ID,
+
+        "amount":
+        razorpay_order["amount"],
+
+        "razorpay_order_id":
+        razorpay_order["id"]
+
+    })
+
+
+
+
+@user_required
+def payment_success(request):
+
+    razorpay_payment_id = request.GET.get(
+        "payment_id"
+    )
+
+    razorpay_order_id = request.GET.get(
+        "order_id"
+    )
+
+    razorpay_signature = request.GET.get(
+        "signature"
+    )
+
+    address_id = request.GET.get(
+        "address_id"
+    )
+
+    client = razorpay.Client(
+
+        auth=(
+
+            settings.RAZORPAY_KEY_ID,
+
+            settings.RAZORPAY_KEY_SECRET
+
+        )
+
+    )
+
+    try:
+
+        client.utility.verify_payment_signature({
+
+            "razorpay_order_id":
+            razorpay_order_id,
+
+            "razorpay_payment_id":
+            razorpay_payment_id,
+
+            "razorpay_signature":
+            razorpay_signature
+
+        })
+
+    except Exception:
+
+        return redirect(
+            "payment_failed"
+        )
+
+    address = Address.objects.filter(
+
+        id=address_id,
+
+        user=request.user
+
+    ).first()
+
+    if not address:
+
+        messages.error(
+
+            request,
+
+            "Address not found"
+
+        )
+
+        return redirect(
+            "checkout_page"
+        )
+
+    cart = Cart.objects.filter(
+
+        user=request.user
+
+    ).first()
+
+    if not cart:
+
+        messages.error(
+
+            request,
+
+            "Cart not found"
+
+        )
+
+        return redirect(
+            "user_products:cart"
+        )
+
+    cart_items = CartItem.objects.filter(
+
+        cart=cart
+
+    ).select_related(
+
+        "variant",
+
+        "variant__product"
+
+    )
+
+    subtotal = 0
+    offer_discount = 0
+
+    for item in cart_items:
+
+        price_data = calculate_discounted_price(
+            item.variant
+        )
+
+        subtotal += (
+            price_data["original_price"] *
+            item.quantity
+        )
+
+        offer_discount += (
+            price_data["discount_amount"] *
+            item.quantity
+        )
+
+    with transaction.atomic():
+
+        order = Order.objects.create(
+
+            user=request.user,
+
+            order_id=str(
+
+                uuid.uuid4()
+
+            ).replace(
+
+                "-",
+
+                ""
+
+            )[:12].upper(),
+
+            address=address,
+
+            payment_method="RAZORPAY",
+
+            payment_status="Paid",
+
+            order_status="Pending",
+
+            subtotal=subtotal,
+
+            shipping_charge=0,
+
+            tax_amount=0,
+
+            discount_amount=0,
+
+            offer_discount=offer_discount,
+
+            total_amount=subtotal,
+
+            razorpay_order_id=
+            razorpay_order_id,
+
+            razorpay_payment_id=
+            razorpay_payment_id,
+
+            razorpay_signature=
+            razorpay_signature
+
+        )
+
+        for item in cart_items:
+
+            price_data = calculate_discounted_price(
+                item.variant
+            )
+
+            OrderItem.objects.create(
+
+                order=order,
+
+                product=item.variant.product,
+
+                variant=item.variant,
+
+                quantity=item.quantity,
+
+                original_price=
+                    price_data["original_price"],
+
+                offer_discount=
+                    price_data["discount_amount"],
+
+                offer_name=(
+                    price_data["offer"].offer_name
+                    if price_data["offer"]
+                    else None
+                ),
+
+                price=
+                    price_data["final_price"],
+
+                total_price=(
+                    price_data["final_price"] *
+                    item.quantity
+                )
+
+            )
+
+            item.variant.stock -= item.quantity
+
+            item.variant.save()
+
+        credit_referral_reward(
+            request,
+            request.user,
+            order
+        )
+
+        cart_items.delete()
+
+    return redirect(
+
+        "pay_success",
+
+        order_id=order.order_id
+
+    )
+
+@user_required
+def pay_success(request, order_id):
+
+    order = get_object_or_404(
+
+        Order,
+
+        order_id=order_id,
+
+        user=request.user
+
+    )
+
+    context = {
+
+        "order": order
+
+    }
+    messages.success(
+        request,
+        "payment success"
+    )
+    return render(
+
+        request,
+
+        "payment_success.html",
+
+        context
+
+    )
+
+@user_required
+def payment_failed(request):
+
+    messages.error(
+
+        request,
+
+        "Payment Failed"
+
+    )
+
+    return render(
+
+        request,
+
+        "payment_failed.html"
+
     )
 
 @login_required(login_url='login')
@@ -273,10 +912,6 @@ def order_success(request, order_id):
 @user_required
 def my_orders(request):
 
-    # =====================================
-    # GET FILTER VALUES
-    # =====================================
-
     search = request.GET.get(
         'search',
         ''
@@ -292,9 +927,6 @@ def my_orders(request):
         ''
     )
 
-    # =====================================
-    # BASE QUERYSET
-    # =====================================
 
     orders = Order.objects.filter(
 
@@ -314,10 +946,6 @@ def my_orders(request):
 
     )
 
-    # =====================================
-    # SEARCH FILTER
-    # =====================================
-
     if search:
 
         orders = orders.filter(
@@ -328,9 +956,6 @@ def my_orders(request):
 
         ).distinct()
 
-    # =====================================
-    # DATE FILTER
-    # =====================================
 
     today = timezone.now()
 
@@ -351,10 +976,6 @@ def my_orders(request):
         orders = orders.filter(
             created_at__gte=today - timedelta(days=90)
         )
-
-    # =====================================
-    # DISPLAY STATUS
-    # =====================================
 
     for order in orders:
 
@@ -380,9 +1001,6 @@ def my_orders(request):
 
         order.display_status = display_status
 
-    # =====================================
-    # STATUS FILTER
-    # =====================================
 
     if status:
 
@@ -396,9 +1014,6 @@ def my_orders(request):
 
         orders = filtered_orders
 
-    # =====================================
-    # PAGINATION
-    # =====================================
 
     paginator = Paginator(
         orders,
@@ -481,10 +1096,6 @@ def order_details(request, order_id):
 
         order.save()
 
-    # =====================================================
-    # ATTACH RETURN STATUS TO ITEMS
-    # =====================================================
-
     for item in order.items.all():
 
         item.return_request = None
@@ -499,10 +1110,43 @@ def order_details(request, order_id):
 
                     break
     order.has_return_request = order.returns.exists()
-                  
+    summary_subtotal = 0
+    summary_offer_discount = 0
+
+    for item in order.items.all():
+
+        if item.item_status != "Cancelled":
+
+            summary_subtotal += (
+                item.original_price *
+                item.quantity
+            )
+
+            summary_offer_discount += (
+                item.offer_discount *
+                item.quantity
+            )
+
+    summary_coupon_discount = order.discount_amount
+
+    summary_total = (
+        summary_subtotal
+        - summary_offer_discount
+        - summary_coupon_discount
+        + order.shipping_charge
+        + order.tax_amount
+    )        
     context = {
 
-        'order': order
+        'order': order,
+
+        "summary_subtotal": summary_subtotal,
+
+        "summary_offer_discount": summary_offer_discount,
+
+        "summary_coupon_discount": summary_coupon_discount,
+
+        "summary_total": summary_total,
 
     }
 
@@ -515,6 +1159,17 @@ def order_details(request, order_id):
         context
 
     )
+
+@login_required
+def remove_coupon(request):
+
+    if "coupon_id" in request.session:
+
+        del request.session["coupon_id"]
+
+    return JsonResponse({
+        "success": True
+    })
 
 @login_required(login_url='login')
 def cancel_order_item(request, item_id):
@@ -531,10 +1186,6 @@ def cancel_order_item(request, item_id):
 
     ).first()
 
-    # =====================================
-    # INVALID ITEM
-    # =====================================
-
     if not order_item:
 
         messages.error(
@@ -545,10 +1196,6 @@ def cancel_order_item(request, item_id):
         return redirect(
             'my_orders'
         )
-
-    # =====================================
-    # ALREADY CANCELLED
-    # =====================================
 
     if order_item.item_status == 'Cancelled':
 
@@ -561,10 +1208,6 @@ def cancel_order_item(request, item_id):
             'order_details',
             order_id=order_item.order.order_id
         )
-
-    # =====================================
-    # SHIPPED / DELIVERED CHECK
-    # =====================================
 
     if order_item.order.order_status in [
 
@@ -584,19 +1227,11 @@ def cancel_order_item(request, item_id):
             order_id=order_item.order.order_id
         )
 
-    # =====================================
-    # POST REQUEST
-    # =====================================
-
     if request.method == 'POST':
 
         cancel_reason = request.POST.get(
             'cancel_reason'
         )
-
-        # =================================
-        # UPDATE ITEM
-        # =================================
 
         order_item.item_status = 'Cancelled'
 
@@ -606,17 +1241,56 @@ def cancel_order_item(request, item_id):
 
         order_item.save()
 
-        # =================================
-        # RESTORE STOCK
-        # =================================
 
         order_item.variant.stock += order_item.quantity
 
         order_item.variant.save()
 
-        # =================================
-        # CHECK REMAINING ACTIVE ITEMS
-        # =================================
+
+        # ====================================
+        # REFUND CANCELLED ITEM
+        # ====================================
+
+        if order_item.order.payment_method in [
+
+            "RAZORPAY",
+
+            "WALLET"
+
+        ]:
+
+            wallet, created = Wallet.objects.get_or_create(
+
+                user=order_item.order.user
+
+            )
+
+            refund_amount = order_item.total_price
+
+            wallet.balance += refund_amount
+
+            wallet.save()
+
+            WalletTransaction.objects.create(
+
+                wallet=wallet,
+
+                transaction_type="CREDIT",
+
+                amount=refund_amount,
+
+                order=order_item.order,
+
+                status="SUCCESS",
+
+                description=(
+                    f"Refund for cancelled item "
+                    f"in order "
+                    f"{order_item.order.order_id}"
+                )
+
+            )
+
 
         remaining_items = order_item.order.items.exclude(
             item_status='Cancelled'
@@ -625,6 +1299,8 @@ def cancel_order_item(request, item_id):
         if not remaining_items:
 
             order_item.order.order_status = 'Cancelled'
+
+            
 
             order_item.order.is_cancelled = True
 
@@ -672,10 +1348,6 @@ def cancel_entire_order(request, order_id):
 
     ).first()
 
-    # =====================================
-    # INVALID ORDER
-    # =====================================
-
     if not order:
 
         messages.error(
@@ -686,10 +1358,6 @@ def cancel_entire_order(request, order_id):
         return redirect(
             'my_orders'
         )
-
-    # =====================================
-    # STATUS CHECK
-    # =====================================
 
     if order.order_status in ['Shipped', 'Delivered', 'Cancelled']:
 
@@ -703,9 +1371,6 @@ def cancel_entire_order(request, order_id):
             order_id=order.order_id
         )
 
-    # =====================================
-    # POST REQUEST
-    # =====================================
 
     if request.method == 'POST':
 
@@ -713,17 +1378,15 @@ def cancel_entire_order(request, order_id):
             'cancel_reason'
         )
 
-        # =================================
-        # CANCEL ALL ACTIVE ITEMS
-        # =================================
-
         active_items = order.items.filter(
             item_status='Active'
         )
+        refund_amount = Decimal("0")
 
         for item in active_items:
 
             # ITEM STATUS
+            refund_amount += item.total_price
 
             item.item_status = 'Cancelled'
 
@@ -733,17 +1396,55 @@ def cancel_entire_order(request, order_id):
 
             item.save()
 
-            # RESTORE STOCK
-
             item.variant.stock += item.quantity
 
             item.variant.save()
-
-        # =================================
-        # ORDER STATUS
-        # =================================
+            
 
         order.order_status = 'Cancelled'
+
+        # ====================================
+        # WALLET REFUND
+        # ====================================
+
+        if (
+
+            order.payment_method in [
+
+                "RAZORPAY",
+
+                "WALLET"
+
+            ]
+
+            and
+
+            refund_amount > 0
+
+        ):
+
+            wallet, created = Wallet.objects.get_or_create(
+
+                user=order.user
+
+            )
+
+            wallet.balance += refund_amount
+            wallet.save()
+
+            WalletTransaction.objects.create(
+
+                wallet=wallet,
+
+                transaction_type="CREDIT",
+
+                amount=refund_amount,
+
+                description=f"Refund for cancelled order {order.order_id}"
+
+            )
+
+            order.refund_processed = True
 
         order.is_cancelled = True
 
@@ -776,22 +1477,6 @@ def cancel_entire_order(request, order_id):
     )
     
 
-from decimal import Decimal
-
-from django.contrib import messages
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import (
-    render,
-    redirect,
-    get_object_or_404
-)
-
-from .models import (
-    OrderItem,
-    ReturnRequest,
-    ReturnItem
-)
-
 
 @login_required(login_url='login')
 def return_single_item(request, item_id):
@@ -810,10 +1495,6 @@ def return_single_item(request, item_id):
 
     )
 
-    # =====================================
-    # ALREADY RETURNED
-    # =====================================
-
     existing_return = ReturnItem.objects.filter(
         order_item=order_item
     ).exists()
@@ -830,10 +1511,6 @@ def return_single_item(request, item_id):
             order_id=order_item.order.order_id
         )
 
-    # =====================================
-    # POST
-    # =====================================
-
     if request.method == 'POST':
 
         refund_method = request.POST.get(
@@ -847,8 +1524,31 @@ def return_single_item(request, item_id):
         return_note = request.POST.get(
             'return_note'
         )
+        if order_item.order.subtotal <= 0:
 
-        # CREATE RETURN REQUEST
+            messages.error(
+
+                request,
+
+                "Invalid order total."
+
+            )
+
+            return redirect(
+
+                'order_details',
+
+                order_id=order_item.order.order_id
+
+            )
+
+        refund_amount = (
+
+            order_item.total_price *
+
+            order_item.order.total_amount
+
+        ) / order_item.order.subtotal
 
         return_request = ReturnRequest.objects.create(
 
@@ -862,11 +1562,9 @@ def return_single_item(request, item_id):
 
             return_note=return_note,
 
-            refund_amount=order_item.total_price
+            refund_amount=refund_amount
 
         )
-
-        # CREATE RETURN ITEM
 
         ReturnItem.objects.create(
 
@@ -876,11 +1574,9 @@ def return_single_item(request, item_id):
 
             quantity=order_item.quantity,
 
-            refund_amount=order_item.total_price
+            refund_amount=refund_amount
 
         )
-
-        # UPDATE ITEM STATUS
 
         order_item.item_status = 'Return Requested'
 
@@ -930,15 +1626,28 @@ def return_entire_order(request, order_id):
 
     )
 
-    # =====================================
-    # POST
-    # =====================================
-
     if request.method == 'POST':
 
         selected_items = request.POST.getlist(
             'selected_items'
         )
+        if not selected_items:
+
+            messages.error(
+
+                request,
+
+                "Select at least one item."
+
+            )
+
+            return redirect(
+
+                'return_entire_order',
+
+                order_id=order.order_id
+
+            )
 
         refund_method = request.POST.get(
             'refund_method'
@@ -953,15 +1662,44 @@ def return_entire_order(request, order_id):
         )
 
         items = order.items.filter(
-            id__in=selected_items
+
+            id__in=selected_items,
+
+            item_status='Active'
+
         )
 
-        total_refund = sum(
-            item.total_price
-            for item in items
-        )
+        total_refund = 0
+        if order.subtotal <= 0:
 
-        # CREATE RETURN REQUEST
+            messages.error(
+
+                request,
+
+                "Invalid order total."
+
+            )
+
+            return redirect(
+
+                'order_details',
+
+                order_id=order.order_id
+
+            )
+
+        for item in items:
+
+            item_refund = (
+
+                item.total_price *
+
+                order.total_amount
+
+            ) / order.subtotal
+
+            total_refund += item_refund
+
 
         return_request = ReturnRequest.objects.create(
 
@@ -979,9 +1717,15 @@ def return_entire_order(request, order_id):
 
         )
 
-        # CREATE RETURN ITEMS
-
         for item in items:
+
+            item_refund = (
+
+                item.total_price *
+
+                order.total_amount
+
+            ) / order.subtotal
 
             ReturnItem.objects.create(
 
@@ -991,7 +1735,7 @@ def return_entire_order(request, order_id):
 
                 quantity=item.quantity,
 
-                refund_amount=item.total_price
+                refund_amount=item_refund
 
             )
 
@@ -1060,15 +1804,6 @@ def invoice_page(request, order_id):
     )
 
 
-from django.shortcuts import get_object_or_404
-from django.template.loader import get_template
-from django.http import HttpResponse
-from django.contrib.auth.decorators import login_required
-
-from xhtml2pdf import pisa
-
-from .models import Order
-
 
 @login_required(login_url='login')
 def download_invoice(request, order_id):
@@ -1118,3 +1853,4 @@ def download_invoice(request, order_id):
     )
 
     return response
+

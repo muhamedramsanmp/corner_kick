@@ -9,7 +9,7 @@ urlpatterns = [
         name='checkout_page'
     ),
 
-    path(
+path(
     'success/<str:order_id>/',
     views.order_success,
     name='order_success'
@@ -63,5 +63,33 @@ path(
     views.download_invoice,
     name='download_invoice'
 ),
+
+path(
+    "create-razorpay-order/",
+    views.create_razorpay_order,
+    name="create_razorpay_order"
+),
+
+path(
+    "payment-success/",
+    views.payment_success,
+    name="payment_success"
+),
+
+path(
+    "payment-failed/",
+    views.payment_failed,
+    name="payment_failed"
+),
+path(
+    'payment-success-page/<str:order_id>/',
+    views.pay_success,
+    name='pay_success'
+),
+path(
+    "remove-coupon/",
+    views.remove_coupon,
+    name="remove_coupon"
+)
 
 ]

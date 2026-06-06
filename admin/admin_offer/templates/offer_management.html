@@ -1,0 +1,976 @@
+{% extends 'admin_base.html' %}
+{% load static %}
+
+{% block title %}
+Admin Offer
+{% endblock %}
+
+{% block content %}
+
+<style>
+    .offer-page{
+
+    padding:30px;
+}
+
+.page-header{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    margin-bottom:30px;
+}
+
+.page-header h1{
+
+    color:#fff;
+
+    font-size:54px;
+
+    font-weight:700;
+
+    margin-bottom:10px;
+}
+
+.page-header p{
+
+    color:#94a3b8;
+
+    font-size:18px;
+}
+
+.add-btn{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:10px;
+
+    padding:15px 26px;
+
+    background:#2563eb;
+
+    color:#fff;
+
+    text-decoration:none;
+
+    border-radius:12px;
+
+    font-weight:600;
+
+    transition:.3s;
+}
+
+.add-btn:hover{
+
+    background:#1d4ed8;
+}
+
+.search-filter-box{
+
+    background:#080808;
+
+    border:1px solid #1f2937;
+
+    border-radius:20px;
+
+    padding:25px;
+
+    margin-bottom:25px;
+}
+
+.search-filter-form{
+
+    display:flex;
+
+    gap:15px;
+
+    align-items:center;
+}
+
+.search-box{
+
+    flex:1;
+
+    display:flex;
+
+    align-items:center;
+
+    gap:10px;
+
+    background:#08152f;
+
+    border:1px solid #1e3a8a;
+
+    border-radius:14px;
+
+    padding:0 18px;
+}
+
+.search-box input{
+
+    width:100%;
+
+    height:56px;
+
+    background:none;
+
+    border:none;
+
+    color:#fff;
+
+    outline:none;
+}
+
+.search-filter-form select{
+
+    height:56px;
+
+    min-width:180px;
+
+    background:#08152f;
+
+    border:1px solid #1e3a8a;
+
+    color:#fff;
+
+    border-radius:14px;
+
+    padding:0 15px;
+}
+
+.filter-btn{
+
+    height:56px;
+
+    padding:0 24px;
+
+    border:none;
+
+    background:#2563eb;
+
+    color:#fff;
+
+    border-radius:14px;
+
+    cursor:pointer;
+}
+
+.offer-table-wrapper{
+
+    background:#080808;
+
+    border:1px solid #1f2937;
+
+    border-radius:20px;
+
+    overflow:hidden;
+}
+
+.table-head{
+
+    display:grid;
+
+    grid-template-columns:
+    2fr
+    1fr
+    1fr
+    1fr
+    1fr
+    1fr;
+
+    padding:22px;
+
+    background:#08152f;
+
+    color:#94a3b8;
+
+    font-weight:600;
+}
+
+.table-row{
+
+    display:grid;
+
+    grid-template-columns:
+    2fr
+    1fr
+    1fr
+    1fr
+    1fr
+    1fr;
+
+    padding:22px;
+
+    border-top:1px solid #1f2937;
+
+    align-items:center;
+
+    color:#fff;
+}
+
+.offer-info strong{
+
+    display:block;
+
+    margin-bottom:6px;
+}
+
+.offer-info small{
+
+    color:#64748b;
+}
+
+.offer-type{
+
+    background:#1e3a8a;
+
+    color:#fff;
+
+    padding:6px 14px;
+
+    border-radius:20px;
+
+    font-size:12px;
+}
+
+.discount-cell{
+
+    font-weight:700;
+
+    font-size:18px;
+}
+
+.status{
+
+    padding:7px 14px;
+
+    border-radius:20px;
+
+    font-size:12px;
+}
+
+.status.active{
+
+    background:#052e16;
+
+    color:#22c55e;
+}
+
+.status.inactive{
+
+    background:#3f3f46;
+
+    color:#d4d4d8;
+}
+
+.actions{
+
+    display:flex;
+
+    gap:15px;
+}
+
+.actions a{
+
+    color:#cbd5e1;
+}
+
+.empty-row{
+
+    padding:40px;
+
+    text-align:center;
+
+    color:#94a3b8;
+}
+
+.table-head{
+
+    background:#111827;
+
+    color:#9ca3af;
+
+    font-size:13px;
+
+    font-weight:600;
+}
+
+.table-row{
+
+    border-top:1px solid #1f2937;
+
+    color:#fff;
+}
+
+.table-row small{
+
+    display:block;
+
+    color:#6b7280;
+
+    margin-top:4px;
+}
+
+.type-badge{
+
+    background:#1e3a8a;
+
+    color:#fff;
+
+    padding:5px 10px;
+
+    border-radius:20px;
+
+    font-size:12px;
+}
+
+.status{
+
+    padding:6px 14px;
+
+    border-radius:20px;
+
+    font-size:12px;
+
+    font-weight:600;
+}
+
+.status.active{
+
+    background:#064e3b;
+
+    color:#10b981;
+}
+
+.status.inactive{
+
+    background:#3f3f46;
+
+    color:#d4d4d8;
+}
+
+.actions{
+
+    display:flex;
+
+    gap:15px;
+}
+
+.actions a{
+
+    text-decoration:none;
+
+    color:#fff;
+}
+
+.pagination{
+
+    margin-top:20px;
+
+    display:flex;
+
+    justify-content:flex-end;
+
+    gap:10px;
+}
+
+.pagination a,
+.pagination span{
+
+    background:#111827;
+
+    color:#fff;
+
+    padding:10px 15px;
+
+    border-radius:8px;
+
+    text-decoration:none;
+}
+.stats-grid{
+
+    display:grid;
+
+    grid-template-columns:repeat(3,1fr);
+
+    gap:20px;
+
+    margin-bottom:25px;
+}
+
+.stat-card{
+
+    background:#080808;
+
+    border:1px solid #1f2937;
+
+    border-radius:20px;
+
+    padding:25px;
+}
+
+.stat-card h3{
+
+    color:#fff;
+
+    font-size:32px;
+
+    margin-bottom:8px;
+}
+
+.stat-card p{
+
+    color:#94a3b8;
+
+    font-size:14px;
+}
+
+.delete-modal{
+
+    position:fixed;
+
+    inset:0;
+
+    background:rgba(0,0,0,.75);
+
+    backdrop-filter:blur(6px);
+
+    display:none;
+
+    align-items:center;
+
+    justify-content:center;
+
+    z-index:9999;
+}
+
+.delete-modal.show{
+
+    display:flex;
+}
+
+.delete-box{
+
+    width:420px;
+
+    background:#0b0b0b;
+
+    border:1px solid #1f2937;
+
+    border-radius:20px;
+
+    padding:35px;
+
+    text-align:center;
+
+    box-shadow:
+    0 20px 60px rgba(0,0,0,.6);
+}
+
+.delete-icon{
+
+    font-size:40px;
+
+    color:#ef4444;
+
+    margin-bottom:15px;
+}
+
+.delete-box h2{
+
+    color:white;
+
+    margin-bottom:15px;
+}
+
+.delete-box p{
+
+    color:#9ca3af;
+
+    line-height:1.7;
+
+    font-size:14px;
+
+    margin-bottom:25px;
+}
+
+.delete-actions{
+
+    display:flex;
+
+    gap:12px;
+}
+
+.cancel-delete{
+
+    flex:1;
+
+    height:48px;
+
+    background:#111827;
+
+    border:1px solid #1f2937;
+
+    color:#9ca3af;
+
+    border-radius:10px;
+
+    cursor:pointer;
+}
+
+.confirm-delete{
+
+    flex:1;
+
+    height:48px;
+
+    border:none;
+
+    background:#ef4444;
+
+    color:white;
+
+    border-radius:10px;
+
+    font-weight:700;
+
+    cursor:pointer;
+}
+
+.confirm-delete:hover{
+
+    background:#dc2626;
+}
+</style>
+
+<div class="offer-page">
+
+<div class="page-header">
+
+    <div>
+
+        <h1>
+            Offers Management
+        </h1>
+
+        <p>
+            Control and monitor active promotional campaigns.
+        </p>
+
+    </div>
+
+    <a
+    href="{% url 'admin_offer:add_offer' %}"
+    class="add-btn"
+    >
+
+        <span class="material-symbols-outlined">
+            add
+        </span>
+
+        Add Offer
+
+    </a>
+
+</div>
+
+<div class="stats-grid">
+
+        <div class="stat-card">
+
+            <h3>{{ total_offers }}</h3>
+
+            <p>Total Offers</p>
+
+        </div>
+
+        <div class="stat-card">
+
+            <h3>{{ active_offers }}</h3>
+
+            <p>Active Offers</p>
+
+        </div>
+
+        <div class="stat-card">
+
+            <h3>{{ expired_offers }}</h3>
+
+            <p>Expired Offers</p>
+
+        </div>
+
+    </div>
+
+<div class="search-filter-box">
+
+    <form
+    method="GET"
+    class="search-filter-form"
+    >
+
+        <div class="search-box">
+
+            <span class="material-symbols-outlined">
+
+                search
+
+            </span>
+
+            <input
+                type="text"
+                name="search"
+                value="{{ search }}"
+                placeholder="Search offers..."
+            >
+
+        </div>
+
+        <select name="status">
+
+            <option value="">
+                All Offers
+            </option>
+
+            <option value="active"
+{% if status == "active" %}
+selected
+{% endif %}
+>
+    Active
+</option>
+            <option value="expired"
+{% if status == "expired" %}
+selected
+{% endif %}
+>
+    Expired
+</option>
+
+        </select>
+
+        <select name="type">
+
+            <option value="">
+                All Types
+            </option>
+
+           <option value="PRODUCT"
+{% if offer_type == "PRODUCT" %}
+selected
+{% endif %}
+>
+    Product
+</option>
+
+<option value="CATEGORY"
+{% if offer_type == "CATEGORY" %}
+selected
+{% endif %}
+>
+    Category
+</option>
+
+        </select>
+
+        <button
+        type="submit"
+        class="filter-btn"
+        >
+
+            Apply Filters
+
+        </button>
+
+    </form>
+
+</div>
+
+<div class="offer-table-wrapper">
+
+    <div class="table-head">
+
+        <div>OFFER NAME</div>
+
+        <div>APPLY TO</div>
+
+        <div>DISCOUNT</div>
+
+        <div>VALIDITY</div>
+
+        <div>STATUS</div>
+
+        <div>ACTIONS</div>
+
+    </div>
+
+    {% for offer in page_obj %}
+
+    <div class="table-row">
+
+        <div class="offer-info">
+
+            <strong>
+
+                {{ offer.offer_name }}
+
+            </strong>
+
+            <small>
+
+                ID: OFF-{{ offer.id }}
+
+            </small>
+
+        </div>
+
+        <div>
+
+            <span class="offer-type">
+
+                {{ offer.apply_to }}
+
+            </span>
+
+        </div>
+
+        <div class="discount-cell">
+
+            {% if offer.discount_type == "PERCENTAGE" %}
+
+                {{ offer.discount_value }}% OFF
+
+            {% else %}
+
+                ₹{{ offer.discount_value }} OFF
+
+            {% endif %}
+
+        </div>
+
+        <div>
+
+            {{ offer.start_date }}
+
+            <br>
+
+            <small>
+
+                {{ offer.end_date }}
+
+            </small>
+
+        </div>
+
+        <div>
+
+           {% now "Y-m-d" as today %}
+
+{% if offer.is_active and offer.end_date|date:"Y-m-d" >= today and offer.start_date|date:"Y-m-d" <= today %}
+    <span class="status active">
+        Active
+    </span>
+{% elif offer.end_date|date:"Y-m-d" < today %}
+    <span class="status inactive">
+        Expired
+    </span>
+{% else %}
+    <span class="status inactive">
+        Inactive
+    </span>
+{% endif %}
+
+
+        </div>
+
+        <div class="actions">
+
+            <a 
+            href="{% url 'admin_offer:edit_offer' offer.id %}"
+            >
+
+                <span class="material-symbols-outlined">
+
+                    edit
+
+                </span>
+
+            </a>
+
+            <a
+href="#"
+onclick="
+openDeleteModal(
+'{{ offer.id }}'
+);
+return false;
+"
+>
+
+    <span class="material-symbols-outlined">
+        delete
+    </span>
+
+</a>
+
+        </div>
+
+    </div>
+
+    {% empty %}
+
+    <div class="empty-row">
+
+        No offers found.
+
+    </div>
+
+    {% endfor %}
+
+</div>
+
+    <div class="pagination">
+
+       {% if page_obj.has_previous %}
+
+<a href="?page={{ page_obj.previous_page_number }}&search={{ search }}&status={{ status }}&type={{ offer_type }}">
+    PREV
+</a>
+
+{% endif %}
+
+        <span>
+
+            {{ page_obj.number }}
+
+        </span>
+
+        {% if page_obj.has_next %}
+
+        <a href="?page={{ page_obj.next_page_number }}&search={{ search }}&status={{ status }}&type={{ offer_type }}">
+    NEXT
+</a>
+
+        {% endif %}
+
+    </div>
+
+</div>
+<div
+id="deleteModal"
+class="delete-modal"
+>
+
+    <div class="delete-box">
+
+        <span
+        class="material-symbols-outlined delete-icon"
+        >
+            delete
+        </span>
+
+        <h2>
+
+            Delete Offer?
+
+        </h2>
+
+        <p>
+
+            This action cannot be undone.
+            The offer will be removed from the store
+            and customers will no longer receive this discount.
+
+        </p>
+
+        <form
+        id="deleteForm"
+        method="POST"
+        data-url-template="{% url 'admin_offer:delete_offer' 0 %}"
+        >
+
+            {% csrf_token %}
+
+            <div class="delete-actions">
+
+                <button
+                type="button"
+                class="cancel-delete"
+                onclick="closeDeleteModal()"
+                >
+
+                    CANCEL
+
+                </button>
+
+                <button
+                type="submit"
+                class="confirm-delete"
+                >
+
+                    DELETE
+
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<script>
+
+function openDeleteModal(offerId){
+
+    document
+    .getElementById("deleteModal")
+    .classList.add("show");
+
+    let form = document.getElementById(
+        "deleteForm"
+    );
+
+    let urlTemplate =
+        form.dataset.urlTemplate;
+
+    form.action =
+        urlTemplate.replace(
+            "/0/",
+            "/" + offerId + "/"
+        );
+}
+
+function closeDeleteModal(){
+
+    document
+    .getElementById(
+        "deleteModal"
+    )
+    .classList.remove(
+        "show"
+    );
+}
+
+window.onclick = function(event){
+
+    const modal = document.getElementById(
+        "deleteModal"
+    );
+
+    if(event.target === modal){
+
+        closeDeleteModal();
+    }
+}
+
+</script>
+
+{% endblock %}

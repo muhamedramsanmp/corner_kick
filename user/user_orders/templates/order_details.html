@@ -828,6 +828,29 @@ class="invoice-btn"
                                         {{ item.quantity }}
 
                                     </p>
+                                    {% if item.offer_name %}
+
+<p>
+    Offer :
+    {{ item.offer_name }}
+</p>
+
+<p>
+    Original Price :
+    ₹{{ item.original_price }}
+</p>
+
+<p style="color:#16a34a;font-weight:600;">
+    Discount :
+    ₹{{ item.offer_discount }}
+</p>
+
+<p>
+    Final Price :
+    ₹{{ item.price }}
+</p>
+
+{% endif %}
 
                                 </div>
 
@@ -960,37 +983,47 @@ style="margin-top:15px;"
 
 
                     <!-- ADDRESS -->
+<div class="info-box">
 
-                    <div class="info-box">
+    <h3>
+        SHIPPING ADDRESS
+    </h3>
 
-                        <h3>
-                            SHIPPING ADDRESS
-                        </h3>
+    {% if order.address %}
 
-                        <p>
+        <p>
 
-                            <strong>
-                                {{ order.address.full_name }}
-                            </strong>
+            <strong>
+                {{ order.address.full_name }}
+            </strong>
 
-                        </p>
+        </p>
 
-                        <p>
-                            {{ order.address.address_line }}
-                        </p>
+        <p>
+            {{ order.address.address_line }}
+        </p>
 
-                        <p>
-                            {{ order.address.city }},
-                            {{ order.address.state }}
-                            {{ order.address.pincode }}
-                        </p>
+        <p>
+            {{ order.address.city }},
+            {{ order.address.state }}
+            {{ order.address.pincode }}
+        </p>
 
-                        <p>
-                            {{ order.address.country }}
-                        </p>
+        <p>
+            {{ order.address.country }}
+        </p>
 
-                    </div>
+    {% else %}
 
+        <p>
+
+            Address unavailable
+
+        </p>
+
+    {% endif %}
+
+</div>
 
                     <!-- SHIPPING -->
 
@@ -1046,25 +1079,57 @@ style="margin-top:15px;"
                         </span>
 
                         <strong>
-                            ₹{{ order.subtotal }}
+                            ₹{{ summary_subtotal }}
                         </strong>
 
                     </div>
+                    <div class="summary-row">
+
+    <span>
+        Product Offer Discount
+    </span>
+
+    <strong class="discount">
+
+        - ₹{{ summary_offer_discount }}
+
+    </strong>
+
+</div>
 
 
                     <div class="summary-row">
 
-                        <span>
-                            Discount Amount
-                        </span>
+    <span>
+        Coupon Discount
+    </span>
 
-                        <strong class="discount">
+    <strong class="discount">
 
-                            - ₹{{ order.discount_amount }}
+        - ₹₹{{ summary_coupon_discount }}
 
-                        </strong>
+    </strong>
 
-                    </div>
+</div>
+{% if order.coupon %}
+
+<div class="summary-row">
+
+    <span>
+
+        Coupon Used
+
+    </span>
+
+    <strong>
+
+        {{ order.coupon.code }}
+
+    </strong>
+
+</div>
+
+{% endif %}
 
 
                     <div class="summary-row">
@@ -1100,7 +1165,7 @@ style="margin-top:15px;"
                         </span>
 
                         <strong>
-                            ₹{{ order.total_amount }}
+                            ₹{{ summary_total }}
                         </strong>
 
                     </div>
@@ -1108,23 +1173,54 @@ style="margin-top:15px;"
 
                     <!-- PAYMENT -->
 
-                    <div class="payment-box">
+                  <!-- PAYMENT -->
 
-                        <h4>
+<div class="payment-box">
 
-                            PAYMENT METHOD
+    <h4>
 
-                        </h4>
+        PAYMENT METHOD
 
-                        <p>
+    </h4>
 
-                            {{ order.payment_method }}
+    <p>
 
-                        </p>
+        {{ order.payment_method }}
 
-                    </div>
+    </p>
 
-                </div>
+    <h4
+    style="margin-top:15px;"
+    >
+
+        PAYMENT STATUS
+
+    </h4>
+
+    <p>
+
+        {{ order.payment_status }}
+
+    </p>
+
+    {% if order.refund_processed %}
+
+    <p
+    style="
+    margin-top:12px;
+    color:#16a34a;
+    font-weight:600;
+    "
+    >
+
+        Refund Processed
+
+    </p>
+
+    {% endif %}
+
+</div>
+               
 
 
                 <!-- HELP -->

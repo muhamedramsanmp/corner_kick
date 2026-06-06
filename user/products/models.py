@@ -2,6 +2,9 @@ from django.utils.text import slugify
 from django.db import models
 from django.conf import settings
 from admin.admin_products.models import Variant,Product
+from admin.admin_offer.utils import (
+    calculate_discounted_price
+)
 
 
 
@@ -131,17 +134,20 @@ class CartItem(models.Model):
 
         return f"{self.variant} x {self.quantity}"
 
+        
     @property
     def total_price(self):
 
-        return (
-
-            self.variant.price *
-
-            self.quantity
-
+        price_data = (
+            calculate_discounted_price(
+                self.variant
+            )
         )
-        
+
+        return (
+            price_data["final_price"] *
+            self.quantity
+        )
 
 class Wishlist(models.Model):
 

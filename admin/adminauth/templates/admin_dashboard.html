@@ -418,6 +418,61 @@ h1{
 
     background:#1d4ed8;
 }
+.product{
+    display:flex;
+    align-items:center;
+    gap:15px;
+}
+
+.product-image{
+    width:60px;
+    height:60px;
+
+    border-radius:12px;
+
+    overflow:hidden;
+
+    background:#f8fafc;
+
+    border:1px solid #e5e7eb;
+
+    flex-shrink:0;
+}
+
+.product-image img{
+    width:100%;
+    height:100%;
+
+    object-fit:cover;
+
+    display:block;
+}
+
+.product span{
+    font-size:14px;
+    font-weight:600;
+}
+.header-actions{
+    display:flex;
+    align-items:center;
+    gap:16px;
+}
+
+.report-btn{
+    background:#2563eb;
+    color:#ffffff;
+    text-decoration:none;
+    padding:14px 28px;
+    border-radius:14px;
+    font-size:15px;
+    font-weight:600;
+    transition:0.3s;
+}
+
+.report-btn:hover{
+    background:#1d4ed8;
+}
+
 </style>
 
 <!-- TOPBAR -->
@@ -452,7 +507,13 @@ h1{
 <!-- MAIN -->
 
 <div class="main">
+<div class="header-actions">
 
+    <a href="{% url 'sales_report' %}" class="report-btn">
+        Sales Report
+    </a>
+
+</div>
     <h1>Performance Dashboard</h1>
 
     <p class="sub">
@@ -475,7 +536,7 @@ h1{
 
             </div>
 
-            <h2>₹8,45,231</h2>
+            <h2>₹{{ total_revenue }}</h2>
 
         </div>
 
@@ -491,7 +552,7 @@ h1{
 
             </div>
 
-            <h2>2,350</h2>
+            <h2>{{ total_orders }}</h2>
 
         </div>
 
@@ -507,7 +568,7 @@ h1{
 
             </div>
 
-            <h2>12,234</h2>
+             <h2>{{ active_users }}</h2>
 
         </div>
 
@@ -523,7 +584,7 @@ h1{
 
             </div>
 
-            <h2>48</h2>
+            <h2>{{ pending_orders }}</h2>
 
         </div>
 
@@ -539,22 +600,12 @@ h1{
 
                 <h3>Sales Performance</h3>
 
-                <p>Monthly sports product sales trend</p>
+                <p>Monthly sales revenue</p>
 
             </div>
 
         </div>
-
-        <div class="chart">
-
-            <div class="bar" style="height:45%"></div>
-            <div class="bar" style="height:55%"></div>
-            <div class="bar" style="height:50%"></div>
-            <div class="bar active" style="height:80%"></div>
-            <div class="bar" style="height:65%"></div>
-            <div class="bar" style="height:75%"></div>
-
-        </div>
+        <canvas id="salesChart"></canvas>
 
     </div>
 
@@ -570,68 +621,136 @@ h1{
             <span>STATUS</span>
 
         </div>
+<div class="t-row">
 
-        <div class="t-row">
+    <div class="product">
 
-            <div class="product">
+        {% if top_seller_product.variant.primary_image %}
+            <img
+                src="{{ top_seller_product.variant.primary_image }}"
+                alt="{{ top_seller_product.product.product_name }}"
+            >
+        {% else %}
+            <img src="{% static 'images/default.png' %}">
+        {% endif %}
 
-                <img src="{% static 'images/default.png' %}">
-
-                <span>Football Jersey</span>
-
-            </div>
-
-            <span>Football</span>
-
-            <span>1,204</span>
-
-            <span class="badge green">
-                TOP SELLER
-            </span>
-
-        </div>
-
-        <div class="t-row">
-
-            <div class="product">
-
-                <img src="{% static 'images/default.png' %}">
-
-                <span>Football Boots</span>
-
-            </div>
-
-            <span>Football</span>
-
-            <span>842</span>
-
-            <span class="badge blue">
-                TRENDING
-            </span>
-
-        </div>
-
-        <div class="t-row">
-
-            <div class="product">
-
-                <img src="{% static 'images/default.png' %}">
-
-                <span>Cricket Bat</span>
-
-            </div>
-
-            <span>Cricket</span>
-
-            <span>615</span>
-
-            <span class="badge purple">
-                HIGH MARGIN
-            </span>
-
-        </div>
+        <span>
+            {{ top_seller_product.product.product_name }}
+        </span>
 
     </div>
+
+    <span>Product</span>
+
+    <span>
+        {{ top_seller_product.quantity }}
+    </span>
+
+    <span class="badge green">
+        TOP SELLER
+    </span>
+
+</div>
+
+
+<div class="t-row">
+
+    <div class="product">
+
+        {% if top_category.category_img %}
+
+            <img
+                src="{{ top_category.category_img.url }}"
+                alt="{{ top_category.category_name }}"
+            >
+
+        {% else %}
+
+            <img
+                src="{% static 'images/default.png' %}"
+            >
+
+        {% endif %}
+
+        <span>
+            {{ top_category.category_name }}
+        </span>
+
+    </div>
+
+    <span>Category</span>
+
+    <span>
+        {{ top_category.total_sales }}
+    </span>
+
+    <span class="badge orange">
+        TOP CATEGORY
+    </span>
+
+</div>
+
+
+<div class="t-row">
+
+    <div class="product">
+
+        {% if trending_product.variant.primary_image %}
+            <img
+                src="{{ trending_product.variant.primary_image }}"
+                alt="{{ trending_product.product.product_name }}"
+            >
+        {% else %}
+            <img src="{% static 'images/default.png' %}">
+        {% endif %}
+
+        <span>
+            {{ trending_product.product.product_name }}
+        </span>
+
+    </div>
+
+    <span>Product</span>
+
+    <span>
+        {{ trending_product.quantity }}
+    </span>
+
+    <span class="badge blue">
+        TRENDING
+    </span>
+
+</div>
+
+
+<div class="t-row">
+
+    <div class="product">
+
+        {% if popular_product.variant.primary_image %}
+            <img
+                src="{{ popular_product.variant.primary_image }}"
+                alt="{{ popular_product.product.product_name }}"
+            >
+        {% else %}
+            <img src="{% static 'images/default.png' %}">
+        {% endif %}
+
+        <span>
+            {{ popular_product.product.product_name }}
+        </span>
+
+    </div>
+
+    <span>Product</span>
+
+    <span>
+        {{ popular_product.quantity }}
+    </span>
+
+    <span class="badge purple">
+        POPULAR
+    </span>
 
 </div>
 <!-- LOGOUT MODAL -->
@@ -751,6 +870,65 @@ logoutModal.addEventListener(
 
     }
 )
+
+</script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+
+const ctx =
+document.getElementById(
+    'salesChart'
+);
+
+new Chart(ctx, {
+
+    type: 'bar',
+
+    data: {
+
+        labels:
+            {{ month_labels|safe }},
+
+        datasets: [{
+
+            label: 'Revenue',
+
+            data:
+                {{ month_revenue|safe }},
+
+            backgroundColor:
+                '#2563eb',
+
+            borderRadius: 10
+
+        }]
+    },
+
+    options: {
+
+        responsive: true,
+
+        plugins: {
+
+            legend: {
+                display: false
+            }
+
+        },
+
+        scales: {
+
+            y: {
+
+                beginAtZero: true
+
+            }
+
+        }
+
+    }
+
+});
 
 </script>
 {% endblock %}

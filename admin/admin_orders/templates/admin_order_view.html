@@ -1161,20 +1161,23 @@ body{
 
         <!-- PRINT -->
 
-        <a
-        href="#"
-        class="action-btn secondary-btn"
-        >
+<a
+href="{% url 'generate_invoice' order.order_id %}"
+class="action-btn secondary-btn"
+target="_blank"
+>
 
-            <span class="material-symbols-outlined">
-                receipt_long
-            </span>
+    <span class="material-symbols-outlined">
+        receipt_long
+    </span>
 
-            <span>
-                Print Invoice
-            </span>
+    <span>
+        Print Invoice
+    </span>
 
-        </a>
+</a>
+
+    
 
         <!-- BACK -->
 
@@ -1221,107 +1224,134 @@ body{
                         <span>TOTAL</span>
 
                     </div>
+<div class="card-header">
+    <h3>Active Items</h3>
+</div>
 
-                    {% for item in order.items.all %}
+<div class="card-body">
 
-                    <div class="item-row">
+    {% for item in order.items.all %}
 
-                        <div class="product">
+        {% if item.item_status != 'Cancelled' %}
 
-                            <img
-                            src="{{ item.variant.primary_image }}"
-                            alt=""
-                            >
+        <div class="item-row">
 
-                            <div>
+            <div class="product">
 
-                                <div class="product-name">
+                <img
+                src="{{ item.variant.primary_image }}"
+                alt=""
+                >
 
-                                    {{ item.product.product_name }}
+                <div>
 
-                                </div>
+                    <div class="product-name">
+                        {{ item.product.product_name }}
+                    </div>
 
-                                <div class="product-meta">
+                    <div class="product-meta">
+                        Size: {{ item.variant.size }}
+                    </div>
 
-                                    Size:
-                                    {{ item.variant.size }}
+                </div>
 
-                                </div>
+            </div>
 
-                            </div>
+            <div class="price">
+                ₹{{ item.price }}
+            </div>
+
+            <div class="qty">
+                {{ item.quantity }}
+            </div>
+
+            <div class="total">
+                ₹{{ item.total_price }}
+            </div>
+
+        </div>
+
+        {% endif %}
+
+    {% endfor %}
+
+</div>
+{% if order.items.all %}
+
+<div class="card" style="margin-top:28px;">
+
+    <div class="card-header">
+
+        <h3 style="color:#ef4444;">
+            Cancelled Items
+        </h3>
+
+    </div>
+
+    <div class="card-body">
+
+        {% for item in order.items.all %}
+
+            {% if item.item_status == 'Cancelled' %}
+
+            <div class="item-row">
+
+                <div class="product">
+
+                    <img
+                    src="{{ item.variant.primary_image }}"
+                    alt=""
+                    >
+
+                    <div>
+
+                        <div class="product-name">
+
+                            {{ item.product.product_name }}
 
                         </div>
 
-                        <div class="price">
+                        <div class="product-meta">
 
-                            ₹{{ item.price }}
+                            Size:
+                            {{ item.variant.size }}
 
-                        </div>
+                            <br>
 
-                        <div class="qty">
-
-                            {{ item.quantity }}
-
-                        </div>
-
-                        <div class="total">
-
-                            ₹{{ item.total_price }}
+                            Status:
+                            <span style="color:#ef4444;">
+                                Cancelled
+                            </span>
 
                         </div>
 
                     </div>
 
-                    {% endfor %}
+                </div>
 
-                    <!-- SUMMARY -->
+                <div class="price">
+                    ₹{{ item.price }}
+                </div>
 
-                    <div class="summary">
+                <div class="qty">
+                    {{ item.quantity }}
+                </div>
 
-                        <div class="summary-row">
+                <div class="total" style="color:#ef4444;">
+                    ₹{{ item.total_price }}
+                </div>
 
-                            <span>Subtotal</span>
+            </div>
 
-                            <span>
-                                ₹{{ order.subtotal }}
-                            </span>
+            {% endif %}
 
-                        </div>
+        {% endfor %}
 
-                        <div class="summary-row">
+    </div>
 
-                            <span>Shipping</span>
+</div>
 
-                            <span>
-                                ₹{{ order.shipping_charge }}
-                            </span>
-
-                        </div>
-
-                        <div class="summary-row">
-
-                            <span>Tax Amount</span>
-
-                            <span>
-                                ₹{{ order.tax_amount }}
-                            </span>
-
-                        </div>
-
-                        <div class="summary-total">
-
-                            <h3>
-                                Total Amount
-                            </h3>
-
-                            <h2>
-                                ₹{{ order.total_amount }}
-                            </h2>
-
-                        </div>
-
-                    </div>
-
+{% endif %}
                 </div>
 
             </div>
@@ -1642,12 +1672,26 @@ body{
 
             <span class="price-value">
 
-                ₹{{ order.subtotal }}
+                ₹{{ summary_subtotal }}
 
             </span>
 
         </div>
+<div class="price-row">
 
+    <span class="price-label">
+
+        Product Offer Discount
+
+    </span>
+
+    <span class="discount-value">
+
+        -₹{{ summary_offer_discount }}
+
+    </span>
+
+</div>
         <!-- DISCOUNT -->
 
         <div class="price-row">
@@ -1736,7 +1780,7 @@ body{
 
             <h2>
 
-                ₹{{ order.total_amount }}
+                ₹{{ summary_total }}
 
             </h2>
 
@@ -1754,33 +1798,6 @@ onclick="openStatusModal()"
 
 </button>
 
-        <!-- ACTION BUTTONS -->
-
-        <div class="summary-actions">
-
-            <!-- REFUND -->
-
-            <a
-            href="#"
-            class="summary-btn refund-btn"
-            >
-
-                REFUND
-
-            </a>
-
-            <!-- CANCEL -->
-
-            <a
-            href="#"
-            class="summary-btn cancel-btn"
-            >
-
-                CANCEL ORDER
-
-            </a>
-
-        </div>
 
     </div>
 

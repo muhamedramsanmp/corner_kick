@@ -1019,24 +1019,73 @@ class="product-link"
             <div class="product-name">
 
                 {{ product.product_name }}
+                {% if product.price_data and product.price_data.offer %}
+
+<div
+style="
+margin-bottom:12px;
+display:inline-block;
+padding:4px 10px;
+background:#dcfce7;
+color:#16a34a;
+border-radius:20px;
+font-size:12px;
+font-weight:700;
+"
+>
+
+{% if product.price_data.offer.discount_type == "PERCENTAGE" %}
+
+    {{ product.price_data.offer.discount_value }}% OFF
+
+{% else %}
+
+    ₹{{ product.price_data.discount_amount }} OFF
+
+{% endif %}
+
+</div>
+
+{% endif %}
 
             </div>
+            
 
             <div class="price-row">
 
                 <div class="price">
 
-                    {% if product.default_variant %}
+{% if product.price_data and product.price_data.offer %}
 
-                        ₹{{ product.default_variant.price }}
+    <div style="display:flex;flex-direction:column;">
 
-                    {% else %}
+        <span
+        style="
+        text-decoration:line-through;
+        color:#94a3b8;
+        font-size:14px;
+        "
+        >
+            ₹{{ product.price_data.original_price }}
+        </span>
 
-                        ₹0
+        <span>
+            ₹{{ product.price_data.final_price }}
+        </span>
 
-                    {% endif %}
+    </div>
 
-                </div>
+{% elif product.price_data %}
+
+    ₹{{ product.price_data.original_price }}
+
+{% else %}
+
+    ₹0
+
+{% endif %}
+
+</div>
 
                 {% if product.default_variant and product.default_variant.available_stock > 0 %}
 

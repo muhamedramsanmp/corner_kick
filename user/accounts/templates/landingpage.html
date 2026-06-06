@@ -107,24 +107,6 @@ Home
 </div>
 </div>
 </section>
-<!-- SECOND SECTION: DUAL CATEGORIES -->
-<section class="grid grid-cols-1 md:grid-cols-2 gap-1 px-1 mt-1">
-<div class="relative h-[600px] group cursor-pointer overflow-hidden">
-<img alt="Football Collection" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="close up of a professional soccer ball on lush green grass with stadium lights blurred in the background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAe-P1OCenBkN4C0Iz7Iu16AJ3vtexROFR8ZOjpGTqTow66cNghnuwEHjgBDA21LI763haFYn-T_7UwfjaFC7NE-_yb_CZMeiGSi8OSvwGukC_CTCQHS2GAvqBRr_3KjQMIpmv-3z7ViVGisA6CtUH34tULKyiC7pWRD8O9ljGYpqsWWbP8BPrsV3xAqK_EXrUiTLRsa7FgbykM4zG04qyk6DQCjOheXoGjcTq7TCzNYDo6aGipFh_pPE4ZV7NAoyFpYZA0BYNd1Ww"/>
-<div class="absolute inset-0 bg-slate-900/20 group-hover:bg-slate-900/40 transition-colors flex flex-col justify-end p-12">
-<h2 class="text-white text-3xl font-black italic tracking-tighter mb-4">FOOTBALL COLLECTION</h2>
-<p class="text-white/90 text-sm font-medium uppercase tracking-widest border-b border-white w-fit pb-1">Explore Now</p>
-</div>
-</div>
-<div class="relative h-[600px] group cursor-pointer overflow-hidden">
-<img alt="Cricket Collection" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="dramatic action shot of a cricket batsman hitting a ball with dust flying under warm afternoon sun" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBF63M8KoPLQxCof9bmXmM2DHYu11OEPTf4r1Erjl5HgeMLUG878kPrClKWYrUi9uUMGpleYi69h6FuQNtAA7LliJcCWNWv9BLYC8T_yMl9sbaJ_JH4-NIOCErbvaF5k56ofCuoBU2szH7JFYDV0X_-9VtT3xKPQBR4ImN5yLib4aotOkIVKsHPGDXt03WYkk190RlkUXTXuzisQD-UkAC6frHprLqVQsknH-Xjuxv9xH0ldhOxYUh27O79aVa2lAa7kszB-7wDTGI"/>
-<div class="absolute inset-0 bg-slate-900/20 group-hover:bg-slate-900/40 transition-colors flex flex-col justify-end p-12">
-<h2 class="text-white text-3xl font-black italic tracking-tighter mb-4">CRICKET COLLECTION</h2>
-<p class="text-white/90 text-sm font-medium uppercase tracking-widest border-b border-white w-fit pb-1">Explore Now</p>
-</div>
-</div>
-</section>
-<!-- NEW DROPS -->
 
 <section
 class="
@@ -268,32 +250,69 @@ gap-6
 {% endfor %}
 
 </div>
-</section>
-<!-- Referral Section - New -->
-<section class="py-16 px-6 relative">
-<div class="relative z-10 max-w-4xl mx-auto">
-<div class="bg-white p-12 rounded-2xl shadow-2xl text-center">
-<p class="text-blue-600 font-extrabold text-sm uppercase tracking-widest mb-4">Referral Program</p>
-<h2 class="text-5xl font-black italic text-slate-900 mb-6 uppercase tracking-tighter">FUEL THE GAME</h2>
-<p class="text-slate-600 font-medium text-lg mb-10 max-w-2xl mx-auto">Refer a teammate and both of you get 500 Credits to spend on any Pro Series gear.</p>
-<div class="flex flex-col items-center gap-4 mb-12">
-<label class="text-xs font-bold uppercase text-slate-400 tracking-widest">Your Unique Referral Code</label>
-<div class="flex items-center w-full max-w-md">
-<div class="flex-grow bg-slate-100 border-2 border-dashed border-blue-200 px-8 py-4 rounded-l-xl font-mono text-3xl font-black text-blue-700 tracking-[0.2em]">
-          KICK500
+<!-- Referral Section -->
+<section class="py-10 px-6">
+    <div class="max-w-4xl mx-auto">
+
+        <div class="
+            bg-white
+            rounded-2xl
+            shadow-lg
+            p-8
+            text-center
+            border border-slate-100
+        ">
+
+            <p class="text-blue-600 font-bold text-xs uppercase tracking-widest mb-2">
+                Referral Program
+            </p>
+
+            <h2 class="
+                text-3xl
+                md:text-4xl
+                font-black
+                italic
+                text-slate-900
+                uppercase
+                mb-4
+            ">
+                Earn ₹500 Credits
+            </h2>
+
+            <p class="
+                text-slate-600
+                max-w-xl
+                mx-auto
+                mb-6
+            ">
+                Invite your friends to join and both of you will receive
+                ₹500 wallet credits after their first successful purchase.
+            </p>
+
+            <a href=
+            "{% url 'referral_dashboard' %}"
+            >
+                <button class="
+                    bg-blue-600
+                    hover:bg-blue-700
+                    text-white
+                    font-bold
+                    px-8
+                    py-3
+                    rounded-lg
+                    uppercase
+                    tracking-widest
+                    text-sm
+                    transition
+                ">
+                    INVITE NOW
+                </button>
+            </a>
+
         </div>
-<button class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-r-xl font-bold uppercase text-sm tracking-widest transition-all flex items-center gap-2 whitespace-nowrap h-full">
-<span class="material-symbols-outlined">content_copy</span> COPY CODE
-        </button>
-</div>
-</div>
-<div class="pt-8 border-t border-slate-100"><div class="flex justify-center mt-2">
-<button class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-12 rounded-lg transition-all transform active:scale-95 text-sm uppercase tracking-widest shadow-lg shadow-blue-200">
-    Invite Now
-  </button>
-</div></div>
-</div>
-</div></section>
+
+    </div>
+</section>
 <!-- CATEGORY GRID -->
 
 <section

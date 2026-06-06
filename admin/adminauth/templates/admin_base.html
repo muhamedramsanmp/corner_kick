@@ -389,26 +389,7 @@ body{
 
         <!-- ADMIN PROFILE -->
 
-        <div class="admin-profile">
 
-            <img
-            src="{% static 'images/default.png' %}"
-            alt=""
-            >
-
-            <div>
-
-                <div class="admin-name">
-                    Admin User
-                </div>
-
-                <div class="admin-role">
-                    Super Admin
-                </div>
-
-            </div>
-
-        </div>
 
         <!-- MENU -->
 
@@ -454,7 +435,7 @@ body{
 
             </a>
 
-            <a>
+            <a href="{% url "coupon_management" %}">
 
                 <span class="material-symbols-outlined">
                     confirmation_number
@@ -464,7 +445,7 @@ body{
 
             </a>
 
-            <a>
+            <a href="{% url "admin_offer:offer_management" %}">
 
                 <span class="material-symbols-outlined">
                     local_offer

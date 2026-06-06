@@ -203,10 +203,22 @@ Checkout
     justify-content: space-between;
     align-items: center;
     margin-bottom: 20px;
+    font-weight: 500;
 }
 
 .summary-row span {
-    color: #666;
+    color:#0f172a;
+
+    font-size:16px;
+
+    font-weight:500;
+}
+.summary-row strong{
+    color:#0f172a;
+
+    font-size:16px;
+
+    font-weight:500;
 }
 
 .summary-total {
@@ -216,10 +228,6 @@ Checkout
     font-weight: 700;
 }
 
-.free-text {
-    color: green !important;
-    font-weight: 700;
-}
 
 .summary-policy {
     font-size: 13px;
@@ -253,6 +261,122 @@ Checkout
 .secure-note p {
     color: #999;
     font-size: 12px;
+}
+.coupon-open-btn{
+
+    border:none;
+
+    background:#2d5cff;
+
+    color:#fff;
+
+    padding:8px 18px;
+
+    border-radius:8px;
+
+    cursor:pointer;
+
+    font-weight:600;
+}
+
+#selectedCouponDisplay{
+
+    padding:12px;
+
+    background:#f8fafc;
+
+    border:1px dashed #d1d5db;
+
+    border-radius:8px;
+
+    margin-bottom:20px;
+
+    font-size:14px;
+}
+
+.coupon-modal{
+
+    position:fixed;
+
+    inset:0;
+
+    background:rgba(0,0,0,.55);
+
+    display:none;
+
+    align-items:center;
+
+    justify-content:center;
+
+    z-index:9999;
+}
+
+.coupon-modal.active{
+
+    display:flex;
+}
+
+.coupon-modal-box{
+
+    width:600px;
+
+    max-width:90%;
+
+    background:#fff;
+
+    border-radius:16px;
+
+    padding:25px;
+}
+
+.coupon-modal-header{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    margin-bottom:20px;
+}
+
+.close-modal{
+
+    font-size:28px;
+
+    cursor:pointer;
+}
+
+.coupon-item{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    padding:15px;
+
+    border:1px solid #e5e7eb;
+
+    border-radius:10px;
+
+    margin-bottom:12px;
+}
+
+.apply-btn{
+
+    border:none;
+
+    background:#2d5cff;
+
+    color:white;
+
+    padding:10px 18px;
+
+    border-radius:8px;
+
+    cursor:pointer;
 }
 
 @media (max-width: 992px) {
@@ -332,7 +456,7 @@ Checkout
     <!-- ===================================== -->
     <!-- MAIN GRID -->
     <!-- ===================================== -->
-<form method="POST">
+<form method="POST" id="checkoutForm">
 
     {% csrf_token %}
     <div class="checkout-grid">
@@ -473,28 +597,67 @@ Checkout
                     </p>
 
 
-                    <div class="payment-option active-payment">
+<div class="payment-option">
 
-                        <input
-                        type="radio"
-                        name="payment_method"
-                        value="COD"
-                        checked
-                        >
+    <input
+    type="radio"
+    name="payment_method"
+    value="COD"
+    checked
+    >
 
-                        <div>
+    <div>
 
-                            <h4>
-                                Cash on Delivery
-                            </h4>
+        <h4>Cash On Delivery</h4>
 
-                            <p>
-                                Pay when your order arrives
-                            </p>
+        <p>Pay when your order arrives</p>
 
-                        </div>
+    </div>
 
-                    </div>
+</div>
+
+<br>
+
+<div class="payment-option">
+
+    <input
+    type="radio"
+    name="payment_method"
+    value="RAZORPAY"
+    >
+
+    <div>
+
+        <h4>Razorpay</h4>
+
+        <p>UPI, Card, Net Banking, Wallet</p>
+
+    </div>
+
+</div>
+
+<br>
+
+<div class="payment-option">
+
+    <input
+    type="radio"
+    name="payment_method"
+    value="WALLET"
+    >
+
+    <div>
+
+        <h4>Wallet</h4>
+
+        <p>
+            Available Balance :
+            ₹{{ wallet.balance }}
+        </p>
+
+    </div>
+
+</div>
 
                 </div>
 
@@ -557,11 +720,18 @@ Checkout
                             </div>
 
 
-                            <div class="checkout-product-price">
+                            
 
-                                ₹{{ item.total_price }}
+             <div class="checkout-product-price">
 
-                            </div>
+ 
+
+    <div class="new-price">
+        ₹{{ item.checkout_total|floatformat:2 }}
+    </div>
+
+</div>
+                            
 
                         </div>
 
@@ -586,32 +756,101 @@ Checkout
 
                 <!-- COUPON -->
 
-                <div class="summary-header">
+<div class="summary-header">
 
-                    <h3>
-                        COUPON
-                    </h3>
+    <h3>
+        COUPON
+    </h3>
 
-                    <a href="#">
-                        ADD
-                    </a>
+    <button
+        type="button"
+        class="coupon-open-btn"
+        onclick="openCouponModal()"
+    >
 
-                </div>
+        ADD
 
+    </button>
+
+</div>
+
+<div id="selectedCouponDisplay">
+
+    No coupon applied
+
+</div>
+
+<button
+    type="button"
+    id="removeCouponBtn"
+    class="coupon-open-btn"
+    style="display:none; margin-top:10px; background:#dc2626;"
+    onclick="removeCoupon()"
+>
+    REMOVE COUPON
+</button>
+
+<input
+    type="hidden"
+    name="coupon_code"
+    id="selectedCoupon"
+>
+
+<input
+    type="hidden"
+    id="finalAmount"
+    value="{{ total_amount }}"
+
+>
+<input
+    type="hidden"
+    id="amountAfterOffer"
+    value="{{ amount_after_offer }}"
+>
 
                 <!-- SUMMARY -->
 
                 <div class="summary-row">
 
                     <span>
-                        Order value
+                        Sub Total
                     </span>
 
-                    <strong>
+                    <strong id="orderValue">
                         ₹{{ subtotal }}
                     </strong>
 
                 </div>
+
+                <div class="summary-row">
+
+    <span>
+        Offer Discount
+    </span>
+
+    <strong
+    id="offerDiscount"
+    style="color:#16a34a;"
+    >
+        ₹{{ offer_discount }}
+    </strong>
+
+</div>
+
+<div class="summary-row">
+
+    <span>
+        Coupon Discount
+    </span>
+
+    <strong
+    id="discountAmount"
+    style="color:#16a34a;"
+    >
+        ₹0
+    </strong>
+
+</div>
 
 
                 <div class="summary-row">
@@ -633,9 +872,9 @@ Checkout
                         TOTAL
                     </span>
 
-                    <strong>
-                        ₹{{ total_amount }}
-                    </strong>
+                <strong id="totalAmount">
+                    ₹{{ total_amount }}
+                </strong>
 
                 </div>
 
@@ -644,24 +883,15 @@ Checkout
                     We will process your personal data in accordance with our privacy policy.
                 </p>
 
-<form method="POST">
+<button
+    type="submit"
+    class="purchase-btn"
+    id="purchaseBtn"
+>
 
-    {% csrf_token %}
+    COMPLETE PURCHASE
 
-    <div class="checkout-grid">
-
-    
-
-        <button
-        type="submit"
-        class="purchase-btn"
-        >
-            COMPLETE PURCHASE
-        </button>
-
-    </div>
-
-</form>
+</button>
 
                 <div class="secure-note">
 
@@ -678,6 +908,395 @@ Checkout
 
     </div>
 
+
 </div>
+</form>
+
+<div
+id="couponModal"
+class="coupon-modal"
+>
+
+    <div class="coupon-modal-box">
+
+        <div class="coupon-modal-header">
+
+            <h3>
+
+                Available Coupons
+
+            </h3>
+
+            <span
+            class="close-modal"
+            onclick="closeCouponModal()"
+            >
+
+                ×
+
+            </span>
+
+        </div>
+
+        <div class="coupon-list">
+
+            {% for coupon in coupons %}
+
+            <div class="coupon-item">
+
+                <div>
+
+                    <h4>
+
+                        {{ coupon.code }}
+
+                    </h4>
+
+                    <p>
+
+                        {% if coupon.discount_type == 'PERCENTAGE' %}
+
+                            {{ coupon.discount_value }}% OFF
+
+                        {% else %}
+
+                            ₹{{ coupon.discount_value }} OFF
+
+                        {% endif %}
+
+                    </p>
+
+                    <small>
+
+                        Min Purchase ₹{{ coupon.min_purchase }}
+
+                    </small>
+
+                </div>
+
+                <button
+
+                    type="button"
+
+                    class="apply-btn"
+
+                onclick="applyCoupon(
+                    '{{ coupon.code }}',
+                    '{{ coupon.discount_type }}',
+                    '{{ coupon.discount_value }}'
+                )"
+
+                >
+
+                    APPLY
+
+                </button>
+
+            </div>
+
+            {% empty %}
+
+            <p>
+
+                No coupons available
+
+            </p>
+
+            {% endfor %}
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+<script>
+
+document
+.getElementById("checkoutForm")
+.addEventListener("submit", function(e){
+
+    let paymentMethod = document.querySelector(
+
+        'input[name="payment_method"]:checked'
+
+    ).value;
+
+    if(paymentMethod !== "RAZORPAY"){
+
+        return true;
+
+    }
+
+    e.preventDefault();
+
+    fetch("{% url 'create_razorpay_order' %}", {
+
+        method: "POST",
+
+        headers: {
+
+            "Content-Type": "application/json",
+
+            "X-CSRFToken":
+            "{{ csrf_token }}"
+
+        },
+
+        body: JSON.stringify({
+
+            amount: document.getElementById(
+                "finalAmount"
+            ).value
+
+        })
+
+    })
+
+    .then(response => response.json())
+
+    .then(data => {
+
+        var options = {
+
+            key: data.key,
+
+            amount: data.amount,
+
+            currency: "INR",
+
+            order_id: data.razorpay_order_id,
+
+            name: "Corner Kick",
+
+            description: "Order Payment",
+
+            handler: function(response){
+
+                let address = document.querySelector(
+
+                    'input[name="selected_address"]:checked'
+
+                ).value;
+
+                window.location.href =
+
+                "{% url 'payment_success' %}" +
+
+                "?payment_id=" +
+                response.razorpay_payment_id +
+
+                "&order_id=" +
+                response.razorpay_order_id +
+
+                "&signature=" +
+                response.razorpay_signature +
+
+                "&address_id=" +
+                address;
+
+            }
+
+        };
+
+        var rzp = new Razorpay(options);
+
+        rzp.on(
+
+            "payment.failed",
+
+            function(){
+
+                window.location.href =
+                "{% url 'payment_failed' %}";
+
+            }
+
+        );
+
+        rzp.open();
+
+    });
+
+});
+
+</script>
+
+<script>
+
+function openCouponModal(){
+
+    document
+    .getElementById(
+        'couponModal'
+    )
+    .classList.add(
+        'active'
+    );
+}
+
+function closeCouponModal(){
+
+    document
+    .getElementById(
+        'couponModal'
+    )
+    .classList.remove(
+        'active'
+    );
+}
+function removeCoupon(){
+
+    document
+    .getElementById(
+        "selectedCoupon"
+    )
+    .value = "";
+
+    document
+    .getElementById(
+        "selectedCouponDisplay"
+    )
+    .innerHTML =
+    "No coupon applied";
+
+    document
+    .getElementById(
+        "discountAmount"
+    )
+    .innerHTML =
+    "₹0";
+
+    let originalTotal =
+        document.getElementById(
+            "amountAfterOffer"
+        ).value;
+
+    document
+    .getElementById(
+        "totalAmount"
+    )
+    .innerHTML =
+    "₹" + originalTotal;
+
+    document
+    .getElementById(
+        "finalAmount"
+    )
+    .value =
+    originalTotal;
+
+    document
+    .getElementById(
+        "removeCouponBtn"
+    )
+    .style.display = "none";
+
+    showAjaxPopup(
+        "Coupon removed successfully"
+    );
+}
+function applyCoupon(code){
+    
+
+    fetch(
+        "{% url 'apply_coupon' %}",
+        {
+
+            method:"POST",
+
+            headers:{
+
+                "X-CSRFToken":
+                "{{ csrf_token }}",
+
+                "Content-Type":
+                "application/x-www-form-urlencoded"
+
+            },
+
+           body:
+                "coupon_code=" +
+                code +
+                "&subtotal=" +
+                document.getElementById(
+                    "amountAfterOffer"
+                ).value
+        }
+
+    )
+
+    .then(response => response.json())
+
+    .then(data => {
+
+        if(!data.success){
+
+            showAjaxPopup(
+                data.message
+            )
+
+            return
+        }
+
+        document
+        .getElementById(
+            "selectedCoupon"
+        )
+        .value =
+        data.coupon
+
+        document
+        .getElementById(
+            "selectedCouponDisplay"
+        )
+        .innerHTML =
+        "<strong>" +
+        data.coupon +
+        "</strong> Applied"
+
+        document
+        .getElementById(
+            "removeCouponBtn"
+        )
+        .style.display = "block";
+
+        document
+        .getElementById(
+            "discountAmount"
+        )
+        .innerHTML =
+        "- ₹" +
+        data.discount
+
+        document
+        .getElementById(
+            "totalAmount"
+        )
+        .innerHTML =
+        "₹" +
+        data.total
+        document
+        
+        .getElementById(
+            "finalAmount"
+        )
+        .value =
+        data.total
+
+        showAjaxPopup(
+            data.message
+        )
+
+        closeCouponModal()
+
+    })
+
+}
+</script>
+
 
 {% endblock %}

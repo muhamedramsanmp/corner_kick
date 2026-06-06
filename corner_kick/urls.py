@@ -28,6 +28,7 @@ urlpatterns = [
     path('products/',include('user.products.urls')),
     path('accounts/', include('allauth.urls')),
     path('orders/',include('user.user_orders.urls')),
+    path('wallet/',include('user.user_wallet.urls')),
 
 
 
@@ -35,6 +36,8 @@ urlpatterns = [
     path('admin-category/',include('admin.admin_category.urls')),
     path('admin-products/',include('admin.admin_products.urls')),
     path('admin-orders/',include('admin.admin_orders.urls')),
+    path('admin-coupon/',include('admin.admin_coupon.urls')),
+    path('admin-offer/',include('admin.admin_offer.urls')),
     
     
 ]

@@ -226,6 +226,27 @@ body {
 {% endif %}
             </div>
         </div>
+<!-- REFERRAL CODE -->
+<div class="field">
+    <label>REFERRAL CODE (OPTIONAL)</label>
+
+    <div class="input-box">
+
+        <input
+            type="text"
+            name="referral_code"
+            value="{{ data.referral_code }}"
+            placeholder="Enter referral code"
+        >
+
+        {% if errors.referral_code %}
+            <small class="error">
+                {{ errors.referral_code }}
+            </small>
+        {% endif %}
+
+    </div>
+</div>
 
         <!-- PASSWORD -->
 <div class="field">
@@ -252,6 +273,7 @@ body {
         <span class="eye" onclick="togglePassword('confirm', this)">👁</span>
     </div>
 </div>
+
 
         <!-- TERMS -->
         <div class="terms">

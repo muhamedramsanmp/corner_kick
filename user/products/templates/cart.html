@@ -207,44 +207,6 @@ My Cart
     cursor:pointer;
 }
 
-/* ================= SUMMARY ================= */
-
-.summary-card{
-    background:#ffffff;
-    border:1px solid #e2e8f0;
-    border-radius:28px;
-    padding:28px;
-    position:sticky;
-    top:30px;
-}
-
-.summary-title{
-    font-size:24px;
-    font-weight:800;
-    margin-bottom:24px;
-}
-
-.summary-row{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    margin-bottom:18px;
-    color:#475569;
-    font-size:14px;
-}
-
-.summary-total{
-    border-top:1px solid #e2e8f0;
-    padding-top:20px;
-    margin-top:10px;
-}
-
-.summary-total .summary-row{
-    font-size:20px;
-    font-weight:800;
-    color:#0f172a;
-}
-
 .checkout-btn{
     width:100%;
     height:56px;
@@ -554,7 +516,110 @@ a{
 }
 
 }
+.summary-card{
 
+    background:#ffffff;
+
+    border:1px solid #e2e8f0;
+
+    border-radius:28px;
+
+    padding:32px;
+
+    position:sticky;
+
+    top:30px;
+
+    box-shadow:
+        0 10px 30px rgba(15,23,42,.04);
+}
+
+.summary-title{
+
+    font-size:24px;
+
+    font-weight:800;
+
+    color:#0f172a;
+
+    margin-bottom:30px;
+
+    letter-spacing:.5px;
+}
+
+.summary-row{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    margin-bottom:20px;
+
+    font-size:15px;
+
+    color:#475569;
+}
+.summary-row span{
+    color:#0f172a;
+
+    font-size:15px;
+
+    font-weight:500;
+}
+
+.summary-row strong{
+
+    color:#0f172a;
+
+    font-size:16px;
+
+    font-weight:700;
+}
+
+#cart-discount{
+
+        color:#0f172a;
+
+    font-size:15px;
+
+    font-weight:500;
+
+    
+}
+
+.summary-total{
+
+    margin-top:25px;
+
+    padding-top:25px;
+
+    border-top:1px solid #e2e8f0;
+}
+
+.summary-total .summary-row{
+
+    margin-bottom:0;
+}
+
+.summary-total span{
+
+    font-size:20px;
+
+    font-weight:800;
+
+    color:#0f172a;
+}
+
+.summary-total strong{
+
+    font-size:24px;
+
+    font-weight:900;
+
+    color:#2563eb;
+}
 </style>
 
 
@@ -717,15 +782,38 @@ data-item-id="{{ item.id }}"
 <div class="cart-price">
 
 <div
-class="item-total"
-id="subtotal-{{ item.id }}"
+    class="item-total"
+    id="subtotal-{{ item.id }}"
 >
-₹{{ item.subtotal }}
+    ₹{{ item.subtotal|floatformat:2 }}
 </div>
+
+{% if item.price_data.offer %}
+
+<div class="unit-price">
+
+<span
+style="
+text-decoration:line-through;
+color:#94a3b8;
+"
+>
+₹{{ item.price_data.original_price }}
+</span>
+
+&nbsp;
+
+₹{{ item.price_data.final_price }}
+
+</div>
+
+{% else %}
 
 <div class="unit-price">
 ₹{{ item.variant.price }} each
 </div>
+
+{% endif %}
 
 </div>
 
@@ -748,33 +836,30 @@ ORDER SUMMARY
 </h2>
 
 <div class="summary-row">
-<span>Subtotal</span>
-<span id="cart-subtotal">
-    ₹{{ subtotal }}
-</span>
+    <span>Subtotal</span>
+    <span id="cart-subtotal">
+        ₹{{ subtotal|floatformat:2 }}
+    </span>
 </div>
 
 <div class="summary-row">
-<span>Shipping</span>
-<span>
-    ₹{{ shipping }}
-</span>
-</div>
+    <span>Discount</span>
 
-<div class="summary-row">
-<span>Estimated Tax</span>
-<span>₹0</span>
+    <strong id="cart-discount">
+        -₹{{ total_discount|floatformat:2 }}
+    </strong>
 </div>
 
 <div class="summary-total">
+    <div class="summary-row">
 
-<div class="summary-row">
-<span>TOTAL</span>
-<span id="cart-total">
-    ₹{{ total }}
-</span>
-</div>
+        <span>Total</span>
 
+        <strong id="cart-total">
+            ₹{{ total|floatformat:2 }}
+        </strong>
+
+    </div>
 </div>
 
 <a href="{% url "checkout_page" %}"><button class="checkout-btn">
@@ -931,7 +1016,32 @@ document.addEventListener("click", async function(e){
                 card.remove()
 
             }
+           if(data.subtotal !== undefined){
 
+    document.getElementById(
+        "cart-subtotal"
+    ).innerText =
+        `₹${Number(data.subtotal).toFixed(2)}`
+
+}
+
+if(data.discount !== undefined){
+
+    document.getElementById(
+        "cart-discount"
+    ).innerText =
+        `₹${Number(data.discount).toFixed(2)}`
+
+}
+
+if(data.total !== undefined){
+
+    document.getElementById(
+        "cart-total"
+    ).innerText =
+        `₹${Number(data.total).toFixed(2)}`
+
+}
             // EMPTY CART
 
             const remainingCards =
@@ -1021,19 +1131,50 @@ document.addEventListener("click", async function(e){
 
             // UPDATE SUMMARY
 
-        if(data.cart_total !== undefined){
+        if(data.summary_subtotal !== undefined){
 
             document.getElementById(
                 "cart-subtotal"
             ).innerText =
-                `₹${data.cart_total}`
+                `₹${Number(data.summary_subtotal).toFixed(2)}`
+
+        }
+
+        if(data.discount !== undefined){
+
+            document.getElementById(
+                "cart-discount"
+            ).innerText =
+                `-₹${Number(data.discount).toFixed(2)}`
+
+        }
+
+        if(data.total !== undefined){
 
             document.getElementById(
                 "cart-total"
             ).innerText =
-                `₹${data.cart_total}`
+                `₹${Number(data.total).toFixed(2)}`
 
         }
+
+if(data.discount !== undefined){
+
+    document.getElementById(
+        "cart-discount"
+    ).innerText =
+        `₹${data.discount.toFixed(2)}`
+
+}
+
+if(data.total !== undefined){
+
+    document.getElementById(
+        "cart-total"
+    ).innerText =
+        `₹${data.total.toFixed(2)}`
+
+}
 
     }
 

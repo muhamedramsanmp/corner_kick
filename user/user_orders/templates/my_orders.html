@@ -547,14 +547,14 @@ color:#ffffff;
 
                         <div class="order-image">
 
-                            {% if first_item.variant.primary_image %}
+                            {% if first_item and first_item.variant.primary_image %}
 
-                                <img
-                                src="{{ first_item.variant.primary_image }}"
-                                alt=""
-                                >
+    <img
+    src="{{ first_item.variant.primary_image }}"
+    alt=""
+    >
 
-                            {% endif %}
+{% endif %}
 
                         </div>
 
@@ -564,6 +564,11 @@ color:#ffffff;
                             <h3>
 
                                 {{ first_item.variant.product.product_name }}
+                                <p style="color:#7c8798; margin-top:5px;">
+
+    {{ order.items.count }} Item{{ order.items.count|pluralize }}
+
+</p>
 
                             </h3>
 
@@ -582,6 +587,16 @@ color:#ffffff;
                                     {{ order.created_at|date:"d M, Y" }}
 
                                 </div>
+                                <div class="order-date">
+
+    {{ order.payment_method }}
+
+</div>
+<div class="order-date">
+
+    {{ order.payment_status }}
+
+</div>
 
 
                               <div class="order-status
@@ -688,7 +703,7 @@ color:#ffffff;
     {% if page_obj.has_previous %}
 
         <a
-        href="?page={{ page_obj.previous_page_number }}"
+        href="?page={{ num }}&search={{ search }}&status={{ status }}&date={{ date_filter }}"
         class="page-btn"
         >
             ← Prev
@@ -710,7 +725,7 @@ color:#ffffff;
         {% else %}
 
             <a
-            href="?page={{ num }}"
+            href="?page={{ num }}&search={{ search }}&status={{ status }}&date={{ date_filter }}"
             class="page-number"
             >
 
@@ -726,7 +741,7 @@ color:#ffffff;
     {% if page_obj.has_next %}
 
         <a
-        href="?page={{ page_obj.next_page_number }}"
+        href="?page={{ num }}&search={{ search }}&status={{ status }}&date={{ date_filter }}"
         class="page-btn"
         >
             Next →

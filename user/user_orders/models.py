@@ -8,6 +8,10 @@ class Order(models.Model):
 
     PAYMENT_METHODS = (
         ('COD', 'Cash On Delivery'),
+
+        ('RAZORPAY', 'Razorpay'),
+
+        ('WALLET', 'Wallet'),
     )
 
     ORDER_STATUS = (
@@ -60,17 +64,14 @@ class Order(models.Model):
 
     }
 
-
-    # =====================================
-    # GET NEXT ALLOWED STATUS
-    # =====================================
-
     def allowed_next_statuses(self):
 
         return self.STATUS_FLOW.get(
             self.order_status,
             []
         )
+    
+
 
     payment_status = models.CharField(
         max_length=20,
@@ -78,9 +79,6 @@ class Order(models.Model):
         default='Pending'
     )
 
-    # =====================================
-    # ADMIN NOTES
-    # =====================================
 
     admin_note = models.TextField(
         blank=True,
@@ -141,6 +139,11 @@ class Order(models.Model):
         decimal_places=2,
         default=0
     )
+    offer_discount = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0
+    )
 
     total_amount = models.DecimalField(
         max_digits=10,
@@ -165,12 +168,45 @@ class Order(models.Model):
         default=False
     )
     status_message = models.CharField(
-    max_length=255,
-    blank=True,
-    null=True
+        max_length=255,
+        blank=True,
+        null=True
     )
 
     show_status_message = models.BooleanField(
+        default=False
+    )
+
+    razorpay_order_id = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True
+    )
+
+    razorpay_payment_id = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True
+    )
+
+    razorpay_signature = models.CharField(
+        max_length=500,
+        blank=True,
+        null=True
+    )
+
+    coupon = models.ForeignKey(
+
+        'admin_coupon.Coupon',
+
+        on_delete=models.SET_NULL,
+
+        null=True,
+
+        blank=True
+
+    )
+    refund_processed = models.BooleanField(
         default=False
     )
 
@@ -213,6 +249,24 @@ class OrderItem(models.Model):
         decimal_places=2
     )
 
+    original_price = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0
+    )
+
+    offer_discount = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0
+    )
+
+    offer_name = models.CharField(
+        max_length=200,
+        blank=True,
+        null=True
+    )
+
     total_price = models.DecimalField(
         max_digits=10,
         decimal_places=2
@@ -245,9 +299,6 @@ class OrderItem(models.Model):
 
         return f"{self.order.order_id} - {self.product.product_name}"
     
-# =========================================================
-# RETURN REQUEST
-# =========================================================
 
 class ReturnRequest(models.Model):
 
@@ -342,15 +393,18 @@ class ReturnRequest(models.Model):
     updated_at = models.DateTimeField(
         auto_now=True
     )
+    @property
+    def total_refund_amount(self):
+        return sum(
+            item.refund_amount
+            for item in self.items.all()
+        )
 
     def __str__(self):
 
         return f"Return - {self.order.order_id}"
 
 
-# =========================================================
-# RETURN ITEMS
-# =========================================================
 
 class ReturnItem(models.Model):
 

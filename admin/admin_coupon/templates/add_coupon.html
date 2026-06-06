@@ -1,0 +1,829 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Add Product</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+
+
+<style>
+
+/* ================= BODY ================= */
+
+body{
+    background:#000;
+    overflow:hidden;
+    font-family:'Inter',sans-serif;
+}
+
+/* ================= BACKGROUND ================= */
+
+.bg{
+    position:fixed;
+    inset:0;
+    overflow:hidden;
+    z-index:1;
+}
+
+.bg-inner{
+    width:100%;
+    height:100%;
+
+    filter:blur(3px);
+
+    transform:scale(1.03);
+
+    opacity:.9;
+}
+
+.bg::after{
+    content:"";
+
+    position:absolute;
+    inset:0;
+
+    background:rgba(0,0,0,.78);
+}
+
+/* ================= OVERLAY ================= */
+
+.overlay{
+    position:fixed;
+
+    inset:0;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    padding:30px;
+
+    z-index:10;
+
+    backdrop-filter:blur(8px);
+}
+
+/* ================= MODAL ================= */
+
+.modal{
+
+    width:760px;
+
+    max-width:95%;
+
+    max-height:92vh;
+
+    overflow-y:auto;
+
+    background:#0b0b0b;
+
+    border:1px solid #1f2937;
+
+    border-radius:24px;
+
+    padding:32px;
+
+    position:relative;
+
+    box-shadow:
+    0 25px 80px rgba(0,0,0,.75);
+
+    scrollbar-width:none;
+}
+
+.modal::-webkit-scrollbar{
+    display:none;
+}
+.coupon-edit-wrapper{
+
+    padding:30px;
+
+}
+
+.page-title{
+
+    text-align:center;
+    margin-bottom:40px;
+
+}
+
+.page-title h1{
+
+    font-size:42px;
+    margin-bottom:12px;
+
+}
+
+.page-title span{
+
+    width:40px;
+    height:4px;
+    background:#2563eb;
+    display:block;
+    margin:auto;
+    border-radius:20px;
+
+}
+
+.edit-grid{
+
+    display:grid;
+    grid-template-columns:2fr 1fr;
+    gap:25px;
+
+}
+
+.main-card,
+.side-card{
+
+    background:#0d0d0d;
+    border-radius:18px;
+    padding:28px;
+    border:1px solid #171717;
+
+}
+
+.card-title{
+
+    font-size:22px;
+    font-weight:600;
+    margin-bottom:30px;
+
+}
+
+.row{
+
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:20px;
+
+}
+
+.form-group{
+
+    margin-bottom:22px;
+
+}
+
+.form-group label{
+
+    display:block;
+    color:#8f8f8f;
+    margin-bottom:8px;
+    font-size:13px;
+    font-weight:600;
+
+}
+
+.form-group input,
+.form-group select{
+
+    width:100%;
+    height:52px;
+    background:#091633;
+    border:none;
+    border-radius:10px;
+    color:#fff;
+    padding:0 15px;
+
+}
+
+.status-box{
+
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+
+}
+
+.status-box h3{
+
+    margin:0;
+
+}
+
+.status-box p{
+
+    color:#888;
+    font-size:12px;
+    margin-top:8px;
+
+}
+
+.switch{
+
+    position:relative;
+    width:60px;
+    height:30px;
+
+}
+
+.switch input{
+
+    display:none;
+
+}
+
+.slider{
+
+    position:absolute;
+    inset:0;
+    background:#222;
+    border-radius:30px;
+    cursor:pointer;
+
+}
+
+.slider::before{
+
+    content:"";
+    width:24px;
+    height:24px;
+    background:#fff;
+    position:absolute;
+    top:3px;
+    left:3px;
+    border-radius:50%;
+    transition:.3s;
+
+}
+
+.switch input:checked + .slider{
+
+    background:#2563eb;
+
+}
+
+.switch input:checked + .slider::before{
+
+    transform:translateX(30px);
+
+}
+.action-buttons{
+
+    display:flex;
+
+    gap:14px;
+
+    margin-top:30px;
+
+    padding-top:24px;
+
+    border-top:1px solid #1f2937;
+
+    bottom:0;
+
+    background:#0b0b0b;
+}
+
+.close-btn{
+
+    position:absolute;
+
+    top:18px;
+    right:18px;
+
+    width:40px;
+    height:40px;
+
+    border:none;
+
+    border-radius:12px;
+
+    background:#111827;
+
+    color:#9ca3af;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    cursor:pointer;
+
+    transition:.25s;
+}
+
+.close-btn:hover{
+
+    background:#1f2937;
+
+    color:#fff;
+}
+.modal h2{
+
+    font-size:30px;
+
+    font-weight:800;
+
+    color:#fff;
+
+    margin-bottom:8px;
+}
+
+.sub{
+
+    color:#6b7280;
+
+    font-size:13px;
+
+    line-height:1.7;
+
+    margin-bottom:28px;
+}
+.section-title{
+
+    color:#fff;
+
+    font-size:13px;
+
+    font-weight:700;
+
+    letter-spacing:1px;
+
+    margin-bottom:22px;
+
+    padding-bottom:12px;
+
+    border-bottom:1px solid #1f2937;
+}
+.field{
+
+    margin-bottom:20px;
+}
+
+.field label{
+
+    display:block;
+
+    margin-bottom:8px;
+
+    font-size:11px;
+
+    font-weight:700;
+
+    letter-spacing:1px;
+
+    color:#9ca3af;
+}
+
+.field input,
+.field select{
+
+    width:100%;
+
+    height:54px;
+
+    background:#020617;
+
+    border:1px solid #1e293b;
+
+    border-radius:14px;
+
+    padding:0 16px;
+
+    color:#fff;
+
+    outline:none;
+
+    transition:.25s;
+}
+
+.field input:focus,
+.field select:focus{
+
+    border-color:#2563eb;
+
+    box-shadow:
+    0 0 0 4px rgba(37,99,235,.15);
+}
+.buttons{
+
+    display:flex;
+
+    gap:14px;
+
+    margin-top:25px;
+}
+
+.cancel-btn{
+
+    flex:1;
+
+    height:52px;
+
+    border:none;
+
+    border-radius:14px;
+
+    background:#111827;
+
+    color:#9ca3af;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    text-decoration:none;
+
+    font-weight:600;
+
+    transition:.25s;
+}
+
+.cancel-btn:hover{
+
+    background:#1f2937;
+
+    color:#fff;
+}
+
+.save-btn{
+
+    flex:1;
+
+    height:52px;
+
+    border:none;
+
+    border-radius:14px;
+
+    background:
+    linear-gradient(
+        90deg,
+        #2563eb,
+        #3b82f6
+    );
+
+    color:#fff;
+
+    font-weight:700;
+
+    cursor:pointer;
+}
+.modal{
+
+    width:1000px;
+
+    max-width:95vw;
+
+    max-height:90vh;
+
+    overflow-y:auto;
+}
+@media(max-width:992px){
+
+    .edit-grid{
+
+        grid-template-columns:1fr;
+
+    }
+
+    .row{
+
+        grid-template-columns:1fr;
+
+    }
+
+}
+.message-container{
+
+    margin-bottom:20px;
+
+}
+
+.message{
+
+    padding:14px 18px;
+
+    border-radius:12px;
+
+    margin-bottom:10px;
+
+    font-size:14px;
+
+    font-weight:600;
+
+}
+
+.message.error{
+
+    background:#2b1111;
+
+    border:1px solid #dc2626;
+
+    color:#fca5a5;
+
+}
+
+.message.success{
+
+    background:#0f2a18;
+
+    border:1px solid #16a34a;
+
+    color:#86efac;
+
+}
+</style>
+</head>
+<body>
+
+<div class="bg">
+
+    <div class="bg-inner">
+
+        {% include "coupon_management.html" %}
+
+    </div>
+
+</div>
+
+<div class="overlay">
+
+    <div class="modal">
+
+        <button
+        class="close-btn"
+        onclick="window.history.back()"
+        >
+
+            <span class="material-symbols-outlined">
+                close
+            </span>
+
+        </button>
+
+        <h2>Add New Coupon</h2>
+        {% if messages %}
+
+<div class="message-container">
+
+    {% for message in messages %}
+
+        <div class="message {{ message.tags }}">
+
+            {{ message }}
+
+        </div>
+
+    {% endfor %}
+
+</div>
+
+{% endif %}
+
+        <p class="sub">
+
+            Create promotional offers and discounts for customers
+
+        </p>
+<form method="POST">
+        {% csrf_token %}
+
+        <div class="edit-grid">
+
+            <div class="main-card">
+
+                <div class="card-title">
+
+                    GENERAL INFORMATION
+
+                </div>
+
+                <div class="field">
+
+    <label>
+        COUPON CODE
+        <span class="required">*</span>
+    </label>
+
+    <input
+        type="text"
+        name="code"
+        placeholder="Enter coupon code"
+        required
+    >
+
+</div>
+
+<div class="row">
+
+    <div class="field">
+
+        <label>
+            DISCOUNT TYPE
+        </label>
+
+        <select name="discount_type">
+
+            <option value="FIXED">
+                Fixed Amount
+            </option>
+
+            <option value="PERCENTAGE">
+                Percentage
+            </option>
+
+        </select>
+
+    </div>
+
+    <div class="field">
+
+        <label>
+            DISCOUNT VALUE
+        </label>
+
+        <input
+            type="number"
+            step="0.01"
+            name="discount_value"
+            required
+        >
+
+    </div>
+
+</div>
+<div class="row">
+
+    <div class="field">
+
+        <label>
+            MINIMUM PURCHASE
+        </label>
+
+        <input
+            type="number"
+            step="0.01"
+            name="min_purchase"
+        >
+
+    </div>
+
+    <div class="field">
+
+        <label>
+            MAXIMUM DISCOUNT
+        </label>
+
+        <input
+            type="number"
+            step="0.01"
+            name="max_discount"
+        >
+
+    </div>
+
+</div>
+
+<div class="row">
+
+    <div class="field">
+
+        <label>
+            USAGE LIMIT PER USER
+        </label>
+
+        <input
+            type="number"
+            name="usage_limit_per_user"
+            
+        >
+
+    </div>
+
+    <div class="field">
+
+        <label>
+            TOTAL USAGE LIMIT
+        </label>
+
+        <input
+            type="number"
+            name="total_usage_limit"
+            
+        >
+
+    </div>
+
+</div>
+
+            </div>
+
+    <div class="sidebar-cards">
+
+        <div class="side-card">
+
+            <div class="status-box">
+
+                <div class="status-text">
+
+                    <h4>
+                        Coupon Status
+                    </h4>
+
+                    <p>
+                        Enable this coupon for customers
+                    </p>
+
+                </div>
+
+                <label class="switch">
+
+                    <input
+                        type="checkbox"
+                        name="is_active"
+                        checked
+                    >
+
+                    <span class="slider"></span>
+
+                </label>
+
+            </div>
+
+        </div>
+
+        <div class="side-card">
+
+            <div class="section-title">
+
+                SCHEDULE
+
+            </div>
+
+            <div class="field">
+
+                <label>
+                    START DATE
+                </label>
+
+                <input
+                    type="date"
+                    name="start_date"
+                    required
+                >
+
+            </div>
+
+            <div class="field">
+
+                <label>
+                    END DATE
+                </label>
+
+                <input
+                    type="date"
+                    name="end_date"
+                    required
+                >
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+    <div class="action-buttons">
+
+    <a
+    href="{% url 'coupon_management' %}"
+    class="cancel-btn"
+    >
+        CANCEL
+    </a>
+
+    <button
+    type="submit"
+    class="save-btn"
+    >
+        CREATE COUPON
+    </button>
+
+</div>
+
+</form>
+
+</div>
+</div>
+</div>
+
+</body>
+</html>

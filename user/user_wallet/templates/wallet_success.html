@@ -1,0 +1,210 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<style>
+
+.success-overlay{
+
+    position:fixed;
+
+    top:0;
+
+    left:0;
+
+    width:100%;
+
+    height:100vh;
+
+    background:rgba(
+        0,
+        0,
+        0,
+        .55
+    );
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    z-index:9999;
+
+}
+
+.success-card{
+
+    width:420px;
+
+    background:#fff;
+
+    border-radius:20px;
+
+    padding:40px;
+
+    text-align:center;
+
+    box-shadow:0 20px 50px rgba(
+        0,
+        0,
+        0,
+        .15
+    );
+
+    animation:popup .3s ease;
+
+}
+
+@keyframes popup{
+
+    from{
+
+        transform:scale(.8);
+
+        opacity:0;
+
+    }
+
+    to{
+
+        transform:scale(1);
+
+        opacity:1;
+
+    }
+
+}
+
+.success-icon{
+
+    width:80px;
+
+    height:80px;
+
+    margin:0 auto 25px;
+
+    border-radius:50%;
+
+    background:#e9fff0;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    font-size:40px;
+
+    color:#16a34a;
+
+}
+
+.success-title{
+
+    font-size:32px;
+
+    font-weight:700;
+
+    color:#172033;
+
+    margin-bottom:15px;
+
+}
+
+.success-text{
+
+    color:#6b7280;
+
+    line-height:1.7;
+
+    margin-bottom:25px;
+
+}
+
+.success-amount{
+
+    font-size:28px;
+
+    font-weight:700;
+
+    color:#0d5eff;
+
+    margin-bottom:25px;
+
+}
+
+.wallet-btn{
+
+    display:block;
+
+    width:100%;
+
+    background:#0d5eff;
+
+    color:white;
+
+    text-decoration:none;
+
+    padding:16px;
+
+    border-radius:12px;
+
+    font-weight:700;
+
+    transition:.3s;
+
+}
+
+.wallet-btn:hover{
+
+    opacity:.9;
+
+}
+
+</style>
+
+<div class="success-overlay">
+
+    <div class="success-card">
+
+        <div class="success-icon">
+
+            ✓
+
+        </div>
+
+        <h2 class="success-title">
+
+            Wallet Updated
+
+        </h2>
+
+        <p class="success-text">
+
+            Money successfully added to your wallet.
+
+            Your balance has been updated.
+
+        </p>
+
+        <div class="success-amount">
+
+            + ₹{{ amount }}
+
+        </div>
+
+        <a
+        href="{% url 'wallet_page' %}"
+        class="wallet-btn"
+        >
+
+            Go To Wallet →
+
+        </a>
+
+    </div>
+
+</div>
+
+{% endblock %}

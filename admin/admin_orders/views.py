@@ -8,6 +8,8 @@ from django.utils import timezone
 from django.db.models import Q
 from user.user_orders.models import ReturnRequest,ReturnItem
 from admin.decorators import admin_required
+from user.user_wallet.models import Wallet,WalletTransaction
+from user.accounts.utils import credit_referral_reward
 
 
 @admin_required
@@ -109,6 +111,7 @@ def order_management(request):
     )
 
 
+
 def admin_order_view(request, order_id):
 
     order = get_object_or_404(
@@ -126,10 +129,6 @@ def admin_order_view(request, order_id):
 
     )
 
-    # =====================================
-    # STATUS UPDATE
-    # =====================================
-
     if request.method == 'POST':
 
         new_status = request.POST.get(
@@ -141,10 +140,6 @@ def admin_order_view(request, order_id):
         )
 
         allowed_statuses = order.allowed_next_statuses()
-
-        # =================================
-        # INVALID STATUS MOVEMENT
-        # =================================
 
         if new_status not in allowed_statuses:
 
@@ -163,9 +158,6 @@ def admin_order_view(request, order_id):
                 order_id=order.order_id
 
             )
-        # =================================
-        # UPDATE STATUS
-        # =================================
 
         order.order_status = new_status
 
@@ -179,40 +171,27 @@ def admin_order_view(request, order_id):
         order.show_status_message = True
 
 
-        # =================================
-        # DELIVERY TIME
-        # =================================
-
         if new_status == 'Delivered':
 
             order.delivered_at = timezone.now()
 
             order.payment_status = 'Paid'
 
-        # =================================
-        # CANCEL
-        # =================================
-
-        # =================================
-        # CANCEL
-        # =================================
+            credit_referral_reward(
+                request,
+                order.user,
+                order
+            )
 
         if new_status == 'Cancelled':
 
             order.is_cancelled = True
 
-            # RESTORE STOCK
-            # UPDATE ITEM STATUS
-
             for item in order.items.all():
-
-                # ITEM STATUS
 
                 item.item_status = 'Cancelled'
 
                 item.save()
-
-                # RESTORE STOCK
 
                 item.variant.stock += item.quantity
 
@@ -221,9 +200,6 @@ def admin_order_view(request, order_id):
 
 
         order.save()
-        # =================================
-        # UPDATE ITEM STATUS
-        # =================================
 
         if new_status != 'Cancelled':
 
@@ -248,12 +224,56 @@ def admin_order_view(request, order_id):
             order_id=order.order_id
 
         )
+    summary_subtotal = 0
+    summary_offer_discount = 0
 
+    for item in order.items.all():
+
+        if item.item_status != "Cancelled":
+
+            summary_subtotal += (
+                item.original_price *
+                item.quantity
+            )
+
+            summary_offer_discount += (
+                item.offer_discount *
+                item.quantity
+            )
+
+    summary_total = (
+        summary_subtotal
+        - summary_offer_discount
+        - order.discount_amount
+        + order.shipping_charge
+        + order.tax_amount
+    )
+
+    active_items = order.items.exclude(
+        item_status="Cancelled"
+    )
+
+    cancelled_items = order.items.filter(
+        item_status="Cancelled"
+    )
     context = {
 
         'order': order,
 
-        'allowed_statuses': order.allowed_next_statuses()
+        'allowed_statuses':
+        order.allowed_next_statuses(),
+
+        'summary_subtotal':
+        summary_subtotal,
+
+        'summary_offer_discount':
+        summary_offer_discount,
+
+        'summary_total':
+        summary_total,
+
+        "active_items": active_items,
+        "cancelled_items": cancelled_items,
 
     }
 
@@ -267,21 +287,244 @@ def admin_order_view(request, order_id):
 
     )
 
+from django.http import HttpResponse
+from reportlab.pdfgen import canvas
+from reportlab.lib.units import inch
+
+@admin_required
+def generate_invoice(request, order_id):
+
+    order = get_object_or_404(
+        Order,
+        order_id=order_id
+    )
+
+    response = HttpResponse(
+        content_type='application/pdf'
+    )
+
+    response[
+        'Content-Disposition'
+    ] = (
+        f'attachment; '
+        f'filename="invoice_{order.order_id}.pdf"'
+    )
+
+    p = canvas.Canvas(response)
+
+    y = 800
+
+    p.setFont(
+        "Helvetica-Bold",
+        18
+    )
+
+    p.drawString(
+        50,
+        y,
+        "INVOICE"
+    )
+
+    y -= 40
+
+    p.setFont(
+        "Helvetica",
+        12
+    )
+
+    p.drawString(
+        50,
+        y,
+        f"Order ID : {order.order_id}"
+    )
+
+    y -= 20
+
+    p.drawString(
+        50,
+        y,
+        f"Date : {order.created_at.strftime('%d-%m-%Y')}"
+    )
+
+    y -= 20
+
+    p.drawString(
+        50,
+        y,
+        f"Customer : {order.user.get_full_name()}"
+    )
+
+    y -= 40
+
+    p.setFont(
+        "Helvetica-Bold",
+        12
+    )
+
+    p.drawString(
+        50,
+        y,
+        "Product"
+    )
+
+    p.drawString(
+        250,
+        y,
+        "Qty"
+    )
+
+    p.drawString(
+        320,
+        y,
+        "Price"
+    )
+
+    p.drawString(
+        420,
+        y,
+        "Total"
+    )
+
+    y -= 25
+
+    p.line(
+        50,
+        y,
+        550,
+        y
+    )
+
+    y -= 20
+
+    p.setFont(
+        "Helvetica",
+        11
+    )
+
+    for item in order.items.all():
+
+        p.drawString(
+            50,
+            y,
+            item.product.product_name
+        )
+
+        p.drawString(
+            250,
+            y,
+            str(item.quantity)
+        )
+
+        p.drawString(
+            320,
+            y,
+            f"₹{item.price}"
+        )
+
+        p.drawString(
+            420,
+            y,
+            f"₹{item.total_price}"
+        )
+
+        y -= 25
+
+    y -= 20
+
+    p.line(
+        50,
+        y,
+        550,
+        y
+    )
+
+    y -= 30
+
+    p.drawString(
+        320,
+        y,
+        "Subtotal"
+    )
+
+    p.drawString(
+        420,
+        y,
+        f"₹{order.subtotal}"
+    )
+
+    y -= 20
+
+    p.drawString(
+        320,
+        y,
+        "Offer Discount"
+    )
+
+    p.drawString(
+        420,
+        y,
+        f"-₹{order.offer_discount}"
+    )
+
+    y -= 20
+
+    p.drawString(
+        320,
+        y,
+        "Coupon Discount"
+    )
+
+    p.drawString(
+        420,
+        y,
+        f"-₹{order.discount_amount}"
+    )
+
+    y -= 20
+
+    p.drawString(
+        320,
+        y,
+        "Shipping"
+    )
+
+    p.drawString(
+        420,
+        y,
+        f"₹{order.shipping_charge}"
+    )
+
+    y -= 30
+
+    p.setFont(
+        "Helvetica-Bold",
+        13
+    )
+
+    p.drawString(
+        320,
+        y,
+        "Grand Total"
+    )
+
+    p.drawString(
+        420,
+        y,
+        f"₹{order.total_amount}"
+    )
+
+    p.showPage()
+    p.save()
+
+    return response
+
 @admin_required
 def return_management(request):
-
-    # =====================================
-    # SEARCH
-    # =====================================
 
     search = request.GET.get(
         'search',
         ''
     )
-
-    # =====================================
-    # ONLY REQUESTED RETURNS
-    # =====================================
 
     returns = ReturnRequest.objects.all().select_related(
 
@@ -309,10 +552,6 @@ def return_management(request):
             return_status=status
         )
 
-    # =====================================
-    # SEARCH FILTER
-    # =====================================
-
     if search:
 
         returns = returns.filter(
@@ -324,10 +563,6 @@ def return_management(request):
             Q(user__email__icontains=search)
 
         )
-
-    # =====================================
-    # STATISTICS
-    # =====================================
 
     total_returns = ReturnRequest.objects.count()
 
@@ -343,9 +578,6 @@ def return_management(request):
         return_status='rejected'
     ).count()
 
-    # =====================================
-    # PAGINATION
-    # =====================================
 
     paginator = Paginator(
         returns,
@@ -388,11 +620,6 @@ def return_management(request):
 
     )
 
-
-# =========================================================
-# RETURN REQUEST DETAILS
-# =========================================================
-
 def return_request_details(request, request_id):
 
     return_request = get_object_or_404(
@@ -416,15 +643,7 @@ def return_request_details(request, request_id):
 
     )
 
-    # =====================================
-    # POST ACTIONS
-    # =====================================
-
     if request.method == 'POST':
-
-        # =================================
-        # ALREADY PROCESSED CHECK
-        # =================================
 
         if return_request.return_status != 'requested':
 
@@ -448,22 +667,26 @@ def return_request_details(request, request_id):
             'action'
         )
 
-        # =================================
-        # APPROVE RETURN
-        # =================================
-
         if action == 'approve':
+            if return_request.processed_at:
 
-            # UPDATE RETURN STATUS
+                messages.error(
 
-            return_request.return_status = (
-                'approved'
-            )
+                    request,
+
+                    "Return already processed."
+
+                )
+
+                return redirect(
+
+                    'return_management'
+
+                )
+
+            return_request.return_status = 'approved'
 
             return_request.save()
-            # =================================
-            # USER TOAST MESSAGE
-            # =================================
 
             order = return_request.order
 
@@ -474,6 +697,47 @@ def return_request_details(request, request_id):
             order.show_status_message = True
 
             order.save()
+
+            # WALLET REFUND
+
+            if (
+
+                return_request.refund_method == "Store Wallet"
+
+                and
+
+                return_request.return_status == "approved"
+
+            ):
+
+                wallet, created = Wallet.objects.get_or_create(
+
+                    user=return_request.user
+
+                )
+
+                wallet.balance += return_request.refund_amount
+
+                wallet.save()
+
+                WalletTransaction.objects.create(
+
+                    wallet=wallet,
+
+                    order=order,
+
+                    transaction_type="CREDIT",
+
+                    status="SUCCESS",
+
+                    amount=return_request.refund_amount,
+
+                    description=(
+                        f"Return refund credited "
+                        f"for order {order.order_id}"
+                    )
+
+                )
 
             # UPDATE ITEMS
 
@@ -504,10 +768,6 @@ def return_request_details(request, request_id):
                 'Return request approved successfully.'
 
             )
-
-        # =================================
-        # REJECT RETURN
-        # =================================
 
         elif action == 'reject':
 

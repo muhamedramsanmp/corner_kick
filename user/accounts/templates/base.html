@@ -176,7 +176,7 @@
 
     border-radius:50px;
 
-    background:#111827;
+    background:#2563eb;
 
     color:white;
 
@@ -334,7 +334,7 @@
     top:90px;
     right:30px;
 
-    background:#111827;
+    background:#059669;
 
     color:white;
 
@@ -695,6 +695,10 @@
 
 <!-- PROFILE -->
 
+{% if user.is_authenticated %}
+
+<!-- PROFILE -->
+
 <div class="profile-dropdown-wrapper">
 
     <button
@@ -785,7 +789,7 @@
             </a>
 
             <a
-            href="{% url "my_orders" %}"
+            href="{% url 'my_orders' %}"
             class="dropdown-item"
             >
 
@@ -811,7 +815,7 @@
             </a>
 
             <a
-            href="#"
+            href="{% url "wallet_page" %}"
             class="dropdown-item"
             >
 
@@ -841,6 +845,25 @@
     </div>
 
 </div>
+
+{% else %}
+
+<a
+href="{% url 'login' %}"
+class="dropdown-item"
+style="
+    background:#2563eb;
+    color:white;
+    padding:10px 18px;
+    border-radius:12px;
+    text-decoration:none;
+    font-weight:600;
+"
+>
+    Login
+</a>
+
+{% endif %}
 
 </div>
 
@@ -1068,7 +1091,13 @@ document.addEventListener("click",function(e){
                         productGrid.querySelectorAll(
                             ".product-card"
                         )
+                    if(remainingCards.length === 0){
 
+                        window.location.href = window.location.href;
+
+                        return;
+
+                    }
                     if(remainingCards.length === 0){
 
                         productGrid.innerHTML = `
@@ -1095,6 +1124,33 @@ document.addEventListener("click",function(e){
                         </div>
 
                         `
+
+                        // UPDATE SUBTITLE
+
+                        const subtitle =
+                            document.getElementById(
+                                "wishlist-subtitle"
+                            )
+
+                        if(subtitle){
+
+                            subtitle.innerText =
+                                "0 SAVED PRODUCTS"
+
+                        }
+
+                        // HIDE PAGINATION
+
+                        const pagination =
+                            document.querySelector(
+                                ".wishlist-pagination"
+                            )
+
+                        if(pagination){
+
+                            pagination.remove()
+
+                        }
 
                     }
 
@@ -1215,6 +1271,34 @@ document.addEventListener(
 
     }
 )
+
+</script>
+<audio id="notification-sound" preload="auto">
+    <source src="{% static 'sounds/notification.mp3.wav' %}" type="audio/wav">
+</audio>
+<script>
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const messages =
+        document.querySelectorAll(".alert");
+
+    if (messages.length > 0) {
+
+        const sound =
+            document.getElementById(
+                "notification-sound"
+            );
+
+        sound.volume = 0.6;
+
+        sound.play().catch(error => {
+            console.log(error);
+        });
+
+    }
+
+});
 
 </script>
 </body>

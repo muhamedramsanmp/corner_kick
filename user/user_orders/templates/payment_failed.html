@@ -1,0 +1,168 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<style>
+
+.failed-container{
+
+    min-height:100vh;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    background:#f5f7fb;
+
+}
+
+.failed-card{
+
+    width:500px;
+
+    background:#fff;
+
+    padding:50px;
+
+    border-radius:20px;
+
+    text-align:center;
+
+    box-shadow:0 10px 30px rgba(0,0,0,.08);
+
+}
+
+.failed-icon{
+
+    width:90px;
+
+    height:90px;
+
+    margin:auto;
+
+    border-radius:50%;
+
+    background:#ffe9e9;
+
+    color:#ff4d4d;
+
+    font-size:45px;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+}
+
+.failed-card h1{
+
+    margin-top:25px;
+
+    font-size:34px;
+
+    color:#1a1a1a;
+
+}
+
+.failed-card p{
+
+    margin-top:15px;
+
+    color:#666;
+
+    line-height:1.7;
+
+}
+
+.failed-btn{
+
+    display:block;
+
+    margin-top:25px;
+
+    text-decoration:none;
+
+    background:#2d5cff;
+
+    color:#fff;
+
+    padding:15px;
+
+    border-radius:10px;
+
+    font-weight:600;
+
+}
+
+.cart-btn{
+
+    display:block;
+
+    margin-top:15px;
+
+    text-decoration:none;
+
+    border:1px solid #ddd;
+
+    color:#333;
+
+    padding:15px;
+
+    border-radius:10px;
+
+    font-weight:600;
+
+}
+
+</style>
+
+<div class="failed-container">
+
+    <div class="failed-card">
+
+        <div class="failed-icon">
+
+            ✕
+
+        </div>
+
+        <h1>
+
+            Payment Failed
+
+        </h1>
+
+        <p>
+
+            We couldn't complete your payment.
+            No amount has been deducted from your account.
+
+        </p>
+
+        <a
+        href="{% url 'checkout_page' %}"
+        class="failed-btn"
+        >
+
+            Retry Payment
+
+        </a>
+
+        <a
+        href="{% url 'user_products:cart' %}"
+        class="cart-btn"
+        >
+
+            Back To Cart
+
+        </a>
+
+    </div>
+
+</div>
+
+{% endblock %}

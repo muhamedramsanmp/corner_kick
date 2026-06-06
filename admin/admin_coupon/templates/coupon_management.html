@@ -1,0 +1,1137 @@
+{% extends 'admin_base.html' %}
+{% load static %}
+
+{% block title %}
+Admin coupon
+{% endblock %}
+
+{% block content %}
+<style>
+    .topbar{
+    position:fixed;
+    left:250px;
+    right:0;
+    height:70px;
+    background:#0b0b0b;
+    display:flex;
+    align-items:center;
+    padding:0 25px;
+    border-bottom:1px solid #111;
+    z-index:100;
+}
+
+.cards{
+
+    display:grid;
+
+    grid-template-columns:repeat(3,1fr);
+
+    gap:20px;
+
+    margin-bottom:30px;
+}
+
+.card{
+
+    background:#111;
+
+    padding:20px;
+
+    border-radius:12px;
+
+    border:1px solid #1f2937;
+}
+
+.card-top{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+}
+
+.card small{
+
+    font-size:11px;
+
+    letter-spacing:1px;
+
+    color:#6b7280;
+}
+
+.card h2{
+
+    margin-top:12px;
+
+    font-size:28px;
+
+    color:#fff;
+}
+
+.icon{
+
+    font-size:22px;
+}
+
+.blue{
+
+    color:#3b82f6;
+}
+
+.green{
+
+    color:#10b981;
+}
+
+.red{
+
+    color:#ef4444;
+}
+.blue{color:#3b82f6;}
+.green{color:#10b981;}
+.red{color:#ef4444;}
+
+.filter-section{
+
+    background:#050505;
+
+    border:1px solid #1f2937;
+
+    border-radius:26px;
+
+    padding:24px;
+
+    margin-bottom:28px;
+}
+
+.filter-form{
+
+    display:flex;
+
+    gap:20px;
+}
+
+.search-box{
+
+    flex:1;
+
+    background:#091633;
+
+    border-radius:18px;
+
+    height:70px;
+
+    display:flex;
+
+    align-items:center;
+
+    padding:0 24px;
+
+    gap:15px;
+}
+
+.search-box input{
+
+    flex:1;
+
+    border:none;
+
+    background:none;
+
+    color:white;
+
+    outline:none;
+}
+
+.filter-form select{
+
+    width:320px;
+
+    background:#091633;
+
+    border:none;
+
+    border-radius:18px;
+
+    color:white;
+
+    padding:0 20px;
+}
+
+.table-wrapper{
+
+    background:#050505;
+
+    border:1px solid #1f2937;
+
+    border-radius:26px;
+
+    overflow:hidden;
+}
+
+.table-head,
+.table-row{
+
+    display:grid;
+
+    grid-template-columns:
+    1.6fr
+    1fr
+    1fr
+    1fr
+    1fr
+    .8fr
+    .8fr;
+
+    align-items:center;
+}
+
+.table-head{
+
+    color:#94a3b8;
+
+    border-bottom:1px solid #1f2937;
+}
+
+.table-row{
+
+    border-bottom:1px solid #111827;
+}
+
+.coupon-name{
+
+    color:white;
+
+    font-weight:700;
+}
+
+.status-active{
+
+    background:#052e16;
+
+    color:#22c55e;
+
+    padding:8px 14px;
+
+    border-radius:20px;
+
+    font-size:12px;
+}
+
+.status-inactive{
+
+    background:#3f3f46;
+
+    color:#d4d4d8;
+
+    padding:8px 14px;
+
+    border-radius:20px;
+
+    font-size:12px;
+}
+
+.action-group{
+
+    display:flex;
+
+    gap:15px;
+}
+
+.action-group a{
+
+    color:#94a3b8;
+}
+    
+.coupon-container{
+
+    padding:30px;
+
+    color:#fff;
+}
+
+.page-header{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    margin-bottom:30px;
+}
+
+.page-header h1{
+
+    font-size:38px;
+
+    font-weight:700;
+
+    margin-bottom:5px;
+}
+
+.page-header p{
+
+    color:#7b8190;
+}
+
+.add-btn{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:8px;
+
+    background:#2563eb;
+
+    color:#fff;
+
+    text-decoration:none;
+
+    padding:14px 22px;
+
+    border-radius:12px;
+
+    font-weight:600;
+}
+
+.toolbar{
+
+    display:flex;
+
+    gap:15px;
+
+    margin-bottom:25px;
+}
+
+.search-box{
+
+    width:400px;
+
+    height:52px;
+
+    background:#0f1117;
+
+    border:1px solid #1f2937;
+
+    border-radius:12px;
+
+    display:flex;
+
+    align-items:center;
+
+    gap:12px;
+
+    padding:0 18px;
+}
+
+
+.tool-btn{
+
+    height:52px;
+
+    padding:0 20px;
+
+    background:#111318;
+
+    border:1px solid #1f2937;
+
+    border-radius:12px;
+
+    color:#fff;
+
+    display:flex;
+
+    align-items:center;
+
+    gap:8px;
+
+    cursor:pointer;
+}
+
+.coupon-table{
+
+    background:#0b0d12;
+
+    border:1px solid #1f2937;
+
+    border-radius:18px;
+
+    overflow:hidden;
+}
+
+.table-head{
+
+    padding:20px;
+
+    background:#0e1015;
+
+    color:#7b8190;
+
+    font-size:12px;
+
+    font-weight:700;
+
+    letter-spacing:1px;
+}
+
+.table-row{
+
+    padding:22px 20px;
+
+    border-top:1px solid #171a21;
+}
+
+.coupon-code{
+
+    font-size:18px;
+
+    font-weight:700;
+}
+
+.coupon-code + small{
+
+    color:#2563eb;
+}
+
+.progress{
+
+    width:120px;
+
+    height:7px;
+
+    background:#222;
+
+    border-radius:10px;
+
+    overflow:hidden;
+
+    margin-top:6px;
+}
+
+.progress-fill{
+
+    height:100%;
+
+    background:#2563eb;
+}
+
+.badge{
+
+    padding:7px 14px;
+
+    border-radius:30px;
+
+    font-size:11px;
+
+    font-weight:700;
+}
+
+.active{
+
+    background:#073b1d;
+
+    color:#22c55e;
+}
+
+.inactive{
+
+    background:#222;
+
+    color:#9ca3af;
+}
+
+.actions{
+
+    display:flex;
+
+    gap:10px;
+}
+
+.action-btn{
+
+    width:36px;
+
+    height:36px;
+
+    border-radius:8px;
+
+    background:#111827;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    color:#9ca3af;
+
+    text-decoration:none;
+}
+
+.action-btn:hover{
+
+    background:#1e293b;
+
+    color:#fff;
+}
+
+.delete:hover{
+
+    background:#7f1d1d;
+
+    color:#ef4444;
+}
+
+.empty-row{
+
+    padding:40px;
+
+    text-align:center;
+
+    color:#7b8190;
+}
+
+.pagination{
+
+    margin-top:30px;
+    display:flex;
+    justify-content:flex-end;
+    gap:10px;
+
+}
+
+.pagination a,
+.active-page{
+
+    width:40px;
+    height:40px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border-radius:8px;
+    text-decoration:none;
+
+}
+
+.pagination a{
+
+    background:#111;
+    color:#fff;
+
+}
+
+.active-page{
+
+    background:#2563eb;
+    color:#fff;
+
+}
+.delete-modal{
+
+    position:fixed;
+
+    inset:0;
+
+    background:rgba(0,0,0,.75);
+
+    backdrop-filter:blur(6px);
+
+    display:none;
+
+    align-items:center;
+
+    justify-content:center;
+
+    z-index:9999;
+}
+
+.delete-modal.show{
+
+    display:flex;
+}
+
+.delete-box{
+
+    width:420px;
+
+    background:#0b0b0b;
+
+    border:1px solid #1f2937;
+
+    border-radius:20px;
+
+    padding:35px;
+
+    text-align:center;
+
+    box-shadow:
+    0 20px 60px rgba(0,0,0,.6);
+}
+
+.delete-icon{
+
+    font-size:40px;
+
+    color:#ef4444;
+
+    margin-bottom:15px;
+}
+
+.delete-box h2{
+
+    color:white;
+
+    margin-bottom:15px;
+}
+
+.delete-box p{
+
+    color:#9ca3af;
+
+    line-height:1.7;
+
+    font-size:14px;
+
+    margin-bottom:25px;
+}
+
+.delete-actions{
+
+    display:flex;
+
+    gap:12px;
+}
+
+.cancel-delete{
+
+    flex:1;
+
+    height:48px;
+
+    background:#111827;
+
+    border:1px solid #1f2937;
+
+    color:#9ca3af;
+
+    border-radius:10px;
+
+    cursor:pointer;
+}
+
+.confirm-delete{
+
+    flex:1;
+
+    height:48px;
+
+    border:none;
+
+    background:#ef4444;
+
+    color:white;
+
+    border-radius:10px;
+
+    font-weight:700;
+
+    cursor:pointer;
+}
+
+.confirm-delete:hover{
+
+    background:#dc2626;
+}
+
+</style>
+    <div class="topbar">
+        <a href="{% url 'add_coupon' %}" class="add-btn">
+
+            <span class="material-symbols-outlined">
+                add
+            </span>
+
+            ADD COUPON
+
+        </a>
+    </div>
+
+
+<div class="coupon-container">
+
+    <!-- HEADER -->
+
+    <div class="page-header">
+
+        <div>
+
+            <h1>Coupons</h1>
+
+            <p>
+                Manage and organize your discount codes and promotions.
+            </p>
+
+        </div>
+
+
+
+    </div>
+
+    <!-- TOOLS -->
+
+
+
+
+<div class="cards">
+
+    <div class="card">
+
+        <div class="card-top">
+
+            <small>TOTAL COUPONS</small>
+
+            <span class="icon blue material-symbols-outlined">
+                confirmation_number
+            </span>
+
+        </div>
+
+        <h2>{{ total_coupons }}</h2>
+
+    </div>
+
+    <div class="card">
+
+        <div class="card-top">
+
+            <small>ACTIVE COUPONS</small>
+
+            <span class="icon green material-symbols-outlined">
+                check_circle
+            </span>
+
+        </div>
+
+        <h2>{{ active_coupons }}</h2>
+
+    </div>
+
+    <div class="card">
+
+        <div class="card-top">
+
+            <small>EXPIRED</small>
+
+            <span class="icon red material-symbols-outlined">
+                block
+            </span>
+
+        </div>
+
+        <h2>{{ expired_coupons }}</h2>
+
+    </div>
+
+</div>
+
+    <div class="filter-section">
+
+    <form method="GET" class="filter-form">
+
+        <div class="search-box">
+
+            <span class="material-symbols-outlined">
+                search
+            </span>
+
+            <input
+                type="text"
+                name="search"
+                placeholder="Search coupons..."
+                value="{{ search }}"
+            >
+
+        </div>
+
+        <select
+            name="status"
+            onchange="this.form.submit()"
+        >
+
+            <option value="">
+                All Coupons
+            </option>
+
+            <option value="active">
+                Active
+            </option>
+
+            <option value="inactive">
+                Inactive
+            </option>
+
+        </select>
+
+    </form>
+
+</div>
+    <!-- TABLE -->
+
+    <div class="coupon-table">
+
+        <div class="table-head">
+
+            <div>COUPON CODE</div>
+            <div>DISCOUNT DETAILS</div>
+            <div>LIMITS</div>
+            <div>USAGE</div>
+            <div>EXPIRY</div>
+            <div>STATUS</div>
+            <div>ACTIONS</div>
+
+        </div>
+
+        {% for coupon in page_obj %}
+
+        <div class="table-row">
+
+    <!-- COUPON CODE -->
+
+    <div>
+
+        <div class="coupon-name">
+
+            {{ coupon.code }}
+
+        </div>
+
+        <small>
+
+            {% if coupon.discount_type == "PERCENTAGE" %}
+                Percentage Discount
+            {% else %}
+                Fixed Amount Discount
+            {% endif %}
+
+        </small>
+
+    </div>
+
+    <!-- DISCOUNT DETAILS -->
+
+    <div>
+
+        {% if coupon.discount_type == "PERCENTAGE" %}
+
+            <strong>
+
+                {{ coupon.discount_value }}% OFF
+
+            </strong>
+
+        {% else %}
+
+            <strong>
+
+                ₹{{ coupon.discount_value }} OFF
+
+            </strong>
+
+        {% endif %}
+
+    </div>
+
+    <!-- LIMITS -->
+
+    <div>
+
+        <div>
+
+            Min:
+            ₹{{ coupon.min_purchase }}
+
+        </div>
+
+        <div>
+
+            Max:
+            ₹{{ coupon.max_discount|default:"N/A" }}
+
+        </div>
+
+    </div>
+
+    <!-- USAGE -->
+
+    <div>
+
+        <div>
+
+            {{ coupon.used_count|default:0 }}/{{ coupon.total_usage_limit }}
+
+        </div>
+
+        <div class="usage-bar">
+
+            <div
+            class="usage-fill"
+            style="
+            width:
+            {% widthratio coupon.used_count coupon.total_usage_limit 100 %}%;
+            "
+            >
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- EXPIRY -->
+
+    <div>
+
+        {{ coupon.end_date }}
+
+    </div>
+
+    <!-- STATUS -->
+
+    <div>
+
+        {% if coupon.is_active %}
+
+            <span class="status-active">
+
+                ACTIVE
+
+            </span>
+
+        {% else %}
+
+            <span class="status-inactive">
+
+                INACTIVE
+
+            </span>
+
+        {% endif %}
+
+    </div>
+
+    <!-- ACTIONS -->
+
+    <div class="action-group">
+
+        <a
+        href="{% url 'edit_coupon' coupon.id %}"
+        >
+
+            <span class="material-symbols-outlined">
+                edit
+            </span>
+
+        </a>
+
+    <a
+    href="#"
+    onclick="
+    openDeleteModal(
+    '{{ coupon.id }}'
+    );
+    return false;
+    "
+    >
+
+        <span class="material-symbols-outlined">
+            delete
+        </span>
+
+    </a>
+
+    </div>
+
+</div>
+
+        {% empty %}
+
+        <div class="empty-row">
+
+            No coupons found.
+
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+</div>
+
+    <div class="pagination">
+
+        {% if page_obj.has_previous %}
+
+        <a
+        href="?page={{ page_obj.previous_page_number }}"
+        >
+
+            Prev
+
+        </a>
+
+        {% endif %}
+
+        {% for num in page_obj.paginator.page_range %}
+
+            {% if page_obj.number == num %}
+
+                <span class="active-page">
+
+                    {{ num }}
+
+                </span>
+
+            {% else %}
+
+                <a href="?page={{ num }}">
+
+                    {{ num }}
+
+                </a>
+
+            {% endif %}
+
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+
+        <a
+        href="?page={{ page_obj.next_page_number }}"
+        >
+
+            Next
+
+        </a>
+
+        {% endif %}
+
+    </div>
+
+</div>
+<div
+id="deleteModal"
+class="delete-modal"
+>
+
+    <div class="delete-box">
+
+        <span
+        class="material-symbols-outlined delete-icon"
+        >
+            delete
+        </span>
+
+        <h2>
+
+            Delete Coupon?
+
+        </h2>
+
+        <p>
+
+            This action cannot be undone.
+            The coupon code will be permanently removed
+            and no longer usable by customers.
+
+        </p>
+
+<form
+id="deleteForm"
+method="POST"
+data-url-template="{% url 'delete_coupon' 0 %}"
+>
+
+            {% csrf_token %}
+
+            <div class="delete-actions">
+
+                 <input
+    type="hidden"
+    id="couponIdInput"
+    >
+
+                <button
+                type="button"
+                class="cancel-delete"
+                onclick="closeDeleteModal()"
+                >
+
+                    CANCEL
+
+                </button>
+
+                <button
+                type="submit"
+                class="confirm-delete"
+                >
+
+                    DELETE
+
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+<script>
+
+function openDeleteModal(couponId){
+
+    document
+    .getElementById("deleteModal")
+    .classList.add("show");
+
+    let form = document.getElementById(
+        "deleteForm"
+    );
+
+    let urlTemplate =
+        form.dataset.urlTemplate;
+
+    form.action =
+        urlTemplate.replace(
+            "/0/",
+            "/" + couponId + "/"
+        );
+}
+function closeDeleteModal(){
+
+    document
+    .getElementById(
+        "deleteModal"
+    )
+    .classList.remove(
+        "show"
+    );
+}
+
+window.onclick = function(event){
+
+    const modal = document.getElementById(
+        "deleteModal"
+    );
+
+    if(event.target === modal){
+
+        closeDeleteModal();
+    }
+}
+
+</script>
+{% endblock %}

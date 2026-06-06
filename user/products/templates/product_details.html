@@ -845,20 +845,83 @@ onclick="changeImage(this, '{{ image.image.url }}')"
 
         <div class="price-row">
 
-        <div class="price" id="productPrice">
-            ₹{{ default_variant.price }}
-        </div>
+{% if price_data and price_data.offer %}
 
-            <div class="old-price">
-                ₹4999
-            </div>
+    <div class="price" id="productPrice">
 
-            <div class="discount">
-                20% OFF
-            </div>
+        ₹{{ price_data.final_price }}
 
-        </div>
+    </div>
 
+    <div
+class="old-price"
+id="oldPrice"
+>
+
+        ₹{{ price_data.original_price }}
+
+    </div>
+
+    <div
+class="discount"
+id="discountBadge"
+>
+
+        {% if price_data.offer.discount_type == "PERCENTAGE" %}
+
+            {{ price_data.offer.discount_value }}% OFF
+
+        {% else %}
+
+            ₹{{ price_data.discount_amount }} OFF
+
+        {% endif %}
+
+    </div>
+
+{% else %}
+
+    <div class="price" id="productPrice">
+
+        ₹{{ default_variant.price }}
+
+    </div>
+
+{% endif %}
+
+</div>
+{% if price_data and price_data.offer %}
+
+<div
+style="
+margin-bottom:20px;
+font-size:14px;
+font-weight:600;
+color:#16a34a;
+"
+>
+
+    You Save ₹{{ price_data.discount_amount }}
+
+</div>
+
+<div
+style="
+margin-bottom:20px;
+font-size:13px;
+color:#64748b;
+"
+>
+
+    <div id="offerName">
+
+Offer:
+{{ price_data.offer.offer_name }}
+
+</div>
+</div>
+
+{% endif %}
         <!-- STOCK -->
 
         {% if default_variant.available_stock > 0 %}
@@ -1263,7 +1326,7 @@ favorite_border
 </div>
 
 </div>
-
+{{ variant_offer_data|json_script:"offerData" }}
 <script>
 
 function changeImage(element, imageUrl){
@@ -1283,6 +1346,13 @@ function changeImage(element, imageUrl){
 
     element.classList.add('active');
 }
+
+const offerData =
+JSON.parse(
+    document.getElementById(
+        "offerData"
+    ).textContent
+);
 
 let selectedColor = "{{ default_variant.color }}";
 
@@ -1380,10 +1450,99 @@ function updateVariant(){
 
     // PRICE
 
+   console.log("offerData =", offerData);
+
+console.log(
+    "variant id =",
+    matchedVariant.id
+);
+
+const variantId =
+String(matchedVariant.id);
+
+console.log(
+    "variantId =",
+    variantId
+);
+
+console.log(
+    "offerData[variantId] =",
+    offerData[variantId]
+);
+
+const offer =
+offerData[variantId];
+
+console.log(
+    "final offer object =",
+    offer
+);
+
+console.log(
+    "offer =",
+    offer
+);
+
+if(offer){
+
     document.getElementById(
         "productPrice"
     ).innerText =
-        "₹" + matchedVariant.price;
+        "₹" +
+        offer.final_price;
+
+    const oldPrice =
+    document.getElementById(
+        "oldPrice"
+    );
+
+    if(oldPrice){
+
+        oldPrice.innerText =
+            "₹" +
+            offer.original_price;
+    }
+
+    const discountBadge =
+    document.getElementById(
+        "discountBadge"
+    );
+
+    if(discountBadge){
+
+        if(
+            offer.discount_type ===
+            "PERCENTAGE"
+        ){
+
+            discountBadge.innerText =
+                offer.discount_value +
+                "% OFF";
+
+        }else{
+
+            discountBadge.innerText =
+                "₹" +
+                offer.discount_amount +
+                " OFF";
+        }
+    }
+
+    const offerName =
+    document.getElementById(
+        "offerName"
+    );
+
+    if(
+        offerName &&
+        offer.offer_name
+    ){
+
+        offerName.innerText =
+            "Offer: " +
+            offer.offer_name;
+    }
+}
 
     // STOCK
 

@@ -17,7 +17,14 @@ from django.contrib.messages import get_messages
 from admin.admin_category.models import Category
 from admin.admin_products.models import Product,Variant
 from user.decorators import user_required
-
+from .utils import generate_referral_code
+from .models import ReferralCode,Referral,ReferralReward
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
+from django.db.models import Sum
+from user.user_wallet.models import Wallet
+from django.http import JsonResponse
+from django.core.paginator import Paginator
 
 User = get_user_model()
 
@@ -52,6 +59,7 @@ def signup_view(request):
     if request.method == "POST":
         full_name = request.POST.get("full_name", "").strip()
         email = request.POST.get("email", "").strip().lower()
+        referral_code = request.POST.get("referral_code","").strip().upper()
         password = request.POST.get("password")
         confirm_password = request.POST.get("confirm_password")
 
@@ -59,7 +67,8 @@ def signup_view(request):
         # store old values
         data = {
             "full_name": full_name,
-            "email": email
+            "email": email,
+            "referral_code": referral_code,
         }
 
         # required
@@ -89,6 +98,17 @@ def signup_view(request):
                 "errors": errors,
                 "data": data
             })
+        if referral_code:
+
+            referral_obj = ReferralCode.objects.filter(
+                code=referral_code
+            ).first()
+
+            if not referral_obj:
+
+                errors["referral_code"] = (
+                    "Invalid referral code"
+                )
 
         # ✅ OTP only if everything valid
         otp = str(random.randint(100000, 999999))
@@ -106,6 +126,7 @@ def signup_view(request):
             "full_name": full_name,
             "email": email,
             "password": password,
+            "referral_code": referral_code,
         }
 
         # 🔥 send OTP
@@ -706,6 +727,33 @@ def verify_signup_otp(request):
             last_name=last_name
 
         )
+        # =====================================
+        # CREATE REFERRAL RECORD
+        # =====================================
+
+        referral_code = data.get(
+            "referral_code"
+        )
+
+        if referral_code:
+
+            code_obj = ReferralCode.objects.filter(
+                code=referral_code
+            ).first()
+
+            if code_obj:
+
+                Referral.objects.create(
+
+                    referrer=code_obj.user,
+
+                    referred_user=user,
+
+                    referral_code=code_obj,
+
+                    status="pending"
+
+                )
 
         # =====================================
         # LOGIN USER
@@ -803,3 +851,101 @@ def resend_signup_otp(request):
 
     messages.success(request, "New OTP sent successfully.")
     return redirect("verify_signup_otp")
+
+
+
+@login_required
+def referral_dashboard(request):
+
+    referral_code, created = ReferralCode.objects.get_or_create(
+        user=request.user,
+        defaults={
+            "code": generate_referral_code()
+        }
+    )
+
+    referrals = Referral.objects.filter(
+        referrer=request.user
+    ).select_related(
+        "referred_user"
+    ).prefetch_related(
+        "rewards"
+    ).order_by(
+        "-created_at"
+    )
+
+    paginator = Paginator(
+        referrals,
+        5
+    )
+
+    page_number = request.GET.get(
+        "page"
+    )
+
+    page_obj = paginator.get_page(
+        page_number
+    )
+    print(
+        request.session.get(
+            "referral_reward"
+        )
+    )
+
+    reward_popup = request.session.pop(
+        "referral_reward",
+        None
+    )
+
+    successful_referrals = referrals.filter(
+        status='completed'
+    ).count()
+
+    total_earned = ReferralReward.objects.filter(
+        user=request.user,
+        status='credited'
+    ).aggregate(
+        total=Sum('reward_amount')
+    )['total'] or 0
+    wallet, created = Wallet.objects.get_or_create(
+        user=request.user
+    )
+
+    context = {
+        "referral_code": referral_code,
+        "referrals": referrals,
+        "referrals": page_obj,
+         "page_obj": page_obj,
+        "successful_referrals": successful_referrals,
+        "total_earned": total_earned,
+        "wallet": wallet,
+        "reward_popup":reward_popup
+    }
+
+    return render(
+        request,
+        "referral.html",
+        context
+    )
+
+
+
+@login_required
+def mark_reward_seen(request, reward_id):
+
+    reward = ReferralReward.objects.filter(
+
+        id=reward_id,
+
+        user=request.user
+
+    ).first()
+
+    if reward:
+
+        reward.is_seen = True
+        reward.save()
+
+    return JsonResponse({
+        "success": True
+    })

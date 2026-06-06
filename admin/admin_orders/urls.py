@@ -25,4 +25,9 @@ urlpatterns = [
     views.return_request_details,
     name='return_request_details'
 ),
+path(
+    "invoice/<str:order_id>/",
+    views.generate_invoice,
+    name="generate_invoice"
+),
 ]

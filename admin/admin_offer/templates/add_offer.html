@@ -1,0 +1,1146 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Add Product</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+
+
+<style>
+
+
+/* ================= BODY ================= */
+
+body{
+    background:#000;
+    overflow:hidden;
+    font-family:'Inter',sans-serif;
+}
+
+/* ================= BACKGROUND ================= */
+
+.bg{
+    position:fixed;
+    inset:0;
+    overflow:hidden;
+    z-index:1;
+}
+
+.bg-inner{
+    width:100%;
+    height:100%;
+
+    filter:blur(3px);
+
+    transform:scale(1.03);
+
+    opacity:.9;
+}
+
+.bg::after{
+    content:"";
+
+    position:absolute;
+    inset:0;
+
+    background:rgba(0,0,0,.78);
+}
+
+/* ================= OVERLAY ================= */
+
+.overlay{
+    position:fixed;
+
+    inset:0;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    padding:30px;
+
+    z-index:10;
+
+    backdrop-filter:blur(8px);
+}
+
+/* ================= MODAL ================= */
+
+.modal{
+
+    width:760px;
+
+    max-width:95%;
+
+    max-height:92vh;
+
+    overflow-y:auto;
+
+    background:#0b0b0b;
+
+    border:1px solid #1f2937;
+
+    border-radius:24px;
+
+    padding:32px;
+
+    position:relative;
+
+    box-shadow:
+    0 25px 80px rgba(0,0,0,.75);
+
+    scrollbar-width:none;
+}
+
+.modal::-webkit-scrollbar{
+    display:none;
+}
+.coupon-edit-wrapper{
+
+    padding:30px;
+
+}
+
+.page-title{
+
+    text-align:center;
+    margin-bottom:40px;
+
+}
+
+.page-title h1{
+
+    font-size:42px;
+    margin-bottom:12px;
+
+}
+
+.page-title span{
+
+    width:40px;
+    height:4px;
+    background:#2563eb;
+    display:block;
+    margin:auto;
+    border-radius:20px;
+
+}
+
+.edit-grid{
+
+    display:grid;
+    grid-template-columns:2fr 1fr;
+    gap:25px;
+
+}
+
+.main-card,
+.side-card{
+
+    background:#0d0d0d;
+    border-radius:18px;
+    padding:28px;
+    border:1px solid #171717;
+
+}
+
+.card-title{
+
+    font-size:22px;
+    font-weight:600;
+    margin-bottom:30px;
+
+}
+
+.row{
+
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:20px;
+
+}
+
+.form-group{
+
+    margin-bottom:22px;
+
+}
+
+.form-group label{
+
+    display:block;
+    color:#8f8f8f;
+    margin-bottom:8px;
+    font-size:13px;
+    font-weight:600;
+
+}
+
+.form-group input,
+.form-group select{
+
+    width:100%;
+    height:52px;
+    background:#091633;
+    border:none;
+    border-radius:10px;
+    color:#fff;
+    padding:0 15px;
+
+}
+
+.status-box{
+
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+
+}
+
+.status-box h3{
+
+    margin:0;
+
+}
+
+.status-box p{
+
+    color:#888;
+    font-size:12px;
+    margin-top:8px;
+
+}
+
+.switch{
+
+    position:relative;
+    width:60px;
+    height:30px;
+
+}
+
+.switch input{
+
+    display:none;
+
+}
+
+.slider{
+
+    position:absolute;
+    inset:0;
+    background:#222;
+    border-radius:30px;
+    cursor:pointer;
+
+}
+
+.slider::before{
+
+    content:"";
+    width:24px;
+    height:24px;
+    background:#fff;
+    position:absolute;
+    top:3px;
+    left:3px;
+    border-radius:50%;
+    transition:.3s;
+
+}
+
+.switch input:checked + .slider{
+
+    background:#2563eb;
+
+}
+
+.switch input:checked + .slider::before{
+
+    transform:translateX(30px);
+
+}
+.action-buttons{
+
+    display:flex;
+
+    gap:14px;
+
+    margin-top:30px;
+
+    padding-top:24px;
+
+    border-top:1px solid #1f2937;
+
+    bottom:0;
+
+    background:#0b0b0b;
+}
+
+.close-btn{
+
+    position:absolute;
+
+    top:18px;
+    right:18px;
+
+    width:40px;
+    height:40px;
+
+    border:none;
+
+    border-radius:12px;
+
+    background:#111827;
+
+    color:#9ca3af;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    cursor:pointer;
+
+    transition:.25s;
+}
+
+.close-btn:hover{
+
+    background:#1f2937;
+
+    color:#fff;
+}
+.modal h2{
+
+    font-size:30px;
+
+    font-weight:800;
+
+    color:#fff;
+
+    margin-bottom:8px;
+}
+
+.sub{
+
+    color:#6b7280;
+
+    font-size:13px;
+
+    line-height:1.7;
+
+    margin-bottom:28px;
+}
+.section-title{
+
+    color:#fff;
+
+    font-size:13px;
+
+    font-weight:700;
+
+    letter-spacing:1px;
+
+    margin-bottom:22px;
+
+    padding-bottom:12px;
+
+    border-bottom:1px solid #1f2937;
+}
+.field{
+
+    margin-bottom:20px;
+}
+
+.field label{
+
+    display:block;
+
+    margin-bottom:8px;
+
+    font-size:11px;
+
+    font-weight:700;
+
+    letter-spacing:1px;
+
+    color:#9ca3af;
+}
+
+.field input,
+.field select{
+
+    width:100%;
+
+    height:54px;
+
+    background:#020617;
+
+    border:1px solid #1e293b;
+
+    border-radius:14px;
+
+    padding:0 16px;
+
+    color:#fff;
+
+    outline:none;
+
+    transition:.25s;
+}
+
+.field input:focus,
+.field select:focus{
+
+    border-color:#2563eb;
+
+    box-shadow:
+    0 0 0 4px rgba(37,99,235,.15);
+}
+.buttons{
+
+    display:flex;
+
+    gap:14px;
+
+    margin-top:25px;
+}
+
+.cancel-btn{
+
+    flex:1;
+
+    height:52px;
+
+    border:none;
+
+    border-radius:14px;
+
+    background:#111827;
+
+    color:#9ca3af;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    text-decoration:none;
+
+    font-weight:600;
+
+    transition:.25s;
+}
+
+.cancel-btn:hover{
+
+    background:#1f2937;
+
+    color:#fff;
+}
+
+.save-btn{
+
+    flex:1;
+
+    height:52px;
+
+    border:none;
+
+    border-radius:14px;
+
+    background:
+    linear-gradient(
+        90deg,
+        #2563eb,
+        #3b82f6
+    );
+
+    color:#fff;
+
+    font-weight:700;
+
+    cursor:pointer;
+}
+.modal{
+
+    width:1000px;
+
+    max-width:95vw;
+
+    max-height:90vh;
+
+    overflow-y:auto;
+}
+@media(max-width:992px){
+
+    .edit-grid{
+
+        grid-template-columns:1fr;
+
+    }
+
+    .row{
+
+        grid-template-columns:1fr;
+
+    }
+
+}
+.messages-wrapper{
+
+    margin-bottom:25px;
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:12px;
+}
+
+.message-card{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:14px;
+
+    padding:16px 18px;
+
+    border-radius:14px;
+
+    border:1px solid;
+
+    animation:slideDown .25s ease;
+}
+
+.message-icon{
+
+    width:34px;
+
+    height:34px;
+
+    border-radius:50%;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    font-size:14px;
+
+    font-weight:700;
+
+    flex-shrink:0;
+}
+
+.message-content{
+
+    font-size:14px;
+
+    font-weight:500;
+
+    line-height:1.5;
+}
+
+.message-card.success{
+
+    background:rgba(22,163,74,.08);
+
+    border-color:rgba(22,163,74,.25);
+}
+
+.message-card.success .message-icon{
+
+    background:#14532d;
+
+    color:#4ade80;
+}
+
+.message-card.success .message-content{
+
+    color:#86efac;
+}
+
+.message-card.error{
+
+    background:rgba(220,38,38,.08);
+
+    border-color:rgba(220,38,38,.25);
+}
+
+.message-card.error .message-icon{
+
+    background:#7f1d1d;
+
+    color:#fca5a5;
+}
+
+.message-card.error .message-content{
+
+    color:#fecaca;
+}
+
+.message-card.warning{
+
+    background:rgba(245,158,11,.08);
+
+    border-color:rgba(245,158,11,.25);
+}
+
+.message-card.warning .message-icon{
+
+    background:#78350f;
+
+    color:#fbbf24;
+}
+
+.message-card.warning .message-content{
+
+    color:#fde68a;
+}
+
+.message-card.info{
+
+    background:rgba(37,99,235,.08);
+
+    border-color:rgba(37,99,235,.25);
+}
+
+.message-card.info .message-icon{
+
+    background:#1e3a8a;
+
+    color:#93c5fd;
+}
+
+.message-card.info .message-content{
+
+    color:#bfdbfe;
+}
+
+@keyframes slideDown{
+
+    from{
+
+        opacity:0;
+
+        transform:translateY(-10px);
+    }
+
+    to{
+
+        opacity:1;
+
+        transform:translateY(0);
+    }
+}
+</style>
+</head>
+<body>
+
+<div class="bg">
+
+    <div class="bg-inner">
+
+        {% include "offer_management.html" %}
+
+    </div>
+
+</div>
+
+    <div class="overlay">
+
+    <div class="modal">
+        <h2>
+    Add New Offer
+</h2>
+
+<p class="sub">
+
+    Create promotional offers for products and categories.
+
+</p>
+
+<form method="POST">
+
+    {% csrf_token %}
+
+    {% if messages %}
+
+<div class="messages-wrapper">
+
+    {% for message in messages %}
+
+    <div class="message-card {{ message.tags }}">
+
+        <div class="message-icon">
+
+            {% if message.tags == "success" %}
+
+                ✓
+
+            {% elif message.tags == "error" %}
+
+                !
+
+            {% elif message.tags == "warning" %}
+
+                ⚠
+
+            {% else %}
+
+                i
+
+            {% endif %}
+
+        </div>
+
+        <div class="message-content">
+
+            {{ message }}
+
+        </div>
+
+    </div>
+
+    {% endfor %}
+
+</div>
+
+{% endif %}
+
+    <div class="edit-grid">
+
+        <div class="main-card">
+
+            <div class="card-title">
+
+                GENERAL INFORMATION
+
+            </div>
+
+            <div class="field">
+
+                <label>
+                    OFFER NAME
+                </label>
+
+                <input
+    type="text"
+    name="offer_name"
+    placeholder="Enter offer name"
+    value="{{ form_data.offer_name|default:'' }}"
+    required
+>
+
+            </div>
+
+            <div class="row">
+
+                <div class="field">
+
+                    <label>
+                        DISCOUNT TYPE
+                    </label>
+
+                    <select
+                        name="discount_type"
+                        required
+                    >
+
+                        <option value="">
+                            Select Type
+                        </option>
+
+                       <option
+    value="PERCENTAGE"
+    {% if form_data.discount_type == "PERCENTAGE" %}
+    selected
+    {% endif %}
+>
+                            Percentage
+                        </option>
+
+                        <option
+    value="FIXED"
+    {% if form_data.discount_type == "FIXED" %}
+    selected
+    {% endif %}
+>
+                            Fixed Amount
+                        </option>
+
+                    </select>
+
+                </div>
+
+                <div class="field">
+
+                    <label>
+                        DISCOUNT VALUE
+                    </label>
+
+                    <input
+    type="number"
+    step="0.01"
+    min="0.01"
+    name="discount_value"
+    value="{{ form_data.discount_value|default:'' }}"
+>
+
+                </div>
+
+            </div>
+
+            <div class="row">
+
+                <div class="field">
+
+                    <label>
+                        APPLY TO
+                    </label>
+
+                    <select
+                        name="apply_to"
+                        id="apply_to"
+                        required
+                    >
+
+                        <option value="">
+                            Select Target
+                        </option>
+
+                        <option
+    value="PRODUCT"
+    {% if form_data.apply_to == "PRODUCT" %}
+    selected
+    {% endif %}
+>
+                            Product
+                        </option>
+
+                        <option
+    value="CATEGORY"
+    {% if form_data.apply_to == "CATEGORY" %}
+    selected
+    {% endif %}
+>
+                            Category
+                        </option>
+
+                    </select>
+
+                </div>
+
+                <div class="field">
+
+                    <label>
+                        SELECT TARGET
+                    </label>
+
+                    <select
+                        id="productSelect"
+                        name="product"
+                        style="display:none;"
+                    >
+
+                        <option value="">
+                            Select Product
+                        </option>
+
+                        {% for product in products %}
+
+                        <option
+    value="{{ product.id }}"
+    {% if form_data.product == product.id|stringformat:"s" %}
+    selected
+    {% endif %}
+>
+
+                            {{ product.product_name }}
+
+                        </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                    <select
+                        id="categorySelect"
+                        name="category"
+                        style="display:none;"
+                    >
+
+                        <option value="">
+                            Select Category
+                        </option>
+
+                        {% for category in categories %}
+
+                        <option
+    value="{{ category.id }}"
+    {% if form_data.category == category.id|stringformat:"s" %}
+    selected
+    {% endif %}
+>
+
+                            {{ category.category_name }}
+
+                        </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+            </div>
+
+            <div class="row">
+
+                <div class="field">
+
+                    <label>
+                        MINIMUM PURCHASE
+                    </label>
+
+                    <input
+    type="number"
+    step="0.01"
+    min="0"
+    name="min_purchase"
+    value="{{ form_data.min_purchase|default:'' }}"
+>
+
+                </div>
+
+                <div class="field">
+
+                    <label>
+                        MAXIMUM DISCOUNT
+                    </label>
+
+                    <input
+    type="number"
+    step="0.01"
+    min="0"
+    name="max_discount"
+    value="{{ form_data.max_discount|default:'' }}"
+>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="sidebar-cards">
+
+            <div class="side-card">
+
+                <div class="status-box">
+
+                    <div>
+
+                        <h4>
+                            Offer Status
+                        </h4>
+
+                        <p>
+                            Enable this offer for customers
+                        </p>
+
+                    </div>
+
+                    <label class="switch">
+
+                        <input
+                            type="checkbox"
+                            name="is_active"
+                            checked
+                        >
+
+                        <span class="slider"></span>
+
+                    </label>
+
+                </div>
+
+            </div>
+
+            <div class="side-card">
+
+                <div class="section-title">
+
+                    SCHEDULE
+
+                </div>
+
+                <div class="field">
+
+                    <label>
+                        START DATE
+                    </label>
+
+                    <input
+    type="date"
+    name="start_date"
+    value="{{ form_data.start_date|default:'' }}"
+    required
+>
+
+                </div>
+
+                <div class="field">
+
+                    <label>
+                        END DATE
+                    </label>
+
+                    <input
+    type="date"
+    name="end_date"
+    value="{{ form_data.end_date|default:'' }}"
+    required
+>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="action-buttons">
+
+        <a
+            href="{% url 'admin_offer:offer_management' %}"
+            class="cancel-btn"
+        >
+            CANCEL
+        </a>
+
+        <button
+            type="submit"
+            class="save-btn"
+        >
+            CREATE OFFER
+        </button>
+
+    </div>
+
+</form>
+
+</div>
+</div>
+</div>
+<script>
+
+const applyTo =
+document.getElementById(
+    "apply_to"
+);
+
+const productSelect =
+document.getElementById(
+    "productSelect"
+);
+
+const categorySelect =
+document.getElementById(
+    "categorySelect"
+);
+
+applyTo.addEventListener(
+    "change",
+    function(){
+
+        if(
+            this.value === "PRODUCT"
+        ){
+
+            productSelect.style.display =
+            "block";
+
+            categorySelect.style.display =
+            "none";
+
+            categorySelect.value = "";
+
+        }
+
+        else if(
+            this.value === "CATEGORY"
+        ){
+
+            categorySelect.style.display =
+            "block";
+
+            productSelect.style.display =
+            "none";
+
+            productSelect.value = "";
+
+        }
+
+        else{
+
+            productSelect.style.display =
+            "none";
+
+            categorySelect.style.display =
+            "none";
+        }
+
+    }
+);
+
+</script>
+<script>
+window.addEventListener(
+    "DOMContentLoaded",
+    function(){
+
+        if(
+            applyTo.value === "PRODUCT"
+        ){
+
+            productSelect.style.display = "block";
+
+            categorySelect.style.display = "none";
+
+        }
+
+        else if(
+            applyTo.value === "CATEGORY"
+        ){
+
+            categorySelect.style.display = "block";
+
+            productSelect.style.display = "none";
+
+        }
+
+    }
+);
+</script>
+</body>
+</html>

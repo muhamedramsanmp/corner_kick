@@ -140,7 +140,9 @@ def edit_address(request, id):
 
             return redirect(
                 'checkout_page'
+        
             )
+        messages.success(request,'address updated.')
         return redirect('addressinfo:address_view')
 
     return render(request, "edit_address.html", {
