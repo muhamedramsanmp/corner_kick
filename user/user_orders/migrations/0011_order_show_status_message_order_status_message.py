@@ -6,18 +6,21 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('user_orders', '0010_orderitem_returned_at_returnrequest_admin_response_and_more'),
+        (
+            "user_orders",
+            "0010_orderitem_returned_at_returnrequest_admin_response_and_more",
+        ),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='order',
-            name='show_status_message',
+            model_name="order",
+            name="show_status_message",
             field=models.BooleanField(default=False),
         ),
         migrations.AddField(
-            model_name='order',
-            name='status_message',
+            model_name="order",
+            name="status_message",
             field=models.CharField(blank=True, max_length=255, null=True),
         ),
     ]

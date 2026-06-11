@@ -7,42 +7,48 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('addressinfo', '0002_address_country'),
-        ('user_orders', '0002_order_is_cancelled_orderitem_cancel_reason_and_more'),
+        ("addressinfo", "0002_address_country"),
+        ("user_orders", "0002_order_is_cancelled_orderitem_cancel_reason_and_more"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='order',
-            name='address_line',
+            model_name="order",
+            name="address_line",
         ),
         migrations.RemoveField(
-            model_name='order',
-            name='city',
+            model_name="order",
+            name="city",
         ),
         migrations.RemoveField(
-            model_name='order',
-            name='country',
+            model_name="order",
+            name="country",
         ),
         migrations.RemoveField(
-            model_name='order',
-            name='full_name',
+            model_name="order",
+            name="full_name",
         ),
         migrations.RemoveField(
-            model_name='order',
-            name='phone',
+            model_name="order",
+            name="phone",
         ),
         migrations.RemoveField(
-            model_name='order',
-            name='pincode',
+            model_name="order",
+            name="pincode",
         ),
         migrations.RemoveField(
-            model_name='order',
-            name='state',
+            model_name="order",
+            name="state",
         ),
         migrations.AddField(
-            model_name='order',
-            name='address',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='orders', to='addressinfo.address'),
+            model_name="order",
+            name="address",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="orders",
+                to="addressinfo.address",
+            ),
         ),
     ]

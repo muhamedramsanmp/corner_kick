@@ -210,8 +210,10 @@ body{
     height:28px;
     padding:0 12px;
     border-radius:999px;
-    background:#fff7ed;
-    color:#ea580c;
+   
+        background:#eff6ff;
+
+    color:#2563eb;
     font-size:11px;
     font-weight:700;
 }
@@ -308,6 +310,51 @@ body{
 .download-btn{
     background:#2563eb;
     color:white;
+}
+.section-title{
+
+    margin:35px 0 15px;
+
+    padding:14px 20px;
+
+    border-radius:12px;
+
+    font-size:18px;
+
+    font-weight:700;
+
+    letter-spacing:.5px;
+
+}
+
+.section-title.active{
+
+    background:#eff6ff;
+
+    color:#2563eb;
+
+    border-left:5px solid #2563eb;
+
+}
+
+.section-title.cancelled{
+
+    background:#fef2f2;
+
+    color:#dc2626;
+
+    border-left:5px solid #dc2626;
+
+}
+
+.section-title.returned{
+
+    background:#fff7ed;
+
+    color:#ea580c;
+
+    border-left:5px solid #ea580c;
+
 }
 
 /* ====================================== */
@@ -456,7 +503,11 @@ body{
         <!-- TABLE -->
 
         <table class="invoice-table">
+<div class="section-title active">
 
+    Active Items
+
+</div>
             <thead>
 
                 <tr>
@@ -487,7 +538,7 @@ body{
 
             <tbody>
 
-                {% for item in order.items.all %}
+                {% for item in active_items %}
 
                 <tr>
 
@@ -560,7 +611,211 @@ body{
             </tbody>
 
         </table>
+{% if cancelled_items %}
 
+<div class="section-title cancelled">
+
+    Cancelled Items
+
+</div>
+
+<table class="invoice-table">
+
+<thead>
+
+<tr>
+
+    <th>Product</th>
+
+    <th>Status</th>
+
+    <th>Qty</th>
+
+    <th>Total</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+{% for item in cancelled_items %}
+
+<tr>
+
+<td>
+
+    <div class="product-cell">
+
+        {% if item.variant.images.first %}
+
+            <img
+            src="{{ item.variant.images.first.image.url }}"
+            alt=""
+            >
+
+        {% endif %}
+
+        <div>
+
+            <div class="product-name">
+
+                {{ item.product.product_name }}
+
+            </div>
+
+            <div class="product-size">
+
+                Size :
+                {{ item.variant.size }}
+
+            </div>
+
+        </div>
+
+    </div>
+
+</td>
+
+<td>
+
+    <span
+    style="
+    background:#fee2e2;
+    color:#dc2626;
+    padding:6px 12px;
+    border-radius:999px;
+    font-size:12px;
+    font-weight:700;
+    "
+    >
+
+        Cancelled
+
+    </span>
+
+</td>
+
+    <td>
+        {{ item.quantity }}
+    </td>
+
+    <td>
+        ₹{{ item.total_price }}
+    </td>
+
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+</table>
+
+{% endif %}
+
+{% if returned_items %}
+
+<div class="section-title returned">
+
+    Returned Items
+
+</div>
+
+<table class="invoice-table">
+
+<thead>
+
+<tr>
+
+    <th>Product</th>
+
+    <th>Status</th>
+
+    <th>Qty</th>
+
+    <th>Total</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+{% for item in returned_items %}
+
+<tr>
+
+<td>
+
+    <div class="product-cell">
+
+        {% if item.variant.images.first %}
+
+            <img
+            src="{{ item.variant.images.first.image.url }}"
+            alt=""
+            >
+
+        {% endif %}
+
+        <div>
+
+            <div class="product-name">
+
+                {{ item.product.product_name }}
+
+            </div>
+
+            <div class="product-size">
+
+                Size :
+                {{ item.variant.size }}
+
+            </div>
+
+        </div>
+
+    </div>
+
+</td>
+
+<td>
+
+    <span
+    style="
+    background:#fff7ed;
+    color:#ea580c;
+    padding:6px 12px;
+    border-radius:999px;
+    font-size:12px;
+    font-weight:700;
+    "
+    >
+
+        Returned
+
+    </span>
+
+</td>
+
+    <td>
+        {{ item.quantity }}
+    </td>
+
+    <td>
+        ₹{{ item.total_price }}
+    </td>
+
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+</table>
+
+{% endif %}
         <!-- SUMMARY -->
 
         <div class="invoice-summary">
@@ -574,7 +829,7 @@ body{
                     </span>
 
                     <strong>
-                        ₹{{ order.subtotal }}
+                        ₹{{ summary_subtotal }}
                     </strong>
 
                 </div>
@@ -622,7 +877,7 @@ body{
                     </span>
 
                     <h2>
-                        ₹{{ order.total_amount }}
+                        ₹{{ summary_total }}
                     </h2>
 
                 </div>

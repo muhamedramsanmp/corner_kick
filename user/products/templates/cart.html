@@ -620,6 +620,65 @@ a{
 
     color:#2563eb;
 }
+
+/* ====================================== */
+/* ENHANCED RESPONSIVE */
+/* ====================================== */
+
+@media(max-width:480px){
+
+    .wrapper{
+        padding:24px 14px 50px;
+    }
+
+    .cart-layout{
+        grid-template-columns:1fr;
+    }
+
+    .cart-image{
+        width:100%;
+        height:200px;
+    }
+
+    .cart-card{
+        flex-direction:column;
+    }
+
+    .bottom-row{
+        flex-direction:column;
+        align-items:flex-start;
+        gap:16px;
+    }
+
+    .page-title{
+        font-size:26px;
+    }
+
+    .cart-title{
+        font-size:18px;
+    }
+
+    .item-total{
+        font-size:22px;
+    }
+
+    .product-grid{
+        grid-template-columns:repeat(2,1fr);
+        gap:14px;
+    }
+
+    .summary-card{
+        position:static;
+    }
+
+    .cart-header{
+        padding:20px;
+        flex-direction:column;
+        gap:16px;
+    }
+
+}
+
 </style>
 
 
@@ -1158,23 +1217,6 @@ if(data.total !== undefined){
 
         }
 
-if(data.discount !== undefined){
-
-    document.getElementById(
-        "cart-discount"
-    ).innerText =
-        `₹${data.discount.toFixed(2)}`
-
-}
-
-if(data.total !== undefined){
-
-    document.getElementById(
-        "cart-total"
-    ).innerText =
-        `₹${data.total.toFixed(2)}`
-
-}
 
     }
 

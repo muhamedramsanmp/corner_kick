@@ -501,6 +501,44 @@ body{
     }
 
 }
+
+@media(max-width:768px){
+
+    .overlay{
+        padding:14px;
+    }
+
+    .modal{
+        padding:22px;
+        max-height:95vh;
+    }
+
+    .buttons,
+    .action-buttons{
+        flex-direction:column;
+    }
+
+}
+
+@media(max-width:480px){
+
+    .overlay{
+        padding:8px;
+        align-items:flex-start;
+        overflow-y:auto;
+    }
+
+    .modal{
+        max-height:none;
+        padding:18px;
+        border-radius:18px;
+    }
+
+    .modal h2{
+        font-size:22px;
+    }
+
+}
 .messages-wrapper{
 
     margin-bottom:25px;

@@ -11,12 +11,12 @@ class OrderItemInline(admin.TabularInline):
 class OrderAdmin(admin.ModelAdmin):
 
     list_display = (
-        'order_id',
-        'user',
-        'total_amount',
-        'payment_method',
-        'order_status',
-        'created_at',
+        "order_id",
+        "user",
+        "total_amount",
+        "payment_method",
+        "order_status",
+        "created_at",
     )
 
     inlines = [OrderItemInline]

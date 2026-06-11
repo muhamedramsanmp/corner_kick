@@ -2,4 +2,4 @@ from django.apps import AppConfig
 
 
 class AdminCategoryConfig(AppConfig):
-    name = 'admin.admin_category'
+    name = "admin.admin_category"

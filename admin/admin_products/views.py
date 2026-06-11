@@ -1,121 +1,90 @@
-from django.shortcuts import render,redirect,get_object_or_404
+from django.shortcuts import render, redirect, get_object_or_404
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.contrib.auth.decorators import login_required
 from django.utils.text import slugify
-from .models import Product,Variant,ProductImage
+from .models import Product, Variant, ProductImage
 from admin.admin_category.models import Category
 from django.contrib import messages
-from .models import Product,Variant,ProductImage,Category  
-from django.views.decorators.cache import never_cache 
+from .models import Product, Variant, ProductImage, Category
+from django.views.decorators.cache import never_cache
 from admin.decorators import admin_required
+
 
 @never_cache
 @admin_required
 def product_management(request):
 
-    search = request.GET.get('search', '')
-    category_id = request.GET.get('category', '')
-    status = request.GET.get('status', '')
+    search = request.GET.get("search", "")
+    category_id = request.GET.get("category", "")
+    status = request.GET.get("status", "")
 
-
-    products = Product.objects.filter(
-        is_deleted=False,
-        category__is_deleted=False
-    ).select_related(
-        'category'
-    ).prefetch_related(
-        'variants__images'
+    products = (
+        Product.objects.filter(is_deleted=False, category__is_deleted=False)
+        .select_related("category")
+        .prefetch_related("variants__images")
     )
 
     if search:
 
         products = products.filter(
-
-            Q(product_name__icontains=search) |
-            Q(category__category_name__icontains=search) |
-            Q(variants__sku__icontains=search)
-
+            Q(product_name__icontains=search)
+            | Q(category__category_name__icontains=search)
+            | Q(variants__sku__icontains=search)
         ).distinct()
-
 
     if category_id:
 
-        products = products.filter(
-            category_id=category_id
-        )
+        products = products.filter(category_id=category_id)
 
+    if status == "active":
 
-    if status == 'active':
+        products = products.filter(is_active=True)
 
-        products = products.filter(
-            is_active=True
-        )
+    elif status == "inactive":
 
-    elif status == 'inactive':
-
-        products = products.filter(
-            is_active=False
-        )
+        products = products.filter(is_active=False)
 
     paginator = Paginator(products, 5)
 
-    page_number = request.GET.get('page')
+    page_number = request.GET.get("page")
 
     page_obj = paginator.get_page(page_number)
 
+    categories = Category.objects.filter(is_deleted=False, is_active=True)
 
-    categories = Category.objects.filter(
-        is_deleted=False,
-        is_active=True
+    total_products = Product.objects.filter(is_deleted=False).count()
+
+    active_products = Product.objects.filter(is_deleted=False, is_active=True).count()
+
+    out_of_stock = (
+        Product.objects.filter(variants__stock=0, is_deleted=False).distinct().count()
     )
 
-    total_products = Product.objects.filter(
-        is_deleted=False
-    ).count()
-
-    active_products = Product.objects.filter(
-        is_deleted=False,
-        is_active=True
-    ).count()
-
-    out_of_stock = Product.objects.filter(
-        variants__stock=0,
-        is_deleted=False
-    ).distinct().count()
-
-    new_products = Product.objects.filter(
-        is_deleted=False
-    ).order_by('-created_at')[:10].count()
+    new_products = (
+        Product.objects.filter(is_deleted=False).order_by("-created_at")[:10].count()
+    )
 
     context = {
-
-        'page_obj': page_obj,
-        'categories': categories,
-
-        'search': search,
-        'category_id': category_id,
-        'status': status,
-
-        'total_products': total_products,
-        'active_products': active_products,
-        'out_of_stock': out_of_stock,
-        'new_products': new_products,
-
+        "page_obj": page_obj,
+        "categories": categories,
+        "search": search,
+        "category_id": category_id,
+        "status": status,
+        "total_products": total_products,
+        "active_products": active_products,
+        "out_of_stock": out_of_stock,
+        "new_products": new_products,
     }
 
-    return render(
-        request,
-        'product_management.html',
-        context
-    )
+    return render(request, "product_management.html", context)
 
 
 @never_cache
 @admin_required
 def add_product(request):
 
-    categories = Category.objects.filter(is_active=True,is_deleted=False)
+    categories = Category.objects.filter(is_active=True, is_deleted=False)
 
     if request.method == "POST":
 
@@ -140,23 +109,14 @@ def add_product(request):
             return redirect("add_product")
 
         Product.objects.create(
-
             product_name=product_name,
-
             description=description,
-
             description_fit=description_fit,
-
             materials=materials,
-
             care_guide=care_guide,
-
             delivery_returns=delivery_returns,
-
             category=category,
-
             is_active=is_active,
-
         )
 
         messages.success(request, "Product added successfully")
@@ -168,281 +128,152 @@ def add_product(request):
         "add_product.html",
         {
             "categories": categories,
-        }
+        },
     )
+
 
 @never_cache
 @admin_required
 def edit_product(request, product_id):
 
-    product = get_object_or_404(
+    product = get_object_or_404(Product, id=product_id, is_deleted=False)
 
-        Product,
-
-        id=product_id,
-
-        is_deleted=False
-
-    )
-
-    categories = Category.objects.filter(
-
-        is_active=True,
-        is_deleted=False
-
-    )
+    categories = Category.objects.filter(is_active=True, is_deleted=False)
 
     if request.method == "POST":
 
-        product.product_name = request.POST.get(
-            "product_name"
-        )
+        product.product_name = request.POST.get("product_name")
 
-        product.description = request.POST.get(
-            "description"
-        )
+        product.description = request.POST.get("description")
 
-        product.description_fit = request.POST.get(
-            "description_fit"
-        )
+        product.description_fit = request.POST.get("description_fit")
 
-        product.materials = request.POST.get(
-            "materials"
-        )
+        product.materials = request.POST.get("materials")
 
-        product.care_guide = request.POST.get(
-            "care_guide"
-        )
+        product.care_guide = request.POST.get("care_guide")
 
-        product.delivery_returns = request.POST.get(
-            "delivery_returns"
-        )
+        product.delivery_returns = request.POST.get("delivery_returns")
 
-        category_id = request.POST.get(
-            "category"
-        )
+        category_id = request.POST.get("category")
 
-        product.is_active = (
-            True if request.POST.get("is_active")
-            else False
-        )
+        product.is_active = True if request.POST.get("is_active") else False
 
         try:
 
-            category = Category.objects.get(
-                id=category_id
-            )
+            category = Category.objects.get(id=category_id)
 
             product.category = category
 
         except Category.DoesNotExist:
 
-            messages.error(
-                request,
-                "Invalid category"
-            )
+            messages.error(request, "Invalid category")
 
-            return redirect(
-                "edit_product",
-                product_id=product.id
-            )
-
+            return redirect("edit_product", product_id=product.id)
 
         product.save()
 
-        messages.success(
+        messages.success(request, "Product updated successfully")
 
-            request,
-
-            "Product updated successfully"
-
-        )
-
-        return redirect(
-
-            "admin_products:product_management"
-
-        )
+        return redirect("admin_products:product_management")
 
     return render(
-
         request,
-
         "edit_product.html",
-
         {
-
             "product": product,
-
             "categories": categories,
-
-        }
-
+        },
     )
 
+
 @never_cache
-@login_required(login_url='login')
+@login_required(login_url="login")
 def delete_product(request, product_id):
 
-    product = Product.objects.filter(
-        id=product_id
-    ).first()
+    product = Product.objects.filter(id=product_id).first()
 
     if not product or product.is_deleted:
 
-        messages.error(
-            request,
-            "Product already deleted"
-        )
+        messages.error(request, "Product already deleted")
 
-        return redirect(
-            "admin_products:product_management"
-        )
-
+        return redirect("admin_products:product_management")
 
     if request.method == "POST":
 
-
         product.delete()
 
-        messages.success(
-            request,
-            "Product deleted successfully"
-        )
+        messages.success(request, "Product deleted successfully")
 
-        return redirect(
-            "admin_products:product_management"
-        )
+        return redirect("admin_products:product_management")
 
-
-    return render(
-
-        request,
-
-        "delete_product.html",
-
-        {
-            "product": product
-        }
-
-    )
+    return render(request, "delete_product.html", {"product": product})
 
 
 @never_cache
 @admin_required
 def variant_management(request, product_id):
 
-    product = get_object_or_404(
-        Product,
-        id=product_id,
-        is_deleted=False
+    product = get_object_or_404(Product, id=product_id, is_deleted=False)
+
+    variants = Variant.objects.filter(product=product, is_deleted=False).order_by(
+        "-created_at"
     )
-
-    variants = Variant.objects.filter(
-        product=product,
-        is_deleted=False
-    ).order_by('-created_at')
-
-    
 
     search = request.GET.get("search")
 
-    size = request.GET.get(
-        "size",
-        ""
-    )
+    size = request.GET.get("size", "")
 
     status = request.GET.get("status")
-    sizes = Variant.objects.filter(
+    sizes = (
+        Variant.objects.filter(product=product, is_deleted=False)
+        .values_list("size", flat=True)
+        .distinct()
+    )
 
-        product=product,
-
-        is_deleted=False
-
-    ).values_list(
-
-        "size",
-
-        flat=True
-
-    ).distinct()
-    
     if search:
 
         variants = variants.filter(
-
-            Q(sku__icontains=search) |
-
-            Q(color__icontains=search)
-
+            Q(sku__icontains=search) | Q(color__icontains=search)
         )
 
     if size:
 
-        variants = variants.filter(
-            size=size
-        )
+        variants = variants.filter(size=size)
 
     if status == "active":
 
-        variants = variants.filter(
-            is_active=True
-        )
+        variants = variants.filter(is_active=True)
 
     elif status == "inactive":
 
-        variants = variants.filter(
-            is_active=False
-        )
+        variants = variants.filter(is_active=False)
 
     paginator = Paginator(variants, 5)
 
-    page_number = request.GET.get('page')
+    page_number = request.GET.get("page")
 
     page_obj = paginator.get_page(page_number)
 
-    total_stock = sum(
-        variant.stock
-        for variant in variants
-    )
+    total_stock = sum(variant.stock for variant in variants)
 
-    active_variants = variants.filter(
-        is_active=True
-    ).count()
+    active_variants = variants.filter(is_active=True).count()
 
-    low_stock = variants.filter(
-        stock__lt=20
-    ).count()
+    low_stock = variants.filter(stock__lt=20).count()
 
-    default_variant = variants.filter(
-        is_default=True
-    ).first()
-
+    default_variant = variants.filter(is_default=True).first()
 
     return render(
-
         request,
-
         "variant_management.html",
-
         {
-
             "product": product,
-
             "page_obj": page_obj,
-
             "total_stock": total_stock,
-
             "active_variants": active_variants,
-
             "low_stock": low_stock,
-
             "default_variant": default_variant,
-
             "sizes": sizes,
-
-        }
-
+        },
     )
 
 
@@ -450,11 +281,7 @@ def variant_management(request, product_id):
 @admin_required
 def add_variant(request, product_id):
 
-    product = get_object_or_404(
-        Product,
-        id=product_id,
-        is_deleted=False
-    )
+    product = get_object_or_404(Product, id=product_id, is_deleted=False)
 
     if request.method == "POST":
 
@@ -472,57 +299,31 @@ def add_variant(request, product_id):
 
         is_active = True if request.POST.get("is_active") else False
 
-        context = {
-            "product": product,
-            "form_data": request.POST
-        }
+        context = {"product": product, "form_data": request.POST}
 
         if not color:
 
-            messages.error(
-                request,
-                "Color is required",
-                extra_tags="variant"
-            )
+            messages.error(request, "Color is required", extra_tags="variant")
 
             return render(request, "add_variant.html", context)
-
 
         if not size:
 
-            messages.error(
-                request,
-                "Size is required",
-                extra_tags="variant"
-            )
+            messages.error(request, "Size is required", extra_tags="variant")
 
             return render(request, "add_variant.html", context)
-
 
         if not sku:
 
-            messages.error(
-                request,
-                "SKU is required",
-                extra_tags="variant"
-            )
+            messages.error(request, "SKU is required", extra_tags="variant")
 
             return render(request, "add_variant.html", context)
 
+        if Variant.objects.filter(sku=sku, is_deleted=False).exists():
 
-        if Variant.objects.filter(
-            sku=sku,
-            is_deleted=False
-        ).exists():
-
-            messages.error(
-                request,
-                "SKU already exists",
-                extra_tags="variant"
-            )
+            messages.error(request, "SKU already exists", extra_tags="variant")
 
             return render(request, "add_variant.html", context)
-
 
         try:
 
@@ -531,20 +332,14 @@ def add_variant(request, product_id):
             if stock < 0:
 
                 messages.error(
-                    request,
-                    "Stock cannot be negative",
-                    extra_tags="variant"
+                    request, "Stock cannot be negative", extra_tags="variant"
                 )
 
                 return render(request, "add_variant.html", context)
 
         except ValueError:
 
-            messages.error(
-                request,
-                "Invalid stock value",
-                extra_tags="variant"
-            )
+            messages.error(request, "Invalid stock value", extra_tags="variant")
 
             return render(request, "add_variant.html", context)
 
@@ -555,259 +350,134 @@ def add_variant(request, product_id):
             if price < 0:
 
                 messages.error(
-                    request,
-                    "Price cannot be negative",
-                    extra_tags="variant"
+                    request, "Price cannot be negative", extra_tags="variant"
                 )
 
                 return render(request, "add_variant.html", context)
 
         except ValueError:
 
-            messages.error(
-                request,
-                "Invalid price value",
-                extra_tags="variant"
-            )
+            messages.error(request, "Invalid price value", extra_tags="variant")
 
             return render(request, "add_variant.html", context)
 
         images = request.FILES.getlist("images")
 
-        valid_images = [
-            image for image in images
-            if image and image.name
-        ]
-
+        valid_images = [image for image in images if image and image.name]
 
         if len(valid_images) < 3:
 
             messages.error(
-                request,
-                "Minimum 3 images are required",
-                extra_tags="variant"
+                request, "Minimum 3 images are required", extra_tags="variant"
             )
 
             return render(request, "add_variant.html", context)
-
 
         if len(valid_images) > 4:
 
-            messages.error(
-                request,
-                "Maximum 4 images allowed",
-                extra_tags="variant"
-            )
+            messages.error(request, "Maximum 4 images allowed", extra_tags="variant")
 
             return render(request, "add_variant.html", context)
 
-
         if Variant.objects.filter(
-            product=product,
-            color=color,
-            size=size,
-            is_deleted=False
+            product=product, color=color, size=size, is_deleted=False
         ).exists():
 
-            messages.error(
-                request,
-                "This variant already exists",
-                extra_tags="variant"
-            )
+            messages.error(request, "This variant already exists", extra_tags="variant")
 
             return render(request, "add_variant.html", context)
 
         if is_default:
 
-            Variant.objects.filter(
-                product=product
-            ).update(
-                is_default=False
-            )
+            Variant.objects.filter(product=product).update(is_default=False)
 
         variant = Variant.objects.create(
-
             product=product,
-
             sku=sku,
-
             color=color,
-
             size=size,
-
             stock=stock,
-
             price=price,
-
             is_active=is_active,
-
-            is_default=is_default
+            is_default=is_default,
         )
 
         for index, image in enumerate(valid_images):
 
             ProductImage.objects.create(
-
-                variant=variant,
-
-                image=image,
-
-                is_primary=True if index == 0 else False
-
+                variant=variant, image=image, is_primary=True if index == 0 else False
             )
 
+        messages.success(request, "Variant added successfully")
 
-        messages.success(
-            request,
-            "Variant added successfully"
-        )
+        return redirect("admin_products:variant_management", product_id=product.id)
 
-        return redirect(
-            "admin_products:variant_management",
-            product_id=product.id
-        )
+    return render(request, "add_variant.html", {"product": product})
 
-
-    return render(
-        request,
-        "add_variant.html",
-        {
-            "product": product
-        }
-    )
 
 @never_cache
 @admin_required
 def edit_variant(request, variant_id):
 
-    variant = get_object_or_404(
-
-        Variant,
-
-        id=variant_id,
-
-        is_deleted=False
-
-    )
+    variant = get_object_or_404(Variant, id=variant_id, is_deleted=False)
 
     product = variant.product
 
     if request.method == "POST":
 
-        color = request.POST.get(
-            "color",
-            ""
-        ).strip()
+        color = request.POST.get("color", "").strip()
 
-        size = request.POST.get(
-            "size",
-            ""
-        ).strip()
+        size = request.POST.get("size", "").strip()
 
-        sku = request.POST.get(
-            "sku",
-            ""
-        ).strip()
+        sku = request.POST.get("sku", "").strip()
 
-        stock = request.POST.get(
-            "stock",
-            ""
-        ).strip()
+        stock = request.POST.get("stock", "").strip()
 
-        price = request.POST.get(
-            "price",
-            ""
-        ).strip()
+        price = request.POST.get("price", "").strip()
 
-        is_active = (
-            True if request.POST.get("is_active")
-            else False
+        is_active = True if request.POST.get("is_active") else False
 
-        )   
+        is_default = True if request.POST.get("is_default") else False
 
-        is_default = (
-            True if request.POST.get("is_default")
-            else False
-        )
-        
         if not color:
 
-            messages.error(
-                request,
-                "Color is required"
-            )
+            messages.error(request, "Color is required")
 
-            return redirect(
-                "admin_products:edit_variant",
-                variant_id=variant.id
-            )
+            return redirect("admin_products:edit_variant", variant_id=variant.id)
 
         if not size:
 
-            messages.error(
-                request,
-                "Size is required"
-            )
+            messages.error(request, "Size is required")
 
-            return redirect(
-                "admin_products:edit_variant",
-                variant_id=variant.id
-            )
+            return redirect("admin_products:edit_variant", variant_id=variant.id)
 
         if not sku:
 
-            messages.error(
-                request,
-                "SKU is required"
+            messages.error(request, "SKU is required")
+
+            return redirect("admin_products:edit_variant", variant_id=variant.id)
+
+        if (
+            Variant.objects.filter(sku=sku, is_deleted=False)
+            .exclude(id=variant.id)
+            .exists()
+        ):
+
+            messages.error(request, "SKU already exists")
+
+            return redirect("admin_products:edit_variant", variant_id=variant.id)
+
+        if (
+            Variant.objects.filter(
+                product=product, color=color, size=size, is_deleted=False
             )
+            .exclude(id=variant.id)
+            .exists()
+        ):
 
-            return redirect(
-                "admin_products:edit_variant",
-                variant_id=variant.id
-            )
+            messages.error(request, "This variant already exists")
 
-        if Variant.objects.filter(
-            sku=sku,
-            is_deleted=False
-            
-        ).exclude(
-            id=variant.id
-        ).exists():
-
-            messages.error(
-                request,
-                "SKU already exists"
-            )
-
-            return redirect(
-                "admin_products:edit_variant",
-                variant_id=variant.id
-            )
-        
-
-        if Variant.objects.filter(
-
-            product=product,
-
-            color=color,
-
-            size=size,
-
-            is_deleted=False
-
-        ).exclude(
-            id=variant.id
-        ).exists():
-
-            messages.error(
-                request,
-                "This variant already exists"
-            )
-
-            return redirect(
-                "admin_products:edit_variant",
-                variant_id=variant.id
-            )
+            return redirect("admin_products:edit_variant", variant_id=variant.id)
 
         try:
 
@@ -815,28 +485,15 @@ def edit_variant(request, variant_id):
 
             if stock < 0:
 
-                messages.error(
-                    request,
-                    "Stock cannot be negative"
-                )
+                messages.error(request, "Stock cannot be negative")
 
-                return redirect(
-                    "admin_products:edit_variant",
-                    variant_id=variant.id
-                )
+                return redirect("admin_products:edit_variant", variant_id=variant.id)
 
         except ValueError:
 
-            messages.error(
-                request,
-                "Invalid stock value"
-            )
+            messages.error(request, "Invalid stock value")
 
-            return redirect(
-                "admin_products:edit_variant",
-                variant_id=variant.id
-            )
-
+            return redirect("admin_products:edit_variant", variant_id=variant.id)
 
         try:
 
@@ -844,27 +501,15 @@ def edit_variant(request, variant_id):
 
             if price < 0:
 
-                messages.error(
-                    request,
-                    "Price cannot be negative"
-                )
+                messages.error(request, "Price cannot be negative")
 
-                return redirect(
-                    "admin_products:edit_variant",
-                    variant_id=variant.id
-                )
+                return redirect("admin_products:edit_variant", variant_id=variant.id)
 
         except ValueError:
 
-            messages.error(
-                request,
-                "Invalid price value"
-            )
+            messages.error(request, "Invalid price value")
 
-            return redirect(
-                "admin_products:edit_variant",
-                variant_id=variant.id
-            )
+            return redirect("admin_products:edit_variant", variant_id=variant.id)
 
         variant.color = color
 
@@ -882,24 +527,15 @@ def edit_variant(request, variant_id):
 
         if is_default:
 
-            Variant.objects.filter(
-                product=product
-            ).exclude(
-                id=variant.id
-            ).update(
+            Variant.objects.filter(product=product).exclude(id=variant.id).update(
                 is_default=False
             )
 
         variant.save()
 
-
-
         images = request.FILES.getlist("images")
 
-        valid_images = [
-            image for image in images
-            if image and image.name
-        ]
+        valid_images = [image for image in images if image and image.name]
 
         existing_image_count = variant.images.count()
 
@@ -913,27 +549,15 @@ def edit_variant(request, variant_id):
 
         if total_images < 3:
 
-            messages.error(
-                request,
-                "Minimum 3 images are required"
-            )
+            messages.error(request, "Minimum 3 images are required")
 
-            return redirect(
-                "admin_products:edit_variant",
-                variant_id=variant.id
-            )
+            return redirect("admin_products:edit_variant", variant_id=variant.id)
 
         if total_images > 4:
 
-            messages.error(
-                request,
-                "Maximum 4 images allowed"
-            )
+            messages.error(request, "Maximum 4 images allowed")
 
-            return redirect(
-                "admin_products:edit_variant",
-                variant_id=variant.id
-            )
+            return redirect("admin_products:edit_variant", variant_id=variant.id)
 
         if valid_images:
 
@@ -942,66 +566,41 @@ def edit_variant(request, variant_id):
             for index, image in enumerate(valid_images):
 
                 ProductImage.objects.create(
-
                     variant=variant,
-
                     image=image,
-
-                    is_primary=True if index == 0 else False
-
+                    is_primary=True if index == 0 else False,
                 )
 
-        messages.success(
-            request,
-            "Variant updated successfully"
-        )
+        messages.success(request, "Variant updated successfully")
 
-        return redirect(
-            "admin_products:variant_management",
-            product_id=product.id
-        )
-
+        return redirect("admin_products:variant_management", product_id=product.id)
 
     existing_images = variant.images.count()
 
     remaining_slots = range(4 - existing_images)
 
     return render(
-
         request,
-
         "edit_variant.html",
-
         {
-
             "variant": variant,
-
             "product": product,
-
             "remaining_slots": remaining_slots,
-
-        }
-
+        },
     )
 
+
 @never_cache
-@login_required(login_url='login')
+@login_required(login_url="login")
 def delete_variant(request, variant_id):
 
-    variant = Variant.objects.filter(
-        id=variant_id
-    ).first()
+    variant = Variant.objects.filter(id=variant_id).first()
 
     if not variant:
 
-        messages.error(
-            request,
-            "Variant already deleted"
-        )
+        messages.error(request, "Variant already deleted")
 
-        return redirect(
-            "admin_products:product_management"
-        )
+        return redirect("admin_products:product_management")
 
     if request.method == "POST":
 
@@ -1009,15 +608,9 @@ def delete_variant(request, variant_id):
 
         variant.delete()
 
-        messages.success(
-            request,
-            "Variant deleted successfully"
-        )
+        messages.success(request, "Variant deleted successfully")
 
-        return redirect(
-            "admin_products:variant_management",
-            product_id=product_id
-        )
+        return redirect("admin_products:variant_management", product_id=product_id)
 
     return render(
         request,
@@ -1025,5 +618,5 @@ def delete_variant(request, variant_id):
         {
             "variant": variant,
             "product": variant.product,
-        }
+        },
     )

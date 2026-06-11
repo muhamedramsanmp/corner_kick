@@ -7,39 +7,61 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('admin_products', '0008_product_slug'),
-        ('user_orders', '0009_alter_returnrequest_return_status'),
+        ("admin_products", "0008_product_slug"),
+        ("user_orders", "0009_alter_returnrequest_return_status"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='orderitem',
-            name='returned_at',
+            model_name="orderitem",
+            name="returned_at",
             field=models.DateTimeField(blank=True, null=True),
         ),
         migrations.AddField(
-            model_name='returnrequest',
-            name='admin_response',
+            model_name="returnrequest",
+            name="admin_response",
             field=models.TextField(blank=True, null=True),
         ),
         migrations.AddField(
-            model_name='returnrequest',
-            name='processed_at',
+            model_name="returnrequest",
+            name="processed_at",
             field=models.DateTimeField(blank=True, null=True),
         ),
         migrations.AlterField(
-            model_name='order',
-            name='payment_status',
-            field=models.CharField(choices=[('Pending', 'Pending'), ('Paid', 'Paid'), ('Failed', 'Failed'), ('Refunded', 'Refunded')], default='Pending', max_length=20),
+            model_name="order",
+            name="payment_status",
+            field=models.CharField(
+                choices=[
+                    ("Pending", "Pending"),
+                    ("Paid", "Paid"),
+                    ("Failed", "Failed"),
+                    ("Refunded", "Refunded"),
+                ],
+                default="Pending",
+                max_length=20,
+            ),
         ),
         migrations.AlterField(
-            model_name='orderitem',
-            name='product',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='admin_products.product'),
+            model_name="orderitem",
+            name="product",
+            field=models.ForeignKey(
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to="admin_products.product",
+            ),
         ),
         migrations.AlterField(
-            model_name='returnrequest',
-            name='return_status',
-            field=models.CharField(choices=[('requested', 'Requested'), ('approved', 'Approved'), ('rejected', 'Rejected'), ('returned', 'Returned')], default='requested', max_length=20),
+            model_name="returnrequest",
+            name="return_status",
+            field=models.CharField(
+                choices=[
+                    ("requested", "Requested"),
+                    ("approved", "Approved"),
+                    ("rejected", "Rejected"),
+                    ("returned", "Returned"),
+                ],
+                default="requested",
+                max_length=20,
+            ),
         ),
     ]

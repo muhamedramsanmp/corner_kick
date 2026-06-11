@@ -10,40 +10,96 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('user_orders', '0012_order_razorpay_order_id_order_razorpay_payment_id_and_more'),
+        (
+            "user_orders",
+            "0012_order_razorpay_order_id_order_razorpay_payment_id_and_more",
+        ),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Coupon',
+            name="Coupon",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('code', models.CharField(max_length=50, unique=True)),
-                ('discount_type', models.CharField(choices=[('PERCENTAGE', 'Percentage'), ('FIXED', 'Fixed Amount')], max_length=20)),
-                ('discount_value', models.DecimalField(decimal_places=2, max_digits=10)),
-                ('min_purchase', models.DecimalField(decimal_places=2, max_digits=10)),
-                ('max_discount', models.DecimalField(blank=True, decimal_places=2, max_digits=10, null=True)),
-                ('total_usage_limit', models.PositiveIntegerField(default=1)),
-                ('usage_limit_per_user', models.PositiveIntegerField(default=1)),
-                ('used_count', models.PositiveIntegerField(default=0)),
-                ('start_date', models.DateField()),
-                ('end_date', models.DateField()),
-                ('description', models.TextField(blank=True)),
-                ('is_active', models.BooleanField(default=True)),
-                ('is_deleted', models.BooleanField(default=False)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("code", models.CharField(max_length=50, unique=True)),
+                (
+                    "discount_type",
+                    models.CharField(
+                        choices=[
+                            ("PERCENTAGE", "Percentage"),
+                            ("FIXED", "Fixed Amount"),
+                        ],
+                        max_length=20,
+                    ),
+                ),
+                (
+                    "discount_value",
+                    models.DecimalField(decimal_places=2, max_digits=10),
+                ),
+                ("min_purchase", models.DecimalField(decimal_places=2, max_digits=10)),
+                (
+                    "max_discount",
+                    models.DecimalField(
+                        blank=True, decimal_places=2, max_digits=10, null=True
+                    ),
+                ),
+                ("total_usage_limit", models.PositiveIntegerField(default=1)),
+                ("usage_limit_per_user", models.PositiveIntegerField(default=1)),
+                ("used_count", models.PositiveIntegerField(default=0)),
+                ("start_date", models.DateField()),
+                ("end_date", models.DateField()),
+                ("description", models.TextField(blank=True)),
+                ("is_active", models.BooleanField(default=True)),
+                ("is_deleted", models.BooleanField(default=False)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
             ],
         ),
         migrations.CreateModel(
-            name='CouponUsage',
+            name="CouponUsage",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('used_at', models.DateTimeField(auto_now_add=True)),
-                ('coupon', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='admin_coupon.coupon')),
-                ('order', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='user_orders.order')),
-                ('user', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("used_at", models.DateTimeField(auto_now_add=True)),
+                (
+                    "coupon",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="admin_coupon.coupon",
+                    ),
+                ),
+                (
+                    "order",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="user_orders.order",
+                    ),
+                ),
+                (
+                    "user",
+                    models.OneToOneField(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
     ]

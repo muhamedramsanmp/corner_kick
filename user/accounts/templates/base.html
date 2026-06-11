@@ -43,16 +43,16 @@
         }
 
         /* ================= NAVBAR ================= */
-
-        .navbar{
-            height:60px;
-            background:white;
-            display:flex;
-            align-items:center;
-            justify-content:space-between;
-            padding:0 40px;
-            box-shadow:0 2px 10px rgba(0,0,0,0.05);
-        }
+.navbar{
+    min-height:60px;
+    background:white;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 15px;
+    flex-wrap:wrap;
+    gap:10px;
+}
 
         .nav-left{
             font-size:22px;
@@ -60,11 +60,19 @@
             color:#2563eb;
         }
 
-        .nav-center{
-            display:flex;
-            gap:35px;
-            align-items:center;
-        }
+.nav-center{
+    display:flex;
+    gap:20px;
+    align-items:center;
+}
+
+@media(max-width:768px){
+
+    .nav-center{
+        display:none;
+    }
+
+}
 
         .nav-center a{
             text-decoration:none;
@@ -94,20 +102,36 @@
             width:100%;
         }
 
-        .nav-right{
-            display:flex;
-            align-items:center;
-            gap:20px;
-        }
+.nav-right{
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
 
 .search-box{
     display:flex;
     align-items:center;
     background:#f1f5f9;
     border-radius:999px;
-    width:230px;
-    height:42px;
-    padding:0 14px;
+    width:200px;
+    height:40px;
+    padding:0 12px;
+}
+
+@media(max-width:768px){
+
+    .search-box{
+        width:140px;
+    }
+
+}
+
+@media(max-width:480px){
+
+    .search-box{
+        display:none;
+    }
+
 }
 
 .search-box input{
@@ -205,7 +229,7 @@
 
         .footer{
             background:#f1f5f9;
-            padding:50px 20px;
+            padding:40px 15px;
             margin-top:80px;
             text-align:center;
         }
@@ -220,7 +244,7 @@
         .footer-links{
             display:flex;
             justify-content:center;
-            gap:30px;
+            gap:15px;
             flex-wrap:wrap;
             margin-bottom:20px;
         }
@@ -242,23 +266,24 @@
             color:#cbd5e1;
             letter-spacing:1px;
         }
-        .message-container{
+.message-container{
     position:fixed;
-
     top:80px;
-    right:30px;
+    right:20px;
 
     z-index:9999;
 
     display:flex;
     flex-direction:column;
+    align-items:flex-end;
 
     gap:14px;
 }
 
 .alert{
-    min-width:320px;
-
+    min-width:280px;
+    max-width:400px;
+    width:auto;
     padding:16px 18px;
 
     border-radius:16px;
@@ -458,7 +483,17 @@
     z-index:99999;
 
 }
+@media(max-width:480px){
 
+    .profile-dropdown{
+
+        width:90vw;
+
+        right:-10px;
+
+    }
+
+}
 /* SHOW */
 
 .profile-dropdown.active{
@@ -639,15 +674,22 @@
 
         <div class="nav-right">
 
-            <div class="search-box">
+<form
+    action="{% url 'user_products:shop' %}"
+    method="GET"
+    class="search-box"
+>
+    <span class="material-symbols-outlined search-icon">
+        search
+    </span>
 
-                <span class="material-symbols-outlined search-icon">
-                    search
-                </span>
-
-                <input type="text" placeholder="Search products...">
-
-            </div>
+    <input
+        type="text"
+        name="search"
+        placeholder="Search products..."
+        value="{{ request.GET.search }}"
+    >
+</form>
 
             <div class="nav-icons">
 

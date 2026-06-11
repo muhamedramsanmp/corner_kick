@@ -536,7 +536,7 @@ a{
     cursor:pointer;
 }
 
-/* ================= MOBILE ================= */
+/* ================= RESPONSIVE ================= */
 
 @media(max-width:1200px){
 
@@ -551,6 +551,71 @@ a{
     .t-head,
     .t-row{
         min-width:900px;
+    }
+
+}
+
+@media(max-width:768px){
+
+    .topbar{
+        padding: 0 16px;
+        height: auto;
+        min-height: 74px;
+        flex-direction: column;
+        justify-content: center;
+        gap: 12px;
+        padding-top: 12px;
+        padding-bottom: 12px;
+        position: static;
+    }
+
+    .main{
+        padding: 24px 16px;
+    }
+
+    .product-banner{
+        flex-direction: column;
+        gap: 20px;
+        align-items: stretch;
+    }
+
+    .banner-left{
+        flex-direction: column;
+        gap: 16px;
+        align-items: center;
+        text-align: center;
+    }
+
+    .back-link{
+        justify-content: center;
+    }
+
+    .breadcrumb{
+        justify-content: center;
+    }
+
+    .product-content h1{
+        font-size: 32px;
+    }
+
+    .add-btn{
+        width: 100%;
+    }
+
+    .filters{
+        flex-direction: column;
+    }
+
+    .filter-select{
+        width: 100%;
+    }
+
+}
+
+@media(max-width:480px){
+
+    .stats{
+        grid-template-columns:1fr;
     }
 
 }

@@ -1,76 +1,38 @@
 from django.core.paginator import Paginator
-from django.shortcuts import render,redirect
+from django.shortcuts import render, redirect
 from user.decorators import user_required
 from django.urls import reverse
 from decimal import Decimal
 from django.contrib import messages
 from .models import Wallet, WalletTransaction
-from admin.admin_coupon.models import Coupon,CouponUsage
+from admin.admin_coupon.models import Coupon, CouponUsage
 from user.user_orders.models import Order
+
 
 @user_required
 def wallet_page(request):
 
-    wallet, created = Wallet.objects.get_or_create(
+    wallet, created = Wallet.objects.get_or_create(user=request.user)
 
-        user=request.user
-
+    transactions = (
+        WalletTransaction.objects.filter(wallet=wallet)
+        .select_related("order")
+        .order_by("-created_at")
     )
 
-    transactions = WalletTransaction.objects.filter(
+    paginator = Paginator(transactions, 6)
 
-        wallet=wallet
+    page_number = request.GET.get("page")
 
-    ).select_related(
-
-        "order"
-
-    ).order_by(
-
-        "-created_at"
-
-    )
-
-    paginator = Paginator(
-
-        transactions,
-
-        6
-
-    )
-
-    page_number = request.GET.get(
-
-        "page"
-
-    )
-
-    page_obj = paginator.get_page(
-
-        page_number
-
-    )
+    page_obj = paginator.get_page(page_number)
 
     context = {
-
         "wallet": wallet,
-
         "transactions": page_obj,
-
         "page_obj": page_obj,
-
     }
 
-    return render(
-
-        request,
-
-        "wallet.html",
-
-        context
-
-    )
-
+    return render(request, "wallet.html", context)
 
 
 @user_required
@@ -78,122 +40,60 @@ def add_money(request):
 
     if request.method != "POST":
 
-        return redirect(
-            "wallet_page"
-        )
+        return redirect("wallet_page")
 
-    amount = request.POST.get(
-        "amount"
-    )
+    amount = request.POST.get("amount")
 
     if not amount:
 
-        messages.error(
+        messages.error(request, "Please enter amount")
 
-            request,
-
-            "Please enter amount"
-
-        )
-
-        return redirect(
-            "wallet_page"
-        )
+        return redirect("wallet_page")
 
     amount = Decimal(amount)
 
     if amount < 100:
 
-        messages.error(
+        messages.error(request, "Minimum amount is ₹100")
 
-            request,
+        return redirect("wallet_page")
 
-            "Minimum amount is ₹100"
-
-        )
-
-        return redirect(
-            "wallet_page"
-        )
-
-    wallet = Wallet.objects.get(
-
-        user=request.user
-
-    )
+    wallet = Wallet.objects.get(user=request.user)
 
     wallet.balance += amount
 
     wallet.save()
 
     WalletTransaction.objects.create(
-
         wallet=wallet,
-
         transaction_type="CREDIT",
-
         status="SUCCESS",
-
         amount=amount,
-
-        description="Wallet Top Up"
-
+        description="Wallet Top Up",
     )
 
-    return redirect(
-
-        reverse(
-            "wallet_success"
-        ) + f"?amount={amount}"
-
-    )
+    return redirect(reverse("wallet_success") + f"?amount={amount}")
 
 
 @user_required
 def wallet_success(request):
 
-    amount = request.GET.get(
-        "amount"
-    )
+    amount = request.GET.get("amount")
 
-    context = {
+    context = {"amount": amount}
 
-        "amount": amount
+    return render(request, "wallet_success.html", context)
 
-    }
-
-    return render(
-
-        request,
-
-        "wallet_success.html",
-
-        context
-
-    )
 
 @user_required
 def wallet_failed(request):
 
-    amount = request.GET.get(
-        "amount"
-    )
+    amount = request.GET.get("amount")
 
-    context = {
+    context = {"amount": amount}
 
-        "amount": amount
+    return render(request, "wallet_failed.html", context)
 
-    }
-
-    return render(
-
-        request,
-
-        "wallet_failed.html",
-
-        context
-
-    )
 
 import json
 import razorpay
@@ -204,6 +104,7 @@ from django.conf import settings
 
 from django.views.decorators.http import require_POST
 
+
 @require_POST
 @user_required
 def create_wallet_order(request):
@@ -213,72 +114,45 @@ def create_wallet_order(request):
     amount = int(float(data["amount"]) * 100)
 
     client = razorpay.Client(
-        auth=(
-            settings.RAZORPAY_KEY_ID,
-            settings.RAZORPAY_KEY_SECRET
-        )
+        auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET)
     )
 
-    razorpay_order = client.order.create({
+    razorpay_order = client.order.create({"amount": amount, "currency": "INR"})
 
-        "amount": amount,
-
-        "currency": "INR"
-
-    })
-
-    return JsonResponse({
-
-        "key": settings.RAZORPAY_KEY_ID,
-
-        "amount": razorpay_order["amount"],
-
-        "order_id": razorpay_order["id"]
-
-    })
+    return JsonResponse(
+        {
+            "key": settings.RAZORPAY_KEY_ID,
+            "amount": razorpay_order["amount"],
+            "order_id": razorpay_order["id"],
+        }
+    )
 
 
 @user_required
 def wallet_payment_success(request):
 
-    amount = Decimal(
-        request.GET.get(
-            "amount"
-        )
-    )
+    amount = Decimal(request.GET.get("amount"))
 
-    wallet, created = Wallet.objects.get_or_create(
-        user=request.user
-    )
+    wallet, created = Wallet.objects.get_or_create(user=request.user)
 
     wallet.balance += amount
 
     wallet.save()
 
     WalletTransaction.objects.create(
-
         wallet=wallet,
-
         transaction_type="CREDIT",
-
         status="SUCCESS",
-
         amount=amount,
-
-        description="Wallet Top Up"
-
+        description="Wallet Top Up",
     )
 
-    return redirect(
+    return redirect(reverse("wallet_success") + f"?amount={amount}")
 
-        reverse(
-            "wallet_success"
-        ) + f"?amount={amount}"
-
-    )
 
 from django.http import JsonResponse
 from django.utils import timezone
+
 
 @user_required
 def apply_coupon(request):
@@ -286,26 +160,11 @@ def apply_coupon(request):
 
     if request.method != "POST":
 
-        return JsonResponse({
+        return JsonResponse({"success": False, "message": "Invalid request"})
 
-            "success": False,
+    coupon_code = request.POST.get("coupon_code")
 
-            "message": "Invalid request"
-
-        })
-
-    coupon_code = request.POST.get(
-        "coupon_code"
-    )
-
-    subtotal = Decimal(
-
-        request.POST.get(
-            "subtotal",
-            "0"
-        )
-
-    )
+    subtotal = Decimal(request.POST.get("subtotal", "0"))
     print("COUPON =", coupon_code)
     print("SUBTOTAL =", subtotal)
 
@@ -315,83 +174,47 @@ def apply_coupon(request):
 
     try:
 
-        coupon = Coupon.objects.get(
-
-            code__iexact=coupon_code,
-
-            is_deleted=False
-
-        )
+        coupon = Coupon.objects.get(code__iexact=coupon_code, is_deleted=False)
 
     except Coupon.DoesNotExist:
 
-        return JsonResponse({
+        return JsonResponse({"success": False, "message": "Coupon does not exist"})
 
-            "success": False,
-
-            "message": "Coupon does not exist"
-
-        })
-    
     # ==========================
     # TOTAL USAGE LIMIT
     # ==========================
 
     if coupon.total_usage_limit:
 
-        total_used = Order.objects.filter(
-
-            coupon=coupon
-
-        ).count()
+        total_used = Order.objects.filter(coupon=coupon).count()
 
         if total_used >= coupon.total_usage_limit:
 
-            return JsonResponse({
-
-                "success": False,
-
-                "message":
-                "Coupon usage limit reached"
-
-            })
+            return JsonResponse(
+                {"success": False, "message": "Coupon usage limit reached"}
+            )
     # ==========================
     # USER LIMIT
     # ==========================
 
     if coupon.usage_limit_per_user:
 
-        user_used = Order.objects.filter(
-
-            user=request.user,
-
-            coupon=coupon
-
-        ).count()
+        user_used = Order.objects.filter(user=request.user, coupon=coupon).count()
 
         if user_used >= coupon.usage_limit_per_user:
 
-            return JsonResponse({
-
-                "success": False,
-
-                "message":
-                "You have already used this coupon"
-
-            })
+            return JsonResponse(
+                {"success": False, "message": "You have already used this coupon"}
+            )
     # ==========================
     # ACTIVE STATUS
     # ==========================
 
     if not coupon.is_active:
 
-        return JsonResponse({
-
-            "success": False,
-
-            "message": "Coupon is currently inactive"
-
-        })
+        return JsonResponse(
+            {"success": False, "message": "Coupon is currently inactive"}
+        )
 
     today = timezone.now().date()
 
@@ -403,14 +226,9 @@ def apply_coupon(request):
 
         if today < coupon.start_date:
 
-            return JsonResponse({
-
-                "success": False,
-
-                "message":
-                f"Coupon starts on {coupon.start_date}"
-
-            })
+            return JsonResponse(
+                {"success": False, "message": f"Coupon starts on {coupon.start_date}"}
+            )
 
     # ==========================
     # END DATE
@@ -420,14 +238,7 @@ def apply_coupon(request):
 
         if today > coupon.end_date:
 
-            return JsonResponse({
-
-                "success": False,
-
-                "message":
-                "Coupon has expired"
-
-            })
+            return JsonResponse({"success": False, "message": "Coupon has expired"})
 
     # ==========================
     # MIN PURCHASE
@@ -437,14 +248,12 @@ def apply_coupon(request):
 
         if subtotal < coupon.min_purchase:
 
-            return JsonResponse({
-
-                "success": False,
-
-                "message":
-                f"Minimum purchase ₹{coupon.min_purchase} required"
-
-            })
+            return JsonResponse(
+                {
+                    "success": False,
+                    "message": f"Minimum purchase ₹{coupon.min_purchase} required",
+                }
+            )
 
     # ==========================
     # DISCOUNT
@@ -454,30 +263,15 @@ def apply_coupon(request):
 
     if coupon.discount_type == "PERCENTAGE":
 
-        discount = (
-
-            subtotal *
-            Decimal(
-                coupon.discount_value
-            )
-
-        ) / Decimal("100")
+        discount = (subtotal * Decimal(coupon.discount_value)) / Decimal("100")
 
         if coupon.max_discount:
 
-            discount = min(
-
-                discount,
-
-                coupon.max_discount
-
-            )
+            discount = min(discount, coupon.max_discount)
 
     else:
 
-        discount = Decimal(
-            coupon.discount_value
-        )
+        discount = Decimal(coupon.discount_value)
 
     # ==========================
     # PREVENT NEGATIVE TOTAL
@@ -493,17 +287,12 @@ def apply_coupon(request):
     # SUCCESS
     # ==========================
 
-    return JsonResponse({
-
-        "success": True,
-
-        "message":
-        f"{coupon.code} applied successfully",
-
-        "coupon": coupon.code,
-
-        "discount": round(discount, 2),
-
-        "total": round(total, 2)
-
-    })
+    return JsonResponse(
+        {
+            "success": True,
+            "message": f"{coupon.code} applied successfully",
+            "coupon": coupon.code,
+            "discount": round(discount, 2),
+            "total": round(total, 2),
+        }
+    )

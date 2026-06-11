@@ -4,29 +4,18 @@
 {% block title %}
 Order Management
 {% endblock %}
+{% block page_title %}
+Order Management
+{% endblock %}
+
+{% block page_subtitle %}
+Manage customer orders and payments
+{% endblock %}
 
 {% block content %}
 
 <style>
 
-/* ====================================== */
-/* MAIN */
-/* ====================================== */
-
-.main{
-    margin-left:250px;
-    padding:100px 30px;
-}
-
-h1{
-    font-size:30px;
-    margin-bottom:8px;
-}
-
-.sub{
-    color:#6b7280;
-    margin-bottom:25px;
-}
 
 /* ====================================== */
 /* CARDS */
@@ -504,15 +493,98 @@ h1{
 
     cursor:pointer;
 }
+
+/* ====================================== */
+/* RESPONSIVE */
+/* ====================================== */
+
+@media(max-width:1200px){
+
+    .topbar{
+        left:220px;
+    }
+
+    .cards{
+        grid-template-columns:repeat(2,1fr);
+    }
+
+    .search-box{
+        width:auto;
+        flex:1;
+    }
+
+}
+
+@media(max-width:992px){
+
+    .topbar{
+        left:72px;
+    }
+
+}
+
+@media(max-width:768px){
+
+    .topbar{
+        left:0;
+        padding:0 16px 0 72px;
+    }
+
+    h1{
+        font-size:22px;
+    }
+
+    .cards{
+        grid-template-columns:repeat(2,1fr);
+        gap:14px;
+    }
+
+    .filters{
+        grid-template-columns:1fr;
+    }
+
+    .search-box{
+        width:100%;
+    }
+
+    .section{
+        flex-direction:column;
+        align-items:flex-start;
+        gap:8px;
+    }
+
+    .table-box{
+        overflow-x:auto;
+    }
+
+    .t-head,
+    .t-row{
+        min-width:560px;
+    }
+
+    .footer{
+        flex-direction:column;
+        gap:10px;
+        text-align:center;
+    }
+
+}
+
+@media(max-width:480px){
+
+    .cards{
+        grid-template-columns:1fr;
+        gap:12px;
+    }
+
+    .card h2{
+        font-size:22px;
+    }
+
+}
+
 </style>
 
-    <h1>
-        Order Management
-    </h1>
-
-    <p class="sub">
-        Manage customer orders and payments
-    </p>
 
     <!-- CARDS -->
 

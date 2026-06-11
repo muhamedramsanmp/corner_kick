@@ -2,24 +2,33 @@
 {% load static %}
 
 {% block title %}
-Admin Dashboard
+Category Management
+{% endblock %}
+{% block page_title %}
+Category Management
 {% endblock %}
 
+{% block page_subtitle %}
+Manage sports categories and product hierarchy
+{% endblock %}
+{% block topbar_actions %}
+
+<a
+    href="{% url 'add_category' %}"
+    class="add-btn"
+>
+    <span class="material-symbols-outlined">
+        add
+    </span>
+
+    Add Category
+</a>
+
+{% endblock %}
 {% block content %}
 <style>
 /* ================= FILTER WRAPPER ================= */
-.topbar{
-    position:fixed;
-    left:250px;
-    right:0;
-    height:70px;
-    background:#0b0b0b;
-    display:flex;
-    align-items:center;
-    padding:0 25px;
-    border-bottom:1px solid #111;
-    z-index:100;
-}
+
 
 .filter-wrapper{
 
@@ -162,20 +171,8 @@ Admin Dashboard
 
 /* MAIN */
 
-.main{
-    margin-left:250px;
-    padding:100px 30px;
-}
 
-h1{
-    font-size:30px;
-    margin-bottom:8px;
-}
 
-.sub{
-    color:#6b7280;
-    margin-bottom:25px;
-}
 
 /* CARDS */
 
@@ -465,27 +462,87 @@ h1{
 
 }
 
+/* ====================================== */
+/* RESPONSIVE */
+/* ====================================== */
+
+@media(max-width:1200px){
+
+    .topbar{
+        left:220px;
+    }
+
+    .cards{
+        grid-template-columns:repeat(2,1fr);
+    }
+
+}
+
+@media(max-width:992px){
+
+    .topbar{
+        left:72px;
+    }
+
+}
+
+@media(max-width:768px){
+
+    .topbar{
+        left:0;
+        padding:0 16px 0 72px;
+        justify-content:flex-end;
+    }
+
+    h1{
+        font-size:22px;
+    }
+
+    .cards{
+        grid-template-columns:1fr 1fr;
+        gap:14px;
+    }
+
+    .filters{
+        grid-template-columns:1fr;
+    }
+
+    .section{
+        flex-direction:column;
+        align-items:flex-start;
+        gap:12px;
+    }
+
+    .table-box{
+        overflow-x:auto;
+    }
+
+    .t-head,
+    .t-row{
+        min-width:480px;
+    }
+
+}
+
+@media(max-width:480px){
+
+    .cards{
+        grid-template-columns:1fr;
+        gap:12px;
+    }
+
+    .card h2{
+        font-size:22px;
+    }
+
+}
+
 </style>
 
 <body>
-    <div class="topbar">
-        <a href="{% url 'add_category' %}" class="add-btn">
-
-    <span class="material-symbols-outlined">
-        add
-    </span>
-
-    Add Category
-
-</a>
 
 
-</div>
-    <h1>Category Management</h1>
 
-    <p class="sub">
-        Manage sports categories and product hierarchy
-    </p>
 
     <!-- CARDS -->
 

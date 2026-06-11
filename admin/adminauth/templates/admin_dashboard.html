@@ -4,20 +4,37 @@
 {% block title %}
 Admin Dashboard
 {% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+{% block page_subtitle %}Monitor store performance and business insights{% endblock %}
+{% block topbar_actions %}
 
+<div class="topbar-actions">
+
+    <a
+        href="{% url 'sales_report' %}"
+        class="report-btn"
+    >
+        Sales Report
+    </a>
+
+    <button
+        class="logout-btn"
+        id="openLogoutModal"
+    >
+        <span class="material-symbols-outlined">
+            logout
+        </span>
+
+        Logout
+    </button>
+
+</div>
+
+{% endblock %}
 {% block content %}
 <style>
 
 
-h1{
-    font-size:30px;
-    margin-bottom:8px;
-}
-
-.sub{
-    color:#6b7280;
-    margin-bottom:25px;
-}
 
 /* CARDS */
 
@@ -172,48 +189,6 @@ h1{
 }
 /* TOPBAR */
 
-.topbar{
-    position:fixed;
-    left:250px;
-    right:0;
-    height:70px;
-    background:#0b0b0b;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    padding:0 25px;
-    border-bottom:1px solid #111;
-    z-index:100;
-}
-
-.search-box{
-    display:flex;
-    align-items:center;
-    background:linear-gradient(135deg,#0f172a,#020617);
-    padding:10px 15px;
-    border-radius:14px;
-    width:320px;
-    border:1px solid #1f2937;
-    gap:10px;
-}
-
-.search-box input{
-    flex:1;
-    background:transparent;
-    border:none;
-    outline:none;
-    color:#fff;
-    font-size:14px;
-}
-
-.search-box input::placeholder{
-    color:#9ca3af;
-}
-
-.search-icon{
-    color:#60a5fa;
-    font-size:22px;
-}
 
 /* LOGOUT */
 
@@ -297,6 +272,8 @@ h1{
         0 20px 60px rgba(0,0,0,.45);
 }
 
+
+
 /* OPEN EFFECT */
 
 .logout-modal.show .logout-modal-box{
@@ -332,7 +309,13 @@ h1{
 
     color:#ef4444;
 }
+.topbar-actions{
+    margin-left:auto;
 
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
 /* TITLE */
 
 .logout-modal-box h2{
@@ -473,52 +456,107 @@ h1{
     background:#1d4ed8;
 }
 
+/* ====================================== */
+/* RESPONSIVE */
+/* ====================================== */
+
+@media(max-width:1200px){
+
+    .cards{
+        grid-template-columns:repeat(2,1fr);
+    }
+
+    .topbar{
+        left:220px;
+    }
+
+    .search-box{
+        width:240px;
+    }
+
+}
+
+@media(max-width:992px){
+
+    .topbar{
+        left:72px;
+    }
+
+    .cards{
+        grid-template-columns:repeat(2,1fr);
+    }
+
+}
+
+@media(max-width:768px){
+
+    .topbar{
+        left:0;
+        padding:0 16px 0 72px;
+    }
+
+    .search-box{
+        display:none;
+    }
+
+    .cards{
+        grid-template-columns:repeat(2,1fr);
+        gap:14px;
+    }
+
+    h1{
+        font-size:22px;
+    }
+
+    .chart-header{
+        flex-direction:column;
+        align-items:flex-start;
+        gap:10px;
+    }
+
+    .chart-header h3{
+        font-size:18px;
+    }
+
+    .table-box{
+        overflow-x:auto;
+    }
+
+    .t-head,
+    .t-row{
+        min-width:500px;
+    }
+
+    .header-actions{
+        flex-wrap:wrap;
+    }
+
+}
+
+@media(max-width:480px){
+
+    .cards{
+        grid-template-columns:1fr;
+        gap:12px;
+    }
+
+    .card h2{
+        font-size:22px;
+    }
+
+    .logout-modal-box{
+        width:92vw;
+    }
+
+}
+
 </style>
 
-<!-- TOPBAR -->
 
-<div class="topbar">
-
-    <div class="search-box">
-
-        <input type="text" placeholder="Search dashboard...">
-
-        <span class="material-symbols-outlined search-icon">
-            search
-        </span>
-
-    </div>
-
-<button
-    class="logout-btn"
-    id="openLogoutModal"
->
-
-    <span class="material-symbols-outlined">
-        logout
-    </span>
-
-    Logout
-
-</button>
-
-</div>
 
 <!-- MAIN -->
 
 <div class="main">
-<div class="header-actions">
-
-    <a href="{% url 'sales_report' %}" class="report-btn">
-        Sales Report
-    </a>
-
-</div>
-    <h1>Performance Dashboard</h1>
-
-    <p class="sub">
-        Sports store analytics and platform overview
-    </p>
 
     <!-- CARDS -->
 

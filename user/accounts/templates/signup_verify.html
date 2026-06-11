@@ -128,6 +128,33 @@ body{
     margin-bottom: 12px;
     text-align: center;
 }
+@media (max-width: 768px) {
+    body {
+        flex-direction: column;
+    }
+    .left {
+        display: none;
+    }
+    .right {
+        width: 100%;
+        padding: 20px;
+    }
+    .card {
+        width: 100%;
+        max-width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .card {
+        padding: 20px 16px;
+    }
+    .otp-input {
+        width: 38px;
+        height: 44px;
+        font-size: 16px;
+    }
+}
 </style>
 </head>
 

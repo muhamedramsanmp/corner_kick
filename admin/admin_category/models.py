@@ -7,36 +7,21 @@ class Category(models.Model):
         max_length=150,
     )
 
-    category_img = models.ImageField(
-        upload_to='categories/',
-        blank=True,
-        null=True
-    )
+    category_img = models.ImageField(upload_to="categories/", blank=True, null=True)
 
-    description = models.TextField(
-        blank=True,
-        null=True
-    )
+    description = models.TextField(blank=True, null=True)
 
-    is_active = models.BooleanField(
-        default=True
-    )
+    is_active = models.BooleanField(default=True)
 
-    is_deleted = models.BooleanField(
-        default=False
-    )
+    is_deleted = models.BooleanField(default=False)
 
-    created_at = models.DateTimeField(
-        auto_now_add=True
-    )
+    created_at = models.DateTimeField(auto_now_add=True)
 
-    updated_at = models.DateTimeField(
-        auto_now=True
-    )
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
 
-        ordering = ['-created_at']
+        ordering = ["-created_at"]
 
         verbose_name = "Category"
 
@@ -44,6 +29,3 @@ class Category(models.Model):
 
     def __str__(self):
         return self.category_name
-    
-
-    

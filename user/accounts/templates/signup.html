@@ -14,37 +14,89 @@
     font-family: "Inter", sans-serif;
 }
 
-body {
-    height: 100vh;
-    background: linear-gradient(rgba(20,27,43,0.6), rgba(20,27,43,0.6)),
-    url("https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&w=2000&q=80");
-    background-size: cover;
-    background-position: center;
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
+html,
+body{
+    margin:0;
+    padding:0;
+    min-height:100vh;
+    overflow-x:hidden;
+}
+
+body{
+
+    background:
+        linear-gradient(
+            rgba(20,27,43,0.6),
+            rgba(20,27,43,0.6)
+        ),
+        url("https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&w=2000&q=80");
+
+    background-size:cover;
+    background-position:center;
+    background-repeat:no-repeat;
+    {% comment %} background-attachment:fixed; {% endcomment %}
 }
 
 /* BG TEXT */
-.bg-text {
-    position: absolute;
-    bottom: 40px;
-    left: 40px;
-    color: rgba(255,255,255,0.08);
+.bg-text{
+
+    position:absolute;
+
+    bottom:40px;
+
+    left:40px;
+
+    color:rgba(255,255,255,0.08);
+
+    pointer-events:none;
 }
-.bg-text h1 {
-    font-size: 90px;
-    font-weight: 900;
+
+.bg-text h1{
+
+    font-size:clamp(
+        40px,
+        10vw,
+        90px
+    );
+
+    font-weight:900;
 }
 
 /* CARD */
-.card {
-    width: 400px;
-    background: #f3f4f6;
-    padding: 32px;
-    margin-right: 60px;
-    border-radius: 18px;
-    box-shadow: 0 25px 50px rgba(0,0,0,0.25);
+.card{
+
+    width:100%;
+    max-width:420px;
+
+    background:#f3f4f6;
+
+    padding:32px;
+
+    border-radius:18px;
+
+    box-shadow:0 25px 50px rgba(0,0,0,.25);
+
+    max-height:90vh;
+
+    overflow-y:auto;
+    max-height:90vh;
+    overflow-y:auto;
+
+    scrollbar-width:none;     
+    -ms-overflow-style:none;   
+}
+.page-container{
+
+    width:100%;
+    height:100vh;
+
+    display:flex;
+
+    justify-content:flex-end;
+
+    align-items:center;
+
+    padding:20px;
 }
 
 /* HEADER */
@@ -96,12 +148,17 @@ body {
 }
 
 /* TERMS */
-.terms {
-    display: flex;
-    gap: 8px;
-    font-size: 12px;
-    margin: 12px 0;
-    align-items: center;
+.terms{
+
+    display:flex;
+
+    align-items:flex-start;
+
+    gap:8px;
+
+    font-size:12px;
+
+    line-height:1.5;
 }
 .terms a {
     color: #2f5bd3;
@@ -169,15 +226,129 @@ body {
     text-decoration: none;
 }
 
-/* MOBILE */
-@media (max-width: 900px) {
-    body {
-        justify-content: center;
+
+
+@media screen and (max-width:768px){
+
+    html,
+    body{
+        height:auto;
+        min-height:100vh;
+        overflow-y:auto;
     }
-    .card {
-        margin: 0;
+
+    .page-container{
+
+        min-height:100vh;
+
+        justify-content:center;
+
+        align-items:flex-start;
+
+        padding:15px;
+    }
+
+    .card{
+
+        width:100%;
+
+        max-width:100%;
+
+        margin:0;
+
+        padding:20px;
+
+        max-height:none;
+
+        overflow:visible;
+
+        border-radius:16px;
+    }
+
+    .bg-text{
+        display:none;
+    }
+
+    .logo{
+        font-size:20px;
+    }
+
+    h2{
+        font-size:28px;
+        line-height:1.2;
+    }
+
+    .desc{
+        font-size:13px;
+    }
+
+    .field label{
+        font-size:12px;
+    }
+
+    .input-box input{
+
+        height:48px;
+
+        padding:12px 14px;
+
+        font-size:16px;
+    }
+
+    .btn{
+
+        height:50px;
+
+        font-size:14px;
+    }
+
+    .google{
+
+        height:50px;
+
+        font-size:14px;
+    }
+
+    .terms{
+
+        font-size:11px;
+    }
+
+    .login{
+
+        font-size:13px;
     }
 }
+
+@media (max-width:480px){
+
+    .card{
+
+        padding:20px;
+    }
+
+    h2{
+
+        font-size:24px;
+    }
+
+    .desc{
+
+        font-size:12px;
+    }
+
+    .input-box input{
+
+        padding:12px;
+    }
+
+    .btn{
+
+        padding:12px;
+    }
+
+}
+
 .error {
     color: #ff4d4d;
     font-size: 12px;
@@ -192,7 +363,7 @@ body {
 <div class="bg-text">
     <h1>CORNER KICK</h1>
 </div>
-
+<div class="page-container">
 <div class="card">
     
 
@@ -302,7 +473,7 @@ body {
     </form>
 
 </div>
-
+</div>
 <script>
     const eyeIcon = `
 <svg width="20" height="20" viewBox="0 0 24 24" fill="none">

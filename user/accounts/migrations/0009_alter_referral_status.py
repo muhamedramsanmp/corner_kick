@@ -6,13 +6,17 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('accounts', '0008_referralcode_referral_referralreward'),
+        ("accounts", "0008_referralcode_referral_referralreward"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='referral',
-            name='status',
-            field=models.CharField(choices=[('pending', 'Pending'), ('completed', 'Completed')], default='pending', max_length=20),
+            model_name="referral",
+            name="status",
+            field=models.CharField(
+                choices=[("pending", "Pending"), ("completed", "Completed")],
+                default="pending",
+                max_length=20,
+            ),
         ),
     ]

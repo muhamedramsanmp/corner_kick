@@ -966,6 +966,7 @@ Shop
 <a
 href="#"
 data-url="{% url 'user_products:toggle_wishlist' product.id %}"
+data-authenticated="{% if user.is_authenticated %}true{% else %}false{% endif %}"
 class="wishlist-btn {% if product.id in wishlist_product_ids %}active{% endif %}"
 >
 
@@ -1184,7 +1185,29 @@ font-weight:700;
     </div>
 
 </div>
+<script>
+document.addEventListener("click", function(e){
 
+    const button = e.target.closest(".wishlist-btn");
+
+    if(!button) return;
+
+    const isAuthenticated =
+        button.dataset.authenticated === "true";
+
+    if(!isAuthenticated){
+
+        e.preventDefault();
+
+        showAjaxPopup(
+            "Please login to add products to wishlist"
+        );
+
+        return;
+    }
+
+});
+</script>
 {% endblock %}
 
 

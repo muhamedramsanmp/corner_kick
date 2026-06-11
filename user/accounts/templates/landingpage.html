@@ -85,6 +85,17 @@ Home
     display:block;
     width:100%;
     }
+    .hero-video{
+
+    width:100%;
+
+    height:100%;
+
+    object-fit:cover;
+
+    filter:brightness(.75);
+
+}
     </style>
 {% endblock %}
 
@@ -95,11 +106,34 @@ Home
 <!-- Main Content Canvas -->
 <main>
 <!-- HERO SECTION -->
-<section class="relative w-full h-[716px] min-h-[500px] overflow-hidden">
-<img alt="Elite Footballer Action" class="w-full h-full object-cover" data-alt="dynamic low angle shot of a professional football player in a blue jersey kicking a ball in a floodlit stadium at night" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDNuphsVRuSvLg8F4Zo43EUEHzZaiHmEor1s1vNnJmVXNe5qYIdTAfezTMH_-Yo66e5_h0q5qppeIWcZqm4wDcEXozb2nAP-MBz9KWLAId3dboQQV8OXVC6ySOioczHrHK-uNlSmTH5n6vfRzfAABsC88T3lvCFTFJmqZv0lMBtLQlhumDpboqi_s9VGunK5P40m6yqkWzeibM9-Zy_vkCbIBHpFCS9Kzbu678CxDykVdXvEl_GZHct8iSpcv-cHf2f7GA_Ci6-DII"/>
-<div class="absolute inset-0 bg-gradient-to-r from-slate-900/60 to-transparent flex flex-col justify-center px-12 md:px-24">
+<section class="relative w-full h-[60vh] md:h-[716px] min-h-[450px] overflow-hidden">
+<video
+    autoplay
+    muted
+    loop
+    playsinline
+    class="w-full h-full object-cover"
+>
+     <source
+        src="{% static 'videos/sports-video.mp4' %}"
+        type="video/mp4"
+    > 
+</video>
+<div class="absolute inset-0 bg-gradient-to-r from-slate-900/70 to-transparent flex flex-col justify-center px-6 sm:px-10 md:px-24">
 <p class="text-white/80 font-bold tracking-[0.2em] mb-4 text-xs uppercase">Precision Performance</p>
-<h1 class="text-white text-5xl md:text-7xl font-black italic tracking-tighter mb-8 max-w-2xl leading-none uppercase">Master the field.</h1>
+<h1 class="
+text-white
+text-3xl
+sm:text-5xl
+md:text-7xl
+font-black
+italic
+tracking-tighter
+mb-6
+max-w-2xl
+leading-tight
+uppercase
+">Master the field.</h1>
 <div>
 <a href="{% url "user_products:shop" %}"><button class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-10 rounded-lg transition-all transform active:scale-95 text-sm uppercase tracking-widest">
                         Shop Collection
@@ -289,25 +323,27 @@ gap-6
                 ₹500 wallet credits after their first successful purchase.
             </p>
 
-            <a href=
-            "{% url 'referral_dashboard' %}"
-            >
-                <button class="
-                    bg-blue-600
-                    hover:bg-blue-700
-                    text-white
-                    font-bold
-                    px-8
-                    py-3
-                    rounded-lg
-                    uppercase
-                    tracking-widest
-                    text-sm
-                    transition
-                ">
-                    INVITE NOW
-                </button>
-            </a>
+<a
+    href="{% url 'referral_dashboard' %}"
+    class="invite-btn"
+    data-authenticated="{% if user.is_authenticated %}true{% else %}false{% endif %}"
+>
+    <button class="
+        bg-blue-600
+        hover:bg-blue-700
+        text-white
+        font-bold
+        px-8
+        py-3
+        rounded-lg
+        uppercase
+        tracking-widest
+        text-sm
+        transition
+    ">
+        INVITE NOW
+    </button>
+</a>
 
         </div>
 
@@ -407,5 +443,27 @@ block
     window.onpopstate = function () {
         history.go(1);
     };
+    document.addEventListener("click", function(e){
+
+    const inviteBtn =
+        e.target.closest(".invite-btn");
+
+    if(!inviteBtn) return;
+
+    const isAuthenticated =
+        inviteBtn.dataset.authenticated === "true";
+
+    if(!isAuthenticated){
+
+        e.preventDefault();
+
+        showAjaxPopup(
+            "Please login to access referral program"
+        );
+
+        return;
+    }
+
+});
 </script>
 {% endblock %}

@@ -2,25 +2,34 @@
 {% load static %}
 
 {% block title %}
-Admin Dashboard
+Product Management
 {% endblock %}
 
+{% block page_title %}
+Product Management
+{% endblock %}
+
+{% block page_subtitle %}
+Manage your sports inventory products
+{% endblock %}
+{% block topbar_actions %}
+
+<a
+    href="{% url 'admin_products:add_product' %}"
+    class="new-btn"
+>
+    <span class="material-symbols-outlined">
+        add
+    </span>
+
+    Add Product
+</a>
+
+{% endblock %}
 {% block content %}
 <style>
 /* ================= TOPBAR ================= */
 
-.topbar{
-    position:fixed;
-    left:250px;
-    right:0;
-    height:70px;
-    background:#0b0b0b;
-    display:flex;
-    align-items:center;
-    padding:0 25px;
-    border-bottom:1px solid #111;
-    z-index:100;
-}
 
 
 
@@ -64,15 +73,9 @@ Admin Dashboard
 
 /* HEADER */
 
-h1{
-    font-size:28px;
-    font-weight:700;
-}
 
-.sub{
-    color:#6b7280;
-    margin-bottom:20px;
-}
+
+
 
 /* ================= CARDS ================= */
 
@@ -486,33 +489,92 @@ h1{
 
 }
 
-/* ================= MOBILE ================= */
+/* ================= RESPONSIVE ================= */
 
 @media(max-width:1200px){
 
-    .sidebar{
-        width:80px;
-    }
-
-    .main{
-        margin-left:80px;
-    }
-
     .topbar{
-        left:80px;
+        left:220px;
     }
 
-    .menu a{
-        justify-content:center;
-    }
-
-    .menu a p,
-    .sublogo{
-        display:none;
+    .cards{
+        grid-template-columns:repeat(2,1fr);
     }
 
 }
-/* ================= TOAST ================= */
+
+@media(max-width:992px){
+
+    .topbar{
+        left:72px;
+    }
+
+    .cards{
+        grid-template-columns:repeat(2,1fr);
+    }
+
+}
+
+@media(max-width:768px){
+
+    .topbar{
+        left:0;
+        padding:0 16px 0 72px;
+        justify-content:flex-end;
+    }
+
+    h1{
+        font-size:22px;
+    }
+
+    .cards{
+        grid-template-columns:1fr 1fr;
+        gap:14px;
+    }
+
+    .filters{
+        flex-direction:column;
+    }
+
+    .filter-select{
+        width:100%;
+    }
+
+    .box-header{
+        flex-direction:column;
+        align-items:flex-start;
+        gap:10px;
+    }
+
+    .product-box{
+        overflow-x:auto;
+    }
+
+    .t-head,
+    .t-row{
+        min-width:640px;
+    }
+
+    .footer{
+        flex-direction:column;
+        gap:8px;
+        text-align:center;
+    }
+
+}
+
+@media(max-width:480px){
+
+    .cards{
+        grid-template-columns:1fr;
+        gap:12px;
+    }
+
+    .card h2{
+        font-size:22px;
+    }
+
+}
 
 #toast-container{
 
@@ -607,31 +669,6 @@ h1{
 </head>
 
 <body>
-
-<!-- TOPBAR -->
-
-<div class="topbar">
-
-    <a
-href="{% url 'admin_products:add_product' %}"
-class="new-btn"
->
-
-    <span class="material-symbols-outlined">
-        add
-    </span>
-
-    Add Product
-
-</a>
-
-</div>
-
-    <h1>Product Management</h1>
-
-    <p class="sub">
-        Manage your sports inventory products
-    </p>
 
     <!-- CARDS -->
 

@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('accounts', '0009_alter_referral_status'),
+        ("accounts", "0009_alter_referral_status"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='referralreward',
-            name='is_seen',
+            model_name="referralreward",
+            name="is_seen",
             field=models.BooleanField(default=False),
         ),
     ]

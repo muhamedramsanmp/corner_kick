@@ -4,43 +4,31 @@
 {% block title %}
 Admin Offer
 {% endblock %}
+{% block page_title %}
+Offers Management
+{% endblock %}
 
+{% block page_subtitle %}
+Control and monitor active promotional campaigns
+{% endblock %}
+{% block topbar_actions %}
+
+<a
+    href="{% url 'admin_offer:add_offer' %}"
+    class="add-btn"
+>
+    <span class="material-symbols-outlined">
+        add
+    </span>
+
+    Add Offer
+</a>
+
+{% endblock %}
 {% block content %}
 
 <style>
-    .offer-page{
 
-    padding:30px;
-}
-
-.page-header{
-
-    display:flex;
-
-    justify-content:space-between;
-
-    align-items:center;
-
-    margin-bottom:30px;
-}
-
-.page-header h1{
-
-    color:#fff;
-
-    font-size:54px;
-
-    font-weight:700;
-
-    margin-bottom:10px;
-}
-
-.page-header p{
-
-    color:#94a3b8;
-
-    font-size:18px;
-}
 
 .add-btn{
 
@@ -546,38 +534,87 @@ Admin Offer
 
     background:#dc2626;
 }
+
+/* ====================================== */
+/* RESPONSIVE */
+/* ====================================== */
+
+@media(max-width:1200px){
+
+    .stats-grid{
+        grid-template-columns:repeat(2,1fr);
+    }
+
+    .page-header h1{
+        font-size:38px;
+    }
+
+}
+
+@media(max-width:768px){
+
+    .page-header{
+        flex-direction:column;
+        align-items:flex-start;
+        gap:14px;
+    }
+
+    .page-header h1{
+        font-size:28px;
+    }
+
+    .page-header p{
+        font-size:14px;
+    }
+
+    .stats-grid{
+        grid-template-columns:1fr 1fr;
+        gap:14px;
+    }
+
+    .stat-card h3{
+        font-size:24px;
+    }
+
+    .search-filter-form{
+        flex-direction:column;
+        align-items:stretch;
+    }
+
+    .search-filter-form select{
+        width:100%;
+    }
+
+    .filter-btn{
+        width:100%;
+    }
+
+    .offer-table-wrapper{
+        overflow-x:auto;
+    }
+
+    .table-head,
+    .table-row{
+        min-width:600px;
+    }
+
+    .delete-box{
+        width:92vw;
+        padding:24px;
+    }
+
+}
+
+@media(max-width:480px){
+
+    .stats-grid{
+        grid-template-columns:1fr;
+    }
+
+}
+
 </style>
 
-<div class="offer-page">
-
-<div class="page-header">
-
-    <div>
-
-        <h1>
-            Offers Management
-        </h1>
-
-        <p>
-            Control and monitor active promotional campaigns.
-        </p>
-
-    </div>
-
-    <a
-    href="{% url 'admin_offer:add_offer' %}"
-    class="add-btn"
-    >
-
-        <span class="material-symbols-outlined">
-            add
-        </span>
-
-        Add Offer
-
-    </a>
-
-</div>
 
 <div class="stats-grid">
 

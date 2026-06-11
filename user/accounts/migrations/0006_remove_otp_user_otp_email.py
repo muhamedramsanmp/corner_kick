@@ -6,17 +6,17 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('accounts', '0005_otp_delete_passwordresetotp'),
+        ("accounts", "0005_otp_delete_passwordresetotp"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='otp',
-            name='user',
+            model_name="otp",
+            name="user",
         ),
         migrations.AddField(
-            model_name='otp',
-            name='email',
+            model_name="otp",
+            name="email",
             field=models.EmailField(blank=True, max_length=254, null=True),
         ),
     ]

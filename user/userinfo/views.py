@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.views.decorators.cache import never_cache
-from django.contrib.auth import logout,get_user_model,update_session_auth_hash
+from django.contrib.auth import logout, get_user_model, update_session_auth_hash
 import re
 import random
 import os
@@ -14,7 +14,7 @@ from django.contrib.auth.hashers import make_password
 from user.accounts.models import Profile
 from user.decorators import user_required
 
-User=get_user_model()
+User = get_user_model()
 
 
 def validate_password_strength(password):
@@ -38,7 +38,6 @@ def validate_password_strength(password):
     return errors
 
 
-
 User = get_user_model()
 
 
@@ -54,17 +53,14 @@ def profile_view(request):
         email = request.POST.get("email", "").strip()
         phone = request.POST.get("phone", "").strip()
 
-        
         if not email:
             messages.error(request, "Email is required")
-            return redirect('userinfo:profile')
+            return redirect("userinfo:profile")
 
-    
         if User.objects.filter(email=email).exclude(id=user.id).exists():
             messages.error(request, "Email already exists")
-            return redirect('userinfo:profile')
+            return redirect("userinfo:profile")
 
-        
         if full_name:
             parts = full_name.split(" ", 1)
             user.first_name = parts[0]
@@ -79,13 +75,17 @@ def profile_view(request):
         messages.success(request, "Profile updated successfully")
         return redirect("userinfo:profile")
 
-    return render(request, "profile.html", {
-        "user": user,
-        "profile": profile,
-    })
+    return render(
+        request,
+        "profile.html",
+        {
+            "user": user,
+            "profile": profile,
+        },
+    )
 
 
-@login_required(login_url='login')
+@login_required(login_url="login")
 def edit_profile(request):
     user = request.user
     profile, _ = Profile.objects.get_or_create(user=user)
@@ -101,27 +101,16 @@ def edit_profile(request):
 
             if not phone.isdigit():
 
-                messages.error(
-                    request,
-                    "Phone number must contain only digits"
-                )
+                messages.error(request, "Phone number must contain only digits")
 
-                return redirect(
-                    "userinfo:edit_profile"
-                )
+                return redirect("userinfo:edit_profile")
 
             if len(phone) != 10:
 
-                messages.error(
-                    request,
-                    "Phone number must be exactly 10 digits"
-                )
+                messages.error(request, "Phone number must be exactly 10 digits")
 
-                return redirect(
-                    "userinfo:edit_profile"
-                )
+                return redirect("userinfo:edit_profile")
 
-        
         profile.phone = phone
         profile.save()
 
@@ -132,7 +121,6 @@ def edit_profile(request):
         if User.objects.filter(email=email).exclude(id=user.id).exists():
             messages.error(request, "Email already exists")
             return redirect("userinfo:edit_profile")
-        
 
         if full_name:
             parts = full_name.split(" ", 1)
@@ -147,10 +135,7 @@ def edit_profile(request):
 
             PasswordResetOTP.objects.filter(user=user).delete()
 
-            PasswordResetOTP.objects.create(
-                user=user,
-                otp=otp
-            )
+            PasswordResetOTP.objects.create(user=user, otp=otp)
 
             send_mail(
                 "Verify your email",
@@ -161,8 +146,7 @@ def edit_profile(request):
             )
 
             return redirect("userinfo:change_email_verify")
-        
-    
+
         user.save()
 
         profile.phone = phone
@@ -194,10 +178,7 @@ def edit_profile(request):
         messages.success(request, "Profile updated successfully")
         return redirect("userinfo:profile")
 
-    return render(request, "edit_profile.html", {
-        "profile": profile,
-        "user": user
-    })
+    return render(request, "edit_profile.html", {"profile": profile, "user": user})
 
 
 @login_required
@@ -207,35 +188,38 @@ def change_email_verify(request):
     if not new_email:
         return redirect("userinfo:edit_profile")
 
-    otp_obj = PasswordResetOTP.objects.filter(
-        user=request.user
-    ).order_by('-created_at').first()
+    otp_obj = (
+        PasswordResetOTP.objects.filter(user=request.user)
+        .order_by("-created_at")
+        .first()
+    )
 
     time_left = otp_obj.time_left() if otp_obj else 60
 
     if request.method == "POST":
 
-        entered_otp = "".join([
-            request.POST.get(f"otp{i}", "") for i in range(1, 7)
-        ])
+        entered_otp = "".join([request.POST.get(f"otp{i}", "") for i in range(1, 7)])
 
         if not otp_obj:
-            return render(request, "change_emailverify.html", {
-                "error": "OTP not found",
-                "time_left": time_left
-            })
+            return render(
+                request,
+                "change_emailverify.html",
+                {"error": "OTP not found", "time_left": time_left},
+            )
 
         if otp_obj.is_expired():
-            return render(request, "change_emailverify.html", {
-                "error": "OTP expired",
-                "time_left": 0
-            })
+            return render(
+                request,
+                "change_emailverify.html",
+                {"error": "OTP expired", "time_left": 0},
+            )
 
         if entered_otp != otp_obj.otp:
-            return render(request, "change_emailverify.html", {
-                "error": "Invalid OTP",
-                "time_left": time_left
-            })
+            return render(
+                request,
+                "change_emailverify.html",
+                {"error": "Invalid OTP", "time_left": time_left},
+            )
 
         # ✅ SUCCESS
         user = request.user
@@ -248,9 +232,7 @@ def change_email_verify(request):
 
         return redirect("userinfo:profile")
 
-    return render(request, "change_emailverify.html", {
-        "time_left": time_left
-    })
+    return render(request, "change_emailverify.html", {"time_left": time_left})
 
 
 @login_required
@@ -260,15 +242,12 @@ def resend_change_email_otp(request):
 
     if not new_email:
         return redirect("userinfo:edit_profile")
-    
+
     otp = str(random.randint(100000, 999999))
 
     PasswordResetOTP.objects.filter(user=user).delete()
 
-    PasswordResetOTP.objects.create(
-        user=user,
-        otp=otp
-    )
+    PasswordResetOTP.objects.create(user=user, otp=otp)
 
     send_mail(
         "New OTP",
@@ -279,6 +258,7 @@ def resend_change_email_otp(request):
     )
 
     return redirect("userinfo:change_email_verify")
+
 
 @never_cache
 def logout_page(request):
@@ -296,9 +276,9 @@ def logout_user(request):
         messages.success(request, "Logged out successfully")
 
         return redirect("login")
-    
-    
-@login_required(login_url='login')
+
+
+@login_required(login_url="login")
 def change_password(request):
 
     if request.method == "POST":
@@ -308,35 +288,31 @@ def change_password(request):
         new_password = request.POST.get("new_password", "").strip()
         confirm_password = request.POST.get("confirm_password", "").strip()
 
-    
         if not user.check_password(old_password):
             messages.error(request, "Current password is incorrect")
-            return redirect('userinfo:change_password')
+            return redirect("userinfo:change_password")
 
-        
         if new_password != confirm_password:
             messages.error(request, "Passwords do not match")
-            return redirect('userinfo:change_password')
+            return redirect("userinfo:change_password")
 
-        
         if not new_password:
             messages.error(request, "New password cannot be empty")
-            return redirect('userinfo:change_password')
+            return redirect("userinfo:change_password")
 
-        
         user.set_password(new_password)
         user.save()
 
-        
         update_session_auth_hash(request, user)
 
-    
-        messages.success(request, "Password updated successfully", extra_tags="password")
+        messages.success(
+            request, "Password updated successfully", extra_tags="password"
+        )
 
-        
-        return redirect('userinfo:profile')
+        return redirect("userinfo:profile")
 
     return render(request, "change_password.html")
+
 
 def forgot_password(request):
     if request.method == "POST":
@@ -348,7 +324,6 @@ def forgot_password(request):
             messages.error(request, "No account found with that email.")
             return render(request, "forgot_password.html")
 
-        
         otp = str(secrets.randbelow(900000) + 100000)
 
         PasswordResetOTP.objects.filter(user=user).delete()
@@ -383,32 +358,31 @@ def profile_verify_otp(request):
     user = User.objects.filter(email=email).first()
     if not user:
         return redirect("userinfo:forgot_password")
-    
-    otp_obj = PasswordResetOTP.objects.filter(user=user).order_by('-created_at').first()
+
+    otp_obj = PasswordResetOTP.objects.filter(user=user).order_by("-created_at").first()
 
     time_left = otp_obj.time_left() if otp_obj else 60
 
     if request.method == "POST":
-        entered_otp = "".join([
-            request.POST.get(f"otp{i}", "") for i in range(1, 7)
-        ])
+        entered_otp = "".join([request.POST.get(f"otp{i}", "") for i in range(1, 7)])
 
-        otp_obj = PasswordResetOTP.objects.filter(
-            user=user,
-            otp=entered_otp
-        ).order_by('-created_at').first()
+        otp_obj = (
+            PasswordResetOTP.objects.filter(user=user, otp=entered_otp)
+            .order_by("-created_at")
+            .first()
+        )
 
         if not otp_obj:
-            return render(request, "verify_otp.html", {
-                "error": "Invalid OTP",
-                "time_left": time_left
-            })
+            return render(
+                request,
+                "verify_otp.html",
+                {"error": "Invalid OTP", "time_left": time_left},
+            )
 
         if otp_obj.is_expired():
-            return render(request, "verify_otp.html", {
-                "error": "OTP expired",
-                "time_left": 0
-            })
+            return render(
+                request, "verify_otp.html", {"error": "OTP expired", "time_left": 0}
+            )
 
         otp_obj.is_verified = True
         otp_obj.save()
@@ -417,9 +391,8 @@ def profile_verify_otp(request):
 
         return redirect("userinfo:reset_password")
 
-    return render(request, "verify_otp.html", {
-        "time_left": time_left
-    })
+    return render(request, "verify_otp.html", {"time_left": time_left})
+
 
 @never_cache
 def resend_otp(request):
@@ -447,7 +420,6 @@ def resend_otp(request):
     return redirect("userinfo:profile_verify_otp")
 
 
-
 @never_cache
 def reset_password(request):
     email = request.session.get("reset_email")
@@ -458,10 +430,7 @@ def reset_password(request):
 
     user = User.objects.get(email=email)
 
-    otp_obj = PasswordResetOTP.objects.filter(
-        user=user,
-        is_verified=True
-    ).first()
+    otp_obj = PasswordResetOTP.objects.filter(user=user, is_verified=True).first()
 
     # 🔴 If OTP not verified → block
     if not otp_obj:

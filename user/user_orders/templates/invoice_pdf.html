@@ -62,7 +62,66 @@ table td{
     color:#64748b;
     font-size:12px;
 }
+.section-title{
 
+    margin:30px 0 15px;
+
+    padding:12px 18px;
+
+    font-size:18px;
+
+    font-weight:bold;
+
+    border-radius:6px;
+}
+
+.active-title{
+
+    background:#e8f1ff;
+
+    color:#2563eb;
+
+    border-left:5px solid #2563eb;
+}
+
+.cancelled-title{
+
+    background:#fdeaea;
+
+    color:#dc2626;
+
+    border-left:5px solid #dc2626;
+}
+
+.returned-title{
+
+    background:#fff1e6;
+
+    color:#ea580c;
+
+    border-left:5px solid #ea580c;
+}
+
+.status-active{
+
+    color:#15803d;
+
+    font-weight:bold;
+}
+
+.status-cancelled{
+
+    color:#dc2626;
+
+    font-weight:bold;
+}
+
+.status-returned{
+
+    color:#ea580c;
+
+    font-weight:bold;
+}
 </style>
 
 </head>
@@ -117,27 +176,27 @@ table td{
 
 </div>
 
+<div class="section-title active-title">
+
+    Active Items
+
+</div>
+
 <table>
 
     <thead>
 
         <tr>
 
-            <th>
-                Product
-            </th>
+            <th>Product</th>
 
-            <th>
-                Qty
-            </th>
+            <th>Status</th>
 
-            <th>
-                Price
-            </th>
+            <th>Qty</th>
 
-            <th>
-                Total
-            </th>
+            <th>Price</th>
+
+            <th>Total</th>
 
         </tr>
 
@@ -145,13 +204,23 @@ table td{
 
     <tbody>
 
-        {% for item in order.items.all %}
+        {% for item in active_items %}
 
         <tr>
 
             <td>
 
                 {{ item.product.product_name }}
+
+            </td>
+
+            <td>
+
+                <span class="status-active">
+
+                    Active
+
+                </span>
 
             </td>
 
@@ -180,7 +249,133 @@ table td{
     </tbody>
 
 </table>
+{% if cancelled_items %}
 
+<div class="section-title cancelled-title">
+
+    Cancelled Items
+
+</div>
+
+<table>
+
+    <thead>
+
+        <tr>
+
+            <th>Product</th>
+
+            <th>Status</th>
+
+            <th>Qty</th>
+
+            <th>Total</th>
+
+        </tr>
+
+    </thead>
+
+    <tbody>
+
+        {% for item in cancelled_items %}
+
+        <tr>
+
+            <td>
+                {{ item.product.product_name }}
+            </td>
+
+     <td>
+
+    <span class="status-cancelled">
+
+        Cancelled
+
+    </span>
+
+</td>
+
+            <td>
+                {{ item.quantity }}
+            </td>
+
+            <td>
+                ₹{{ item.total_price }}
+            </td>
+
+        </tr>
+
+        {% endfor %}
+
+    </tbody>
+
+</table>
+
+{% endif %}
+
+{% if returned_items %}
+
+<div class="section-title returned-title">
+
+    Returned Items
+
+</div>
+
+<table>
+
+    <thead>
+
+        <tr>
+
+            <th>Product</th>
+
+            <th>Status</th>
+
+            <th>Qty</th>
+
+            <th>Total</th>
+
+        </tr>
+
+    </thead>
+
+    <tbody>
+
+        {% for item in returned_items %}
+
+        <tr>
+
+            <td>
+                {{ item.product.product_name }}
+            </td>
+
+<td>
+
+    <span class="status-returned">
+
+        Returned
+
+    </span>
+
+</td>
+
+            <td>
+                {{ item.quantity }}
+            </td>
+
+            <td>
+                ₹{{ item.total_price }}
+            </td>
+
+        </tr>
+
+        {% endfor %}
+
+    </tbody>
+
+</table>
+
+{% endif %}
 <div class="total-box">
 
     <div class="total-row">
@@ -189,7 +384,7 @@ table td{
 
         <strong>
 
-            ₹{{ order.subtotal }}
+            ₹{{ summary_subtotal }}
 
         </strong>
 
@@ -238,7 +433,7 @@ table td{
         <strong style="font-size:18px;">
 
             GRAND TOTAL :
-            ₹{{ order.total_amount }}
+            ₹{{ summary_total }}
 
         </strong>
 

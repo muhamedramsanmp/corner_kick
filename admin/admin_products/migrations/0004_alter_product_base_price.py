@@ -6,13 +6,15 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('admin_products', '0003_product_care_guide'),
+        ("admin_products", "0003_product_care_guide"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='product',
-            name='base_price',
-            field=models.DecimalField(blank=True, decimal_places=2, default=0, max_digits=10, null=True),
+            model_name="product",
+            name="base_price",
+            field=models.DecimalField(
+                blank=True, decimal_places=2, default=0, max_digits=10, null=True
+            ),
         ),
     ]

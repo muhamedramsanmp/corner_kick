@@ -9,49 +9,125 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('admin_category', '0003_alter_category_category_name'),
-        ('admin_products', '0008_product_slug'),
+        ("admin_category", "0003_alter_category_category_name"),
+        ("admin_products", "0008_product_slug"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Offer',
+            name="Offer",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('offer_name', models.CharField(max_length=200)),
-                ('discount_type', models.CharField(choices=[('PERCENTAGE', 'Percentage'), ('FIXED', 'Fixed Amount')], max_length=20)),
-                ('discount_value', models.DecimalField(decimal_places=2, max_digits=10)),
-                ('min_purchase', models.DecimalField(decimal_places=2, default=0, max_digits=10)),
-                ('max_discount', models.DecimalField(blank=True, decimal_places=2, max_digits=10, null=True)),
-                ('apply_to', models.CharField(choices=[('PRODUCT', 'Product'), ('CATEGORY', 'Category')], max_length=20)),
-                ('start_date', models.DateField()),
-                ('end_date', models.DateField()),
-                ('is_active', models.BooleanField(default=True)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('is_deleted', models.BooleanField(default=False)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("offer_name", models.CharField(max_length=200)),
+                (
+                    "discount_type",
+                    models.CharField(
+                        choices=[
+                            ("PERCENTAGE", "Percentage"),
+                            ("FIXED", "Fixed Amount"),
+                        ],
+                        max_length=20,
+                    ),
+                ),
+                (
+                    "discount_value",
+                    models.DecimalField(decimal_places=2, max_digits=10),
+                ),
+                (
+                    "min_purchase",
+                    models.DecimalField(decimal_places=2, default=0, max_digits=10),
+                ),
+                (
+                    "max_discount",
+                    models.DecimalField(
+                        blank=True, decimal_places=2, max_digits=10, null=True
+                    ),
+                ),
+                (
+                    "apply_to",
+                    models.CharField(
+                        choices=[("PRODUCT", "Product"), ("CATEGORY", "Category")],
+                        max_length=20,
+                    ),
+                ),
+                ("start_date", models.DateField()),
+                ("end_date", models.DateField()),
+                ("is_active", models.BooleanField(default=True)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("is_deleted", models.BooleanField(default=False)),
             ],
         ),
         migrations.CreateModel(
-            name='CategoryOffer',
+            name="CategoryOffer",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('category', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='admin_category.category')),
-                ('offer', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='category_offers', to='admin_offer.offer')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "category",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="admin_category.category",
+                    ),
+                ),
+                (
+                    "offer",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="category_offers",
+                        to="admin_offer.offer",
+                    ),
+                ),
             ],
             options={
-                'unique_together': {('offer', 'category')},
+                "unique_together": {("offer", "category")},
             },
         ),
         migrations.CreateModel(
-            name='OfferProduct',
+            name="OfferProduct",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('offer', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='offer_products', to='admin_offer.offer')),
-                ('product', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='admin_products.product')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "offer",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="offer_products",
+                        to="admin_offer.offer",
+                    ),
+                ),
+                (
+                    "product",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="admin_products.product",
+                    ),
+                ),
             ],
             options={
-                'unique_together': {('offer', 'product')},
+                "unique_together": {("offer", "product")},
             },
         ),
     ]

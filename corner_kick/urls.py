@@ -14,31 +14,27 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+
 from django.contrib import admin
-from django.urls import path,include
-from user.accounts.views import home_view 
+from django.urls import path, include
+from user.accounts.views import home_view
 from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('',include('user.accounts.urls')),
-    path('profile/',include('user.userinfo.urls')),
-    path('address/',include('user.addressinfo.urls')),
-    path('products/',include('user.products.urls')),
-    path('accounts/', include('allauth.urls')),
-    path('orders/',include('user.user_orders.urls')),
-    path('wallet/',include('user.user_wallet.urls')),
-
-
-
-    path('adminauth/', include('admin.adminauth.urls')),
-    path('admin-category/',include('admin.admin_category.urls')),
-    path('admin-products/',include('admin.admin_products.urls')),
-    path('admin-orders/',include('admin.admin_orders.urls')),
-    path('admin-coupon/',include('admin.admin_coupon.urls')),
-    path('admin-offer/',include('admin.admin_offer.urls')),
-    
-    
+    path("admin/", admin.site.urls),
+    path("", include("user.accounts.urls")),
+    path("profile/", include("user.userinfo.urls")),
+    path("address/", include("user.addressinfo.urls")),
+    path("products/", include("user.products.urls")),
+    path("accounts/", include("allauth.urls")),
+    path("orders/", include("user.user_orders.urls")),
+    path("wallet/", include("user.user_wallet.urls")),
+    path("adminauth/", include("admin.adminauth.urls")),
+    path("admin-category/", include("admin.admin_category.urls")),
+    path("admin-products/", include("admin.admin_products.urls")),
+    path("admin-orders/", include("admin.admin_orders.urls")),
+    path("admin-coupon/", include("admin.admin_coupon.urls")),
+    path("admin-offer/", include("admin.admin_offer.urls")),
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

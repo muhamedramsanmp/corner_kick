@@ -6,12 +6,12 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('admin_products', '0005_remove_product_base_price_and_more'),
+        ("admin_products", "0005_remove_product_base_price_and_more"),
     ]
 
     operations = [
         migrations.AlterUniqueTogether(
-            name='variant',
-            unique_together={('product', 'color', 'size')},
+            name="variant",
+            unique_together={("product", "color", "size")},
         ),
     ]

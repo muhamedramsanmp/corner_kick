@@ -7,14 +7,22 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('admin_coupon', '0001_initial'),
-        ('user_orders', '0012_order_razorpay_order_id_order_razorpay_payment_id_and_more'),
+        ("admin_coupon", "0001_initial"),
+        (
+            "user_orders",
+            "0012_order_razorpay_order_id_order_razorpay_payment_id_and_more",
+        ),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='order',
-            name='coupon',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='admin_coupon.coupon'),
+            model_name="order",
+            name="coupon",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to="admin_coupon.coupon",
+            ),
         ),
     ]

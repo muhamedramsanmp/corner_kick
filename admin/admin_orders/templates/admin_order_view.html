@@ -1230,7 +1230,7 @@ target="_blank"
 
 <div class="card-body">
 
-    {% for item in order.items.all %}
+    {% for item in active_items %}
 
         {% if item.item_status != 'Cancelled' %}
 
@@ -1290,7 +1290,7 @@ target="_blank"
 
     <div class="card-body">
 
-        {% for item in order.items.all %}
+        {% for item in cancelled_items %}
 
             {% if item.item_status == 'Cancelled' %}
 

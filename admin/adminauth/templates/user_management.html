@@ -1,10 +1,17 @@
 {% extends 'admin_base.html' %}
+
 {% load static %}
 
 {% block title %}
 Admin Dashboard
 {% endblock %}
+{% block page_title %}
+User Management
+{% endblock %}
 
+{% block page_subtitle %}
+Manage your customer database and account statuses
+{% endblock %}
 {% block content %}
 <style>
 
@@ -372,16 +379,73 @@ h1{
     cursor:pointer;
 }
 
-/* ================= MOBILE ================= */
+/* ================= RESPONSIVE ================= */
+
+@media(max-width:1200px){
+
+    .cards{
+        grid-template-columns:repeat(2,1fr);
+    }
+
+}
+
+@media(max-width:992px){
+
+    .cards{
+        grid-template-columns:repeat(2,1fr);
+    }
+
+}
 
 @media(max-width:900px){
 
     .filters{
-
         grid-template-columns:1fr;
     }
 
 }
+
+@media(max-width:768px){
+
+    h1{
+        font-size:22px;
+    }
+
+    .cards{
+        grid-template-columns:1fr 1fr;
+        gap:14px;
+    }
+
+    .table-box{
+        overflow-x:auto;
+    }
+
+    .t-head,
+    .t-row{
+        min-width:580px;
+    }
+
+    .footer{
+        flex-direction:column;
+        gap:8px;
+        text-align:center;
+    }
+
+}
+
+@media(max-width:480px){
+
+    .cards{
+        grid-template-columns:1fr;
+        gap:12px;
+    }
+
+    .card h2{
+        font-size:22px;
+    }
+
+}
+
 </style>
 </head>
 
@@ -391,8 +455,8 @@ h1{
 <!-- MAIN -->
 
 
-<h1>User Management</h1>
-<p class="sub">Manage your customer database and account statuses</p>
+{% comment %} <h1>User Management</h1>
+<p class="sub">Manage your customer database and account statuses</p> {% endcomment %}
 
 
 <!-- CARDS -->

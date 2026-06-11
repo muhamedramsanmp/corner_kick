@@ -6,23 +6,33 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('user_orders', '0003_remove_order_address_line_remove_order_city_and_more'),
+        ("user_orders", "0003_remove_order_address_line_remove_order_city_and_more"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='order',
-            name='admin_note',
+            model_name="order",
+            name="admin_note",
             field=models.TextField(blank=True, null=True),
         ),
         migrations.AddField(
-            model_name='order',
-            name='delivered_at',
+            model_name="order",
+            name="delivered_at",
             field=models.DateTimeField(blank=True, null=True),
         ),
         migrations.AddField(
-            model_name='orderitem',
-            name='return_status',
-            field=models.CharField(choices=[('None', 'None'), ('Requested', 'Requested'), ('Approved', 'Approved'), ('Rejected', 'Rejected'), ('Returned', 'Returned')], default='None', max_length=20),
+            model_name="orderitem",
+            name="return_status",
+            field=models.CharField(
+                choices=[
+                    ("None", "None"),
+                    ("Requested", "Requested"),
+                    ("Approved", "Approved"),
+                    ("Rejected", "Rejected"),
+                    ("Returned", "Returned"),
+                ],
+                default="None",
+                max_length=20,
+            ),
         ),
     ]

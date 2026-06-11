@@ -394,12 +394,48 @@ Checkout
 @media (max-width: 576px) {
 
     .checkout-title {
-        font-size: 32px;
+        font-size: 28px;
     }
 
     .checkout-product {
         flex-direction: column;
         align-items: flex-start;
+    }
+
+    .checkout-top-bar{
+        width:100%;
+    }
+
+}
+
+@media(max-width:480px){
+
+    .checkout-container{
+        padding:20px 14px;
+    }
+
+    .checkout-title{
+        font-size:24px;
+    }
+
+    .card-header{
+        flex-wrap:wrap;
+        gap:8px;
+    }
+
+    .coupon-modal-box{
+        width:96vw;
+        padding:18px;
+    }
+
+    .coupon-item{
+        flex-direction:column;
+        align-items:flex-start;
+        gap:10px;
+    }
+
+    .summary-total{
+        font-size:18px;
     }
 
 }

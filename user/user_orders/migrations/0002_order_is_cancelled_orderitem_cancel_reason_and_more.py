@@ -6,38 +6,47 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('user_orders', '0001_initial'),
+        ("user_orders", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='order',
-            name='is_cancelled',
+            model_name="order",
+            name="is_cancelled",
             field=models.BooleanField(default=False),
         ),
         migrations.AddField(
-            model_name='orderitem',
-            name='cancel_reason',
+            model_name="orderitem",
+            name="cancel_reason",
             field=models.TextField(blank=True, null=True),
         ),
         migrations.AddField(
-            model_name='orderitem',
-            name='cancelled_at',
+            model_name="orderitem",
+            name="cancelled_at",
             field=models.DateTimeField(blank=True, null=True),
         ),
         migrations.AddField(
-            model_name='orderitem',
-            name='item_status',
-            field=models.CharField(choices=[('Active', 'Active'), ('Cancelled', 'Cancelled'), ('Return Requested', 'Return Requested'), ('Returned', 'Returned')], default='Active', max_length=30),
+            model_name="orderitem",
+            name="item_status",
+            field=models.CharField(
+                choices=[
+                    ("Active", "Active"),
+                    ("Cancelled", "Cancelled"),
+                    ("Return Requested", "Return Requested"),
+                    ("Returned", "Returned"),
+                ],
+                default="Active",
+                max_length=30,
+            ),
         ),
         migrations.AddField(
-            model_name='orderitem',
-            name='return_reason',
+            model_name="orderitem",
+            name="return_reason",
             field=models.TextField(blank=True, null=True),
         ),
         migrations.AddField(
-            model_name='orderitem',
-            name='returned_at',
+            model_name="orderitem",
+            name="returned_at",
             field=models.DateTimeField(blank=True, null=True),
         ),
     ]

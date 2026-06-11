@@ -6,20 +6,20 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('admin_products', '0004_alter_product_base_price'),
+        ("admin_products", "0004_alter_product_base_price"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='product',
-            name='base_price',
+            model_name="product",
+            name="base_price",
         ),
         migrations.RemoveField(
-            model_name='variant',
-            name='variant_name',
+            model_name="variant",
+            name="variant_name",
         ),
         migrations.RemoveField(
-            model_name='variant',
-            name='weight',
+            model_name="variant",
+            name="weight",
         ),
     ]

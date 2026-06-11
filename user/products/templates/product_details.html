@@ -741,6 +741,64 @@ Product Details
 
     }
 }
+
+@media(max-width:480px){
+
+    .breadcrumb{
+        padding:16px 16px 6px;
+        font-size:10px;
+    }
+
+    .main{
+        padding:16px 16px 40px;
+        gap:24px;
+    }
+
+    .main-image{
+        height:320px;
+    }
+
+    .product-title{
+        font-size:26px;
+    }
+
+    .price{
+        font-size:28px;
+    }
+
+    .info{
+        position:static;
+        padding:22px;
+    }
+
+    .related{
+        padding:0 16px 40px;
+    }
+
+    .related h2{
+        font-size:24px;
+    }
+
+    .related-grid{
+        grid-template-columns:1fr;
+    }
+
+    .button-group{
+        flex-direction:column;
+    }
+
+    .wishlist-btn{
+        width:100%;
+        height:56px;
+    }
+
+    .thumb{
+        width:70px;
+        height:70px;
+    }
+
+}
+
 </style>
 
 </head>
@@ -1001,9 +1059,11 @@ class="cart-form"
     <div class="button-group">
 
         <button
+<button
 type="submit"
 class="cart-btn"
 id="cartButton"
+data-authenticated="{% if user.is_authenticated %}true{% else %}false{% endif %}"
 
 {% if default_variant.available_stock <= 0 %}
 disabled
@@ -1026,11 +1086,8 @@ ADD TO CART
 <a
 href="#"
 data-url="{% url 'user_products:toggle_wishlist' product.id %}"
-class="wishlist-btn
-{% if is_wishlisted %}
-active
-{% endif %}
-"
+data-authenticated="{% if user.is_authenticated %}true{% else %}false{% endif %}"
+class="wishlist-btn {% if is_wishlisted %}active{% endif %}"
 >
 
 <span class="material-symbols-outlined">
@@ -1905,7 +1962,51 @@ document
     )
 
 })
+document.addEventListener("click", function(e){
 
+    const wishlistBtn =
+        e.target.closest(".wishlist-btn");
+
+    if(wishlistBtn){
+
+        const isAuthenticated =
+            wishlistBtn.dataset.authenticated === "true";
+
+        if(!isAuthenticated){
+
+            e.preventDefault();
+
+            showAjaxPopup(
+                 "Please login to add products to wishlist"
+            );
+
+            return;
+        }
+    }
+
+});
+
+document.querySelector(".cart-form")
+?.addEventListener("submit", function(e){
+
+    const cartBtn =
+        document.getElementById("cartButton");
+
+    const isAuthenticated =
+        cartBtn.dataset.authenticated === "true";
+
+    if(!isAuthenticated){
+
+        e.preventDefault();
+
+        showAjaxPopup(
+            "Please login to add products to cart"
+        );
+
+        return;
+    }
+
+});
 </script>
 
 {% endblock %}

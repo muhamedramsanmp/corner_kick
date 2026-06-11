@@ -6,12 +6,12 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('accounts', '0010_referralreward_is_seen'),
+        ("accounts", "0010_referralreward_is_seen"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='referralreward',
-            name='is_seen',
+            model_name="referralreward",
+            name="is_seen",
         ),
     ]

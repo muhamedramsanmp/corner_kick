@@ -14,22 +14,14 @@ def get_discount_amount(price, offer):
 
     if offer.discount_type == "PERCENTAGE":
 
-        discount = (
-            price * offer.discount_value
-        ) / Decimal("100")
+        discount = (price * offer.discount_value) / Decimal("100")
 
-        if (
-            offer.max_discount and
-            discount > offer.max_discount
-        ):
+        if offer.max_discount and discount > offer.max_discount:
             discount = offer.max_discount
 
         return discount
 
-    return min(
-        offer.discount_value,
-        price
-    )
+    return min(offer.discount_value, price)
 
 
 def get_best_offer(product, price):
@@ -62,16 +54,12 @@ def get_best_offer(product, price):
     if not all_offers:
         return None
 
-
     best_offer = None
     highest_discount = Decimal("0")
 
     for offer in all_offers:
 
-        discount = get_discount_amount(
-            price,
-            offer
-        )
+        discount = get_discount_amount(price, offer)
 
         if discount > highest_discount:
 
@@ -88,10 +76,7 @@ def calculate_discounted_price(variant):
 
     original_price = variant.price
 
-    offer = get_best_offer(
-        variant.product,
-        variant.price
-    )
+    offer = get_best_offer(variant.product, variant.price)
 
     if not offer:
 
@@ -102,15 +87,9 @@ def calculate_discounted_price(variant):
             "offer": None,
         }
 
-    discount_amount = get_discount_amount(
-        original_price,
-        offer
-    )
+    discount_amount = get_discount_amount(original_price, offer)
 
-    final_price = (
-        original_price -
-        discount_amount
-    )
+    final_price = original_price - discount_amount
 
     if final_price < Decimal("0"):
         final_price = Decimal("0")

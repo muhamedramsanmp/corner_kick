@@ -6,13 +6,22 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('user_orders', '0006_alter_returnrequest_return_status'),
+        ("user_orders", "0006_alter_returnrequest_return_status"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='returnrequest',
-            name='return_status',
-            field=models.CharField(choices=[('pending', 'aending'), ('approved', 'approved'), ('rejected', 'aejected'), ('returned', 'aeturned')], default='Requested', max_length=30),
+            model_name="returnrequest",
+            name="return_status",
+            field=models.CharField(
+                choices=[
+                    ("pending", "aending"),
+                    ("approved", "approved"),
+                    ("rejected", "aejected"),
+                    ("returned", "aeturned"),
+                ],
+                default="Requested",
+                max_length=30,
+            ),
         ),
     ]
