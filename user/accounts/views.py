@@ -79,7 +79,6 @@ def signup_view(request):
         password = request.POST.get("password")
         confirm_password = request.POST.get("confirm_password")
 
-        # store old values
         data = {
             "full_name": full_name,
             "email": email,
@@ -131,14 +130,12 @@ def signup_view(request):
                 }
             )
 
-        # ✅ OTP only if everything valid
         otp = str(random.randint(100000, 999999))
 
-        # 🔥 SAVE OTP IN DATABASE
         OTP.objects.filter(email=email, purpose="signup").delete()
+
         OTP.objects.create(email=email, code=otp, purpose="signup")
 
-        # 🔥 store ONLY required data (NO OTP here)
         request.session["signup_data"] = {
             "full_name": full_name,
             "email": email,
@@ -146,7 +143,6 @@ def signup_view(request):
             "referral_code": referral_code,
         }
 
-        # 🔥 send OTP
         send_mail(
             "Your OTP Code",
             f"Your OTP is {otp}",
@@ -182,13 +178,11 @@ def login_view(request):
                 request, "login.html", {"error": "Invalid email or password."}
             )
 
-        # 🔒 BLOCK ADMIN LOGIN
         if user.is_staff or user.is_superuser:
             return render(
                 request, "login.html", {"error": "Admin must login from admin portal."}
             )
 
-        # 🔒 BLOCK INACTIVE USERS
         if not user.is_active:
             return render(
                 request, "login.html", {"error": "Your account has been blocked."}
@@ -203,10 +197,6 @@ def login_view(request):
 @never_cache
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def home_view(request):
-
-    # =====================================
-    # BLOCK ADMIN FROM FRONTEND
-    # =====================================
 
     if request.user.is_authenticated:
 
@@ -236,26 +226,20 @@ def forgot_password(request):
     if request.method == "POST":
         email = request.POST.get("email", "").strip().lower()
 
-        # ❌ user not found
         try:
             user = User.objects.get(email=email)
         except User.DoesNotExist:
             messages.error(request, "No account found with that email address.")
             return render(request, "forgotpassword.html")
 
-        # 🔥 generate OTP
         otp = str(random.randint(100000, 999999))
 
-        # 🔥 delete old reset OTPs
         OTP.objects.filter(email=email, purpose="reset").delete()
 
-        # 🔥 create new OTP
         OTP.objects.create(email=email, code=otp, purpose="reset")
 
-        # 🔥 store ONLY email (NOT OTP)
         request.session["reset_email"] = email
 
-        # 🔥 send email
         try:
             send_mail(
                 "Your Password Reset OTP",
@@ -290,12 +274,10 @@ def verify_otp(request):
 
         return redirect("forgot_password")
 
-    # 🔥 GET LATEST OTP
     otp_obj = (
         OTP.objects.filter(email=email, purpose="reset").order_by("-created_at").first()
     )
 
-    # 🔥 TIMER VALUE
     time_left = otp_obj.time_left() if otp_obj else 60
 
     if request.method == "POST":
@@ -309,42 +291,36 @@ def verify_otp(request):
             + request.POST.get("otp6", "")
         )
 
-        # ❌ incomplete OTP
         if len(entered_otp) != 6:
 
             messages.error(request, "Enter complete OTP")
 
             return render(request, "loginotpverify.html", {"time_left": time_left})
 
-        # 🔥 GET LATEST OTP AGAIN
         otp_obj = (
             OTP.objects.filter(email=email, purpose="reset")
             .order_by("-created_at")
             .first()
         )
-
-        # ❌ no OTP
         if not otp_obj:
 
             messages.error(request, "OTP not found. Please resend.")
 
             return render(request, "loginotpverify.html", {"time_left": time_left})
 
-        # ❌ expired
         if otp_obj.is_expired():
 
             messages.error(request, "OTP expired.")
 
             return render(request, "loginotpverify.html", {"time_left": 0})
 
-        # ❌ incorrect
         if entered_otp != otp_obj.code:
 
             messages.error(request, "Invalid OTP.")
 
             return render(request, "loginotpverify.html", {"time_left": time_left})
 
-        # ✅ VERIFIED
+      
         otp_obj.is_verified = True
 
         otp_obj.save()
@@ -366,16 +342,12 @@ def resend_otp(request):
         messages.error(request, "User not found")
         return redirect("forgot_password")
 
-    # 🔥 generate new OTP
     otp = str(secrets.randbelow(9000) + 1000)
 
-    # 🔥 delete old OTP (only reset purpose)
     OTP.objects.filter(email=email, purpose="reset").delete()
 
-    # 🔥 create new OTP
     OTP.objects.create(email=email, code=otp, purpose="reset")
 
-    # 🔥 send email
     send_mail(
         "New OTP",
         f"Your OTP is: {otp}",
@@ -399,7 +371,6 @@ def reset_password(request):
     except User.DoesNotExist:
         return redirect("forgot_password")
 
-    # 🔥 check verified OTP
     otp_obj = (
         OTP.objects.filter(email=email, purpose="reset", is_verified=True)
         .order_by("-created_at")
@@ -416,24 +387,20 @@ def reset_password(request):
         password = request.POST.get("password", "").strip()
         confirm_password = request.POST.get("confirm_password", "").strip()
 
-        # ❌ STEP 1: empty
         if not password or not confirm_password:
             return render(
                 request, "resetpassword.html", {"error": "All fields are required."}
             )
 
-        # ❌ STEP 2: mismatch
         if password != confirm_password:
             return render(
                 request, "resetpassword.html", {"error": "Passwords do not match."}
             )
 
-        # ❌ STEP 3: strength (one-by-one)
         errors = validate_password_strength(password)
         if errors:
             return render(request, "resetpassword.html", {"error": errors[0]})
 
-        # ✅ STEP 4: success
         user.set_password(password)
         user.save()
 
@@ -454,9 +421,6 @@ def verify_signup_otp(request):
     for _ in storage:
         pass
 
-    # =====================================
-    # SESSION DATA
-    # =====================================
 
     data = request.session.get("signup_data")
 
@@ -466,10 +430,6 @@ def verify_signup_otp(request):
 
     email = data.get("email")
 
-    # =====================================
-    # GET OTP
-    # =====================================
-
     otp_obj = (
         OTP.objects.filter(email=email, purpose="signup")
         .order_by("-created_at")
@@ -477,10 +437,6 @@ def verify_signup_otp(request):
     )
 
     time_left = otp_obj.time_left() if otp_obj else 60
-
-    # =====================================
-    # POST
-    # =====================================
 
     if request.method == "POST":
 
@@ -493,19 +449,12 @@ def verify_signup_otp(request):
             + request.POST.get("otp6", "")
         )
 
-        # =====================================
-        # VALIDATE LENGTH
-        # =====================================
-
         if len(entered_otp) != 6:
 
             messages.error(request, "Enter complete OTP", extra_tags="otp")
 
             return render(request, "signup_verify.html", {"time_left": time_left})
 
-        # =====================================
-        # FETCH OTP AGAIN
-        # =====================================
 
         otp_obj = (
             OTP.objects.filter(email=email, purpose="signup")
@@ -513,19 +462,12 @@ def verify_signup_otp(request):
             .first()
         )
 
-        # =====================================
-        # OTP NOT FOUND
-        # =====================================
-
         if not otp_obj:
 
             messages.error(request, "OTP not found", extra_tags="otp")
 
             return render(request, "signup_verify.html", {"time_left": time_left})
 
-        # =====================================
-        # OTP EXPIRED
-        # =====================================
 
         if otp_obj.is_expired():
 
@@ -533,19 +475,12 @@ def verify_signup_otp(request):
 
             return render(request, "signup_verify.html", {"time_left": 0})
 
-        # =====================================
-        # INVALID OTP
-        # =====================================
 
         if entered_otp != otp_obj.code:
 
             messages.error(request, "Invalid OTP", extra_tags="otp")
 
             return render(request, "signup_verify.html", {"time_left": time_left})
-
-        # =====================================
-        # CREATE USER
-        # =====================================
 
         full_name = data.get("full_name", "").strip()
 
@@ -562,9 +497,6 @@ def verify_signup_otp(request):
             first_name=first_name,
             last_name=last_name,
         )
-        # =====================================
-        # CREATE REFERRAL RECORD
-        # =====================================
 
         referral_code = data.get("referral_code")
 
@@ -581,39 +513,15 @@ def verify_signup_otp(request):
                     status="pending",
                 )
 
-        # =====================================
-        # LOGIN USER
-        # =====================================
-
         login(request, user, backend="django.contrib.auth.backends.ModelBackend")
-
-        # =====================================
-        # DELETE OTP
-        # =====================================
 
         otp_obj.delete()
 
-        # =====================================
-        # CLEAR SESSION
-        # =====================================
-
         del request.session["signup_data"]
-
-        # =====================================
-        # SUCCESS MESSAGE
-        # =====================================
 
         messages.success(request, "Account created successfully")
 
-        # =====================================
-        # REDIRECT
-        # =====================================
-
         return redirect("home")
-
-    # =====================================
-    # GET REQUEST
-    # =====================================
 
     return render(request, "signup_verify.html", {"time_left": time_left})
 
@@ -626,16 +534,15 @@ def resend_signup_otp(request):
 
     email = data.get("email")
 
-    # generate new OTP
     otp = str(random.randint(100000, 999999))
 
-    # delete old OTP
+    
     OTP.objects.filter(email=email, purpose="signup").delete()
 
-    # create new OTP
+    
     OTP.objects.create(email=email, code=otp, purpose="signup")
 
-    # send mail
+    
     send_mail(
         "Your OTP Code",
         f"Your OTP is {otp}",

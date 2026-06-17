@@ -7,7 +7,13 @@ from django.contrib import messages
 from .models import Wallet, WalletTransaction
 from admin.admin_coupon.models import Coupon, CouponUsage
 from user.user_orders.models import Order
+import json
+import razorpay
+from django.http import JsonResponse
+from django.conf import settings
+from django.utils import timezone
 
+from django.views.decorators.http import require_POST
 
 @user_required
 def wallet_page(request):
@@ -95,15 +101,6 @@ def wallet_failed(request):
     return render(request, "wallet_failed.html", context)
 
 
-import json
-import razorpay
-
-from django.http import JsonResponse
-from django.conf import settings
-
-
-from django.views.decorators.http import require_POST
-
 
 @require_POST
 @user_required
@@ -150,13 +147,9 @@ def wallet_payment_success(request):
     return redirect(reverse("wallet_success") + f"?amount={amount}")
 
 
-from django.http import JsonResponse
-from django.utils import timezone
-
 
 @user_required
 def apply_coupon(request):
-    print("APPLY COUPON VIEW HIT")
 
     if request.method != "POST":
 
@@ -165,12 +158,6 @@ def apply_coupon(request):
     coupon_code = request.POST.get("coupon_code")
 
     subtotal = Decimal(request.POST.get("subtotal", "0"))
-    print("COUPON =", coupon_code)
-    print("SUBTOTAL =", subtotal)
-
-    # ==========================
-    # COUPON EXISTS
-    # ==========================
 
     try:
 
@@ -179,10 +166,6 @@ def apply_coupon(request):
     except Coupon.DoesNotExist:
 
         return JsonResponse({"success": False, "message": "Coupon does not exist"})
-
-    # ==========================
-    # TOTAL USAGE LIMIT
-    # ==========================
 
     if coupon.total_usage_limit:
 
@@ -193,9 +176,7 @@ def apply_coupon(request):
             return JsonResponse(
                 {"success": False, "message": "Coupon usage limit reached"}
             )
-    # ==========================
-    # USER LIMIT
-    # ==========================
+
 
     if coupon.usage_limit_per_user:
 
@@ -206,9 +187,7 @@ def apply_coupon(request):
             return JsonResponse(
                 {"success": False, "message": "You have already used this coupon"}
             )
-    # ==========================
-    # ACTIVE STATUS
-    # ==========================
+
 
     if not coupon.is_active:
 
@@ -218,9 +197,6 @@ def apply_coupon(request):
 
     today = timezone.now().date()
 
-    # ==========================
-    # START DATE
-    # ==========================
 
     if coupon.start_date:
 
@@ -230,9 +206,6 @@ def apply_coupon(request):
                 {"success": False, "message": f"Coupon starts on {coupon.start_date}"}
             )
 
-    # ==========================
-    # END DATE
-    # ==========================
 
     if coupon.end_date:
 
@@ -240,9 +213,6 @@ def apply_coupon(request):
 
             return JsonResponse({"success": False, "message": "Coupon has expired"})
 
-    # ==========================
-    # MIN PURCHASE
-    # ==========================
 
     if coupon.min_purchase:
 
@@ -254,10 +224,6 @@ def apply_coupon(request):
                     "message": f"Minimum purchase ₹{coupon.min_purchase} required",
                 }
             )
-
-    # ==========================
-    # DISCOUNT
-    # ==========================
 
     discount = 0
 
@@ -273,9 +239,6 @@ def apply_coupon(request):
 
         discount = Decimal(coupon.discount_value)
 
-    # ==========================
-    # PREVENT NEGATIVE TOTAL
-    # ==========================
 
     if discount > subtotal:
 
@@ -283,9 +246,7 @@ def apply_coupon(request):
 
     total = subtotal - discount
 
-    # ==========================
-    # SUCCESS
-    # ==========================
+    request.session["coupon_id"] = coupon.id
 
     return JsonResponse(
         {

@@ -1,971 +1,502 @@
 {% extends 'admin_base.html' %}
 {% load static %}
 
-{% block title %}
-Admin Dashboard
-{% endblock %}
+{% block title %}Admin Dashboard{% endblock %}
 {% block page_title %}Dashboard{% endblock %}
 {% block page_subtitle %}Monitor store performance and business insights{% endblock %}
+
 {% block topbar_actions %}
-
 <div class="topbar-actions">
-
-    <a
-        href="{% url 'sales_report' %}"
-        class="report-btn"
-    >
-        Sales Report
-    </a>
-
-    <button
-        class="logout-btn"
-        id="openLogoutModal"
-    >
-        <span class="material-symbols-outlined">
-            logout
-        </span>
-
+    <a href="{% url 'sales_report' %}" class="report-btn">Sales Report</a>
+    <button class="logout-btn" id="openLogoutModal">
+        <span class="material-symbols-outlined">logout</span>
         Logout
     </button>
-
 </div>
-
 {% endblock %}
+
 {% block content %}
 <style>
 
-
-
-/* CARDS */
-
+/* ── STAT CARDS ──────────────────────────────────────────── */
 .cards{
     display:grid;
     grid-template-columns:repeat(4,1fr);
     gap:20px;
-    margin-bottom:30px;
+    margin-bottom:28px;
 }
-
 .card{
     background:#111;
-    padding:20px;
-    border-radius:12px;
+    padding:22px;
+    border-radius:14px;
     border:1px solid #1f2937;
+    transition:.2s;
 }
-
+.card:hover{ border-color:#2563eb; }
 .card-top{
     display:flex;
     justify-content:space-between;
     align-items:center;
+    margin-bottom:14px;
 }
-
 .card small{
     font-size:11px;
     letter-spacing:1px;
     color:#6b7280;
+    text-transform:uppercase;
 }
+.card h2{ font-size:30px; font-weight:800; }
+.icon{ font-size:24px; }
+.blue  { color:#3b82f6; }
+.green { color:#10b981; }
+.red   { color:#ef4444; }
+.purple{ color:#a855f7; }
 
-.card h2{
-    margin-top:12px;
-    font-size:28px;
-}
-
-.icon{
-    font-size:22px;
-}
-
-.blue{color:#3b82f6;}
-.green{color:#10b981;}
-.red{color:#ef4444;}
-.purple{color:#a855f7;}
-
-/* CHART BOX */
-
-.chart-box{
+/* ── SECTION BOX ─────────────────────────────────────────── */
+.section-box{
     background:#0b0b0b;
     border:1px solid #1f2937;
-    border-radius:14px;
-    padding:25px;
-    margin-bottom:30px;
+    border-radius:16px;
+    padding:26px;
+    margin-bottom:28px;
 }
-
-.chart-header{
+.section-header{
     display:flex;
     justify-content:space-between;
     align-items:center;
-    margin-bottom:25px;
-}
-
-.chart-header h3{
-    font-size:24px;
-}
-
-.chart-header p{
-    color:#6b7280;
-    font-size:13px;
-    margin-top:5px;
-}
-
-.chart{
-    height:280px;
-    display:flex;
-    align-items:flex-end;
+    margin-bottom:22px;
+    flex-wrap:wrap;
     gap:12px;
 }
+.section-header h3{ font-size:20px; font-weight:700; }
+.section-header p{ color:#6b7280; font-size:13px; margin-top:4px; }
 
-.bar{
-    flex:1;
-    background:#1e293b;
-    border-radius:10px 10px 0 0;
+/* ── CHART FILTER PILLS ──────────────────────────────────── */
+.filter-pills{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
 }
-
-.bar.active{
-    background:linear-gradient(to top,#2563eb,#3b82f6);
-}
-
-/* PRODUCT TABLE */
-
-.table-box{
-    background:#0b0b0b;
+.pill{
+    padding:7px 18px;
+    border-radius:50px;
+    font-size:13px;
+    font-weight:600;
     border:1px solid #1f2937;
-    border-radius:14px;
-    overflow:hidden;
+    background:#111;
+    color:#9ca3af;
+    cursor:pointer;
+    text-decoration:none;
+    transition:.2s;
+}
+.pill:hover,.pill.active{
+    background:#2563eb;
+    color:#fff;
+    border-color:#2563eb;
 }
 
-.t-head{
-    display:grid;
-    grid-template-columns:2fr 1fr 1fr 1fr;
-    padding:15px 20px;
+/* ── RANKING TABLE ───────────────────────────────────────── */
+.rank-table{ width:100%; border-collapse:collapse; }
+.rank-table th{
+    font-size:11px;
+    letter-spacing:1px;
     color:#6b7280;
-    font-size:12px;
+    text-transform:uppercase;
+    padding:0 14px 14px;
+    text-align:left;
     border-bottom:1px solid #1f2937;
 }
-
-.t-row{
-    display:grid;
-    grid-template-columns:2fr 1fr 1fr 1fr;
-    padding:18px 20px;
-    align-items:center;
-    border-bottom:1px solid #111;
-    transition:.2s;
+.rank-table th:last-child,.rank-table td:last-child{ text-align:right; }
+.rank-table td{
+    padding:14px;
+    font-size:14px;
+    border-bottom:1px solid #0f172a;
+    vertical-align:middle;
 }
+.rank-table tr:last-child td{ border-bottom:none; }
+.rank-table tr:hover td{ background:rgba(37,99,235,.04); }
 
-.t-row:hover{
-    background:#0f172a;
-}
-
-.product{
+.rank-num{
+    width:30px;
+    height:30px;
+    border-radius:8px;
+    background:#1f2937;
+    color:#9ca3af;
+    font-size:13px;
+    font-weight:700;
     display:flex;
     align-items:center;
-    gap:12px;
+    justify-content:center;
 }
+.rank-num.gold  { background:rgba(234,179,8,.15);  color:#eab308; }
+.rank-num.silver{ background:rgba(156,163,175,.12); color:#9ca3af; }
+.rank-num.bronze{ background:rgba(180,83,9,.15);   color:#b45309; }
 
-.product img{
-    width:45px;
-    height:45px;
+.prod-cell{ display:flex; align-items:center; gap:12px; }
+.prod-img{
+    width:44px; height:44px;
     border-radius:10px;
     object-fit:cover;
-}
-
-.badge{
-    padding:5px 12px;
-    border-radius:20px;
-    font-size:11px;
-    width:fit-content;
-}
-
-.badge.green{
-    background:#064e3b;
-    color:#10b981;
-}
-
-.badge.blue{
-    background:#172554;
-    color:#60a5fa;
-}
-
-.badge.purple{
-    background:#3b0764;
-    color:#c084fc;
-}
-/* TOPBAR */
-
-
-/* LOGOUT */
-
-.logout-btn{
-    display:flex;
-    align-items:center;
-    gap:8px;
-    background:#111827;
-    color:#ef4444;
-    padding:10px 16px;
-    border-radius:10px;
-    text-decoration:none;
-    font-size:13px;
-    transition:.2s;
-    border:0px;
-}
-
-.logout-btn:hover{
-    background:#7f1d1d;
-    color:#fff;
-}
-/* =========================================
-   LOGOUT MODAL
-========================================= */
-
-.logout-modal{
-
-    position:fixed;
-
-    inset:0;
-
-    background:rgba(0,0,0,.65);
-
-    backdrop-filter:blur(5px);
-
-    display:flex;
-
-    align-items:center;
-
-    justify-content:center;
-
-    opacity:0;
-
-    visibility:hidden;
-
-    transition:.22s ease;
-
-    z-index:999999;
-}
-
-/* SHOW */
-
-.logout-modal.show{
-
-    opacity:1;
-
-    visibility:visible;
-}
-
-/* BOX */
-
-.logout-modal-box{
-
-    width:390px;
-
-    background:#0b0b0b;
-
-    border:1px solid #1f2937;
-
-    border-radius:22px;
-
-    padding:34px 28px;
-
-    text-align:center;
-
-    transform:scale(.92);
-
-    transition:.22s ease;
-
-    box-shadow:
-        0 20px 60px rgba(0,0,0,.45);
-}
-
-
-
-/* OPEN EFFECT */
-
-.logout-modal.show .logout-modal-box{
-
-    transform:scale(1);
-}
-
-/* ICON WRAP */
-
-.logout-icon-wrap{
-
-    width:68px;
-    height:68px;
-
-    margin:0 auto 22px;
-
-    border-radius:50%;
-
-    background:rgba(239,68,68,.12);
-
-    display:flex;
-
-    align-items:center;
-
-    justify-content:center;
-}
-
-/* ICON */
-
-.logout-icon{
-
-    font-size:34px;
-
-    color:#ef4444;
-}
-.topbar-actions{
-    margin-left:auto;
-
-    display:flex;
-    align-items:center;
-    gap:12px;
-}
-/* TITLE */
-
-.logout-modal-box h2{
-
-    font-size:19px;
-
-    line-height:1.4;
-
-    font-weight:700;
-
-    margin-bottom:28px;
-
-    color:#fff;
-}
-
-/* BUTTON AREA */
-
-.logout-actions{
-
-    display:flex;
-
-    gap:14px;
-}
-
-/* BUTTONS */
-
-.cancel-btn,
-.confirm-btn{
-
-    flex:1;
-
-    height:50px;
-
-    border-radius:14px;
-
-    border:none;
-
-    font-size:16px;
-
-    font-weight:600;
-
-    display:flex;
-
-    align-items:center;
-
-    justify-content:center;
-
-    text-decoration:none;
-
-    cursor:pointer;
-
-    transition:.2s ease;
-}
-
-/* CANCEL */
-
-.cancel-btn{
-
-    background:#111827;
-
-    border:1px solid #1f2937;
-
-    color:#9ca3af;
-}
-
-.cancel-btn:hover{
-
     background:#1f2937;
-
-    color:#fff;
-}
-
-/* CONFIRM */
-
-.confirm-btn{
-
-    background:#2563eb;
-
-    color:#fff;
-}
-
-.confirm-btn:hover{
-
-    background:#1d4ed8;
-}
-.product{
-    display:flex;
-    align-items:center;
-    gap:15px;
-}
-
-.product-image{
-    width:60px;
-    height:60px;
-
-    border-radius:12px;
-
-    overflow:hidden;
-
-    background:#f8fafc;
-
-    border:1px solid #e5e7eb;
-
     flex-shrink:0;
 }
-
-.product-image img{
-    width:100%;
-    height:100%;
-
+.prod-name{ font-weight:600; font-size:14px; }
+.cat-icon{
+    width:44px; height:44px;
+    border-radius:10px;
     object-fit:cover;
-
-    display:block;
+    background:#1f2937;
 }
 
-.product span{
-    font-size:14px;
-    font-weight:600;
-}
-.header-actions{
+.badge-bar{
     display:flex;
     align-items:center;
-    gap:16px;
+    gap:10px;
+}
+.progress{
+    height:6px;
+    border-radius:4px;
+    background:#1f2937;
+    flex:1;
+    min-width:60px;
+}
+.progress-fill{
+    height:100%;
+    border-radius:4px;
+    background:linear-gradient(90deg,#2563eb,#3b82f6);
 }
 
+/* ── REVENUE BADGE ───────────────────────────────────────── */
+.rev-badge{
+    padding:4px 10px;
+    border-radius:8px;
+    font-size:12px;
+    font-weight:700;
+    background:rgba(16,185,129,.12);
+    color:#10b981;
+    white-space:nowrap;
+}
+
+/* ── 3-COL GRID ──────────────────────────────────────────── */
+.three-col{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:22px;
+}
+
+/* ── ACTION BTNS ─────────────────────────────────────────── */
+.topbar-actions{ margin-left:auto; display:flex; align-items:center; gap:12px; }
 .report-btn{
-    background:#2563eb;
-    color:#ffffff;
+    background:#2563eb; color:#fff;
     text-decoration:none;
-    padding:14px 28px;
-    border-radius:14px;
-    font-size:15px;
-    font-weight:600;
-    transition:0.3s;
+    padding:11px 24px;
+    border-radius:12px;
+    font-size:14px; font-weight:600;
+    transition:.25s;
 }
-
-.report-btn:hover{
-    background:#1d4ed8;
+.report-btn:hover{ background:#1d4ed8; }
+.logout-btn{
+    display:flex; align-items:center; gap:8px;
+    background:#111827; color:#ef4444;
+    padding:10px 16px; border-radius:10px;
+    border:0; cursor:pointer; font-size:13px; transition:.2s;
 }
+.logout-btn:hover{ background:#7f1d1d; color:#fff; }
 
-/* ====================================== */
-/* RESPONSIVE */
-/* ====================================== */
-
-@media(max-width:1200px){
-
-    .cards{
-        grid-template-columns:repeat(2,1fr);
-    }
-
-    .topbar{
-        left:220px;
-    }
-
-    .search-box{
-        width:240px;
-    }
-
+/* ── LOGOUT MODAL ────────────────────────────────────────── */
+.logout-modal{
+    position:fixed; inset:0;
+    background:rgba(0,0,0,.65); backdrop-filter:blur(5px);
+    display:flex; align-items:center; justify-content:center;
+    opacity:0; visibility:hidden; transition:.22s ease; z-index:999999;
 }
-
-@media(max-width:992px){
-
-    .topbar{
-        left:72px;
-    }
-
-    .cards{
-        grid-template-columns:repeat(2,1fr);
-    }
-
+.logout-modal.show{ opacity:1; visibility:visible; }
+.logout-modal-box{
+    width:390px; background:#0b0b0b;
+    border:1px solid #1f2937; border-radius:22px;
+    padding:34px 28px; text-align:center;
+    transform:scale(.92); transition:.22s ease;
+    box-shadow:0 20px 60px rgba(0,0,0,.45);
 }
-
-@media(max-width:768px){
-
-    .topbar{
-        left:0;
-        padding:0 16px 0 72px;
-    }
-
-    .search-box{
-        display:none;
-    }
-
-    .cards{
-        grid-template-columns:repeat(2,1fr);
-        gap:14px;
-    }
-
-    h1{
-        font-size:22px;
-    }
-
-    .chart-header{
-        flex-direction:column;
-        align-items:flex-start;
-        gap:10px;
-    }
-
-    .chart-header h3{
-        font-size:18px;
-    }
-
-    .table-box{
-        overflow-x:auto;
-    }
-
-    .t-head,
-    .t-row{
-        min-width:500px;
-    }
-
-    .header-actions{
-        flex-wrap:wrap;
-    }
-
+.logout-modal.show .logout-modal-box{ transform:scale(1); }
+.logout-icon-wrap{
+    width:68px; height:68px; margin:0 auto 22px;
+    border-radius:50%; background:rgba(239,68,68,.12);
+    display:flex; align-items:center; justify-content:center;
 }
+.logout-icon{ font-size:34px; color:#ef4444; }
+.logout-modal-box h2{ font-size:19px; font-weight:700; margin-bottom:28px; color:#fff; }
+.logout-actions{ display:flex; gap:14px; }
+.cancel-btn,.confirm-btn{
+    flex:1; height:50px; border-radius:14px; border:none;
+    font-size:16px; font-weight:600;
+    display:flex; align-items:center; justify-content:center;
+    text-decoration:none; cursor:pointer; transition:.2s ease;
+}
+.cancel-btn{ background:#111827; border:1px solid #1f2937; color:#9ca3af; }
+.cancel-btn:hover{ background:#1f2937; color:#fff; }
+.confirm-btn{ background:#2563eb; color:#fff; }
+.confirm-btn:hover{ background:#1d4ed8; }
 
-@media(max-width:480px){
-
-    .cards{
-        grid-template-columns:1fr;
-        gap:12px;
-    }
-
-    .card h2{
-        font-size:22px;
-    }
-
-    .logout-modal-box{
-        width:92vw;
-    }
-
+/* ── RESPONSIVE ──────────────────────────────────────────── */
+@media(max-width:1100px){
+    .three-col{ grid-template-columns:1fr; }
+    .cards{ grid-template-columns:repeat(2,1fr); }
+}
+@media(max-width:600px){
+    .cards{ grid-template-columns:1fr; }
+    .rank-table{ display:block; overflow-x:auto; }
 }
 
 </style>
 
-
-
-<!-- MAIN -->
-
 <div class="main">
 
-    <!-- CARDS -->
+<!-- ── STAT CARDS ──────────────────────────────────────────── -->
+<div class="cards">
 
-    <div class="cards">
+    <div class="card">
+        <div class="card-top">
+            <small>Total Revenue</small>
+            <span class="icon blue material-symbols-outlined">payments</span>
+        </div>
+        <h2>₹{{ total_revenue }}</h2>
+    </div>
 
-        <div class="card">
+    <div class="card">
+        <div class="card-top">
+            <small>Total Orders</small>
+            <span class="icon green material-symbols-outlined">shopping_cart</span>
+        </div>
+        <h2>{{ total_orders }}</h2>
+    </div>
 
-            <div class="card-top">
+    <div class="card">
+        <div class="card-top">
+            <small>Active Users</small>
+            <span class="icon purple material-symbols-outlined">group</span>
+        </div>
+        <h2>{{ active_users }}</h2>
+    </div>
 
-                <small>TOTAL REVENUE</small>
+    <div class="card">
+        <div class="card-top">
+            <small>Pending Orders</small>
+            <span class="icon red material-symbols-outlined">pending</span>
+        </div>
+        <h2>{{ pending_orders }}</h2>
+    </div>
 
-                <span class="icon blue material-symbols-outlined">
-                    payments
-                </span>
+</div>
 
-            </div>
+<!-- ── SALES CHART ─────────────────────────────────────────── -->
+<div class="section-box">
 
-            <h2>₹{{ total_revenue }}</h2>
+    <div class="section-header">
 
+        <div>
+            <h3>Sales Performance</h3>
+            <p>Revenue overview by selected period</p>
         </div>
 
-        <div class="card">
-
-            <div class="card-top">
-
-                <small>TOTAL ORDERS</small>
-
-                <span class="icon green material-symbols-outlined">
-                    shopping_cart
-                </span>
-
-            </div>
-
-            <h2>{{ total_orders }}</h2>
-
-        </div>
-
-        <div class="card">
-
-            <div class="card-top">
-
-                <small>ACTIVE USERS</small>
-
-                <span class="icon purple material-symbols-outlined">
-                    group
-                </span>
-
-            </div>
-
-             <h2>{{ active_users }}</h2>
-
-        </div>
-
-        <div class="card">
-
-            <div class="card-top">
-
-                <small>PENDING ORDERS</small>
-
-                <span class="icon red material-symbols-outlined">
-                    pending
-                </span>
-
-            </div>
-
-            <h2>{{ pending_orders }}</h2>
-
+        <div class="filter-pills">
+            <a href="?chart_filter=daily"
+               class="pill {% if chart_filter == 'daily' %}active{% endif %}">Daily</a>
+            <a href="?chart_filter=weekly"
+               class="pill {% if chart_filter == 'weekly' %}active{% endif %}">Weekly</a>
+            <a href="?chart_filter=monthly"
+               class="pill {% if chart_filter == 'monthly' or not chart_filter %}active{% endif %}">Monthly</a>
+            <a href="?chart_filter=yearly"
+               class="pill {% if chart_filter == 'yearly' %}active{% endif %}">Yearly</a>
         </div>
 
     </div>
 
-    <!-- SALES CHART -->
+    <canvas id="salesChart" style="max-height:320px;"></canvas>
 
-    <div class="chart-box">
+</div>
 
-        <div class="chart-header">
+<!-- ── TOP 10 TABLES (3 columns) ──────────────────────────── -->
+<div class="three-col">
 
+    <!-- Best Selling Products -->
+    <div class="section-box" style="margin-bottom:0;">
+
+        <div class="section-header">
             <div>
-
-                <h3>Sales Performance</h3>
-
-                <p>Monthly sales revenue</p>
-
+                <h3>🏆 Top Products</h3>
+                <p>Best selling products (by units)</p>
             </div>
-
         </div>
-        <canvas id="salesChart"></canvas>
+
+        {% if top_products %}
+        <table class="rank-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Product</th>
+                    <th>Units</th>
+                    <th>Revenue</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for p in top_products %}
+            <tr>
+                <td>
+                    <div class="rank-num {% if p.rank == 1 %}gold{% elif p.rank == 2 %}silver{% elif p.rank == 3 %}bronze{% endif %}">
+                        {{ p.rank }}
+                    </div>
+                </td>
+                <td>
+                    <div class="prod-cell">
+                        {% if p.image %}
+                        <img class="prod-img" src="{{ p.image }}" alt="{{ p.name }}">
+                        {% else %}
+                        <img class="prod-img" src="{% static 'images/default.png' %}" alt="">
+                        {% endif %}
+                        <span class="prod-name">{{ p.name }}</span>
+                    </div>
+                </td>
+                <td>{{ p.total_qty }}</td>
+                <td><span class="rev-badge">₹{{ p.total_revenue|floatformat:0 }}</span></td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p style="color:#6b7280;text-align:center;padding:30px 0;">No sales data yet.</p>
+        {% endif %}
 
     </div>
 
-    <!-- TRENDING PRODUCTS -->
+    <!-- Best Selling Categories -->
+    <div class="section-box" style="margin-bottom:0;">
 
-    <div class="table-box">
-
-        <div class="t-head">
-
-            <span>PRODUCT</span>
-            <span>CATEGORY</span>
-            <span>SALES</span>
-            <span>STATUS</span>
-
+        <div class="section-header">
+            <div>
+                <h3>📦 Top Categories</h3>
+                <p>Best selling categories (by units)</p>
+            </div>
         </div>
-<div class="t-row">
 
-    <div class="product">
-
-        {% if top_seller_product.variant.primary_image %}
-            <img
-                src="{{ top_seller_product.variant.primary_image }}"
-                alt="{{ top_seller_product.product.product_name }}"
-            >
+        {% if top_categories %}
+        <table class="rank-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Category</th>
+                    <th>Units</th>
+                    <th>Revenue</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for c in top_categories %}
+            <tr>
+                <td>
+                    <div class="rank-num {% if c.rank == 1 %}gold{% elif c.rank == 2 %}silver{% elif c.rank == 3 %}bronze{% endif %}">
+                        {{ c.rank }}
+                    </div>
+                </td>
+                <td>
+                    <div class="prod-cell">
+                        {% if c.image %}
+                        <img class="cat-icon" src="{{ c.image }}" alt="{{ c.name }}">
+                        {% else %}
+                        <div class="cat-icon" style="display:flex;align-items:center;justify-content:center;font-size:22px;">📂</div>
+                        {% endif %}
+                        <span class="prod-name">{{ c.name }}</span>
+                    </div>
+                </td>
+                <td>{{ c.total_qty }}</td>
+                <td><span class="rev-badge">₹{{ c.total_revenue|floatformat:0 }}</span></td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
         {% else %}
-            <img src="{% static 'images/default.png' %}">
+        <p style="color:#6b7280;text-align:center;padding:30px 0;">No sales data yet.</p>
         {% endif %}
-
-        <span>
-            {{ top_seller_product.product.product_name }}
-        </span>
 
     </div>
 
-    <span>Product</span>
-
-    <span>
-        {{ top_seller_product.quantity }}
-    </span>
-
-    <span class="badge green">
-        TOP SELLER
-    </span>
+</div>
 
 </div>
 
-
-<div class="t-row">
-
-    <div class="product">
-
-        {% if top_category.category_img %}
-
-            <img
-                src="{{ top_category.category_img.url }}"
-                alt="{{ top_category.category_name }}"
-            >
-
-        {% else %}
-
-            <img
-                src="{% static 'images/default.png' %}"
-            >
-
-        {% endif %}
-
-        <span>
-            {{ top_category.category_name }}
-        </span>
-
-    </div>
-
-    <span>Category</span>
-
-    <span>
-        {{ top_category.total_sales }}
-    </span>
-
-    <span class="badge orange">
-        TOP CATEGORY
-    </span>
-
-</div>
-
-
-<div class="t-row">
-
-    <div class="product">
-
-        {% if trending_product.variant.primary_image %}
-            <img
-                src="{{ trending_product.variant.primary_image }}"
-                alt="{{ trending_product.product.product_name }}"
-            >
-        {% else %}
-            <img src="{% static 'images/default.png' %}">
-        {% endif %}
-
-        <span>
-            {{ trending_product.product.product_name }}
-        </span>
-
-    </div>
-
-    <span>Product</span>
-
-    <span>
-        {{ trending_product.quantity }}
-    </span>
-
-    <span class="badge blue">
-        TRENDING
-    </span>
-
-</div>
-
-
-<div class="t-row">
-
-    <div class="product">
-
-        {% if popular_product.variant.primary_image %}
-            <img
-                src="{{ popular_product.variant.primary_image }}"
-                alt="{{ popular_product.product.product_name }}"
-            >
-        {% else %}
-            <img src="{% static 'images/default.png' %}">
-        {% endif %}
-
-        <span>
-            {{ popular_product.product.product_name }}
-        </span>
-
-    </div>
-
-    <span>Product</span>
-
-    <span>
-        {{ popular_product.quantity }}
-    </span>
-
-    <span class="badge purple">
-        POPULAR
-    </span>
-
-</div>
-<!-- LOGOUT MODAL -->
-
-<div
-    class="logout-modal"
-    id="logoutModal"
->
-
+<!-- ── LOGOUT MODAL ─────────────────────────────────────────── -->
+<div class="logout-modal" id="logoutModal">
     <div class="logout-modal-box">
-
-        <!-- ICON -->
-
         <div class="logout-icon-wrap">
-
-            <span class="material-symbols-outlined logout-icon">
-                logout
-            </span>
-
+            <span class="material-symbols-outlined logout-icon">logout</span>
         </div>
-
-        <!-- TEXT -->
-
-        <h2>
-            Are you sure you want to logout?
-        </h2>
-
-        <!-- BUTTONS -->
-
+        <h2>Are you sure you want to logout?</h2>
         <div class="logout-actions">
-
-            <!-- CANCEL -->
-
-            <button
-                class="cancel-btn"
-                id="closeLogoutModal"
-            >
-
-                Cancel
-
-            </button>
-
-            <!-- CONFIRM -->
-
-            <a
-                href="{% url 'admin_logout' %}"
-                class="confirm-btn"
-            >
-
-                Confirm
-
-            </a>
-
+            <button class="cancel-btn" id="closeLogoutModal">Cancel</button>
+            <a href="{% url 'admin_logout' %}" class="confirm-btn">Confirm</a>
         </div>
-
     </div>
-
 </div>
-<script>
 
-const logoutModal =
-    document.getElementById(
-        "logoutModal"
-    )
-
-const openLogoutModal =
-    document.getElementById(
-        "openLogoutModal"
-    )
-
-const closeLogoutModal =
-    document.getElementById(
-        "closeLogoutModal"
-    )
-
-/* OPEN */
-
-openLogoutModal.addEventListener(
-    "click",
-    function(){
-
-        logoutModal.classList.add(
-            "show"
-        )
-
-    }
-)
-
-/* CLOSE */
-
-closeLogoutModal.addEventListener(
-    "click",
-    function(){
-
-        logoutModal.classList.remove(
-            "show"
-        )
-
-    }
-)
-
-/* OUTSIDE CLICK */
-
-logoutModal.addEventListener(
-    "click",
-    function(e){
-
-        if(
-            e.target === logoutModal
-        ){
-
-            logoutModal.classList.remove(
-                "show"
-            )
-
-        }
-
-    }
-)
-
-</script>
+<!-- ── SCRIPTS ──────────────────────────────────────────────── -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 
-const ctx =
-document.getElementById(
-    'salesChart'
-);
+/* Logout modal */
+const logoutModal     = document.getElementById("logoutModal");
+const openLogoutBtn   = document.getElementById("openLogoutModal");
+const closeLogoutBtn  = document.getElementById("closeLogoutModal");
 
+openLogoutBtn.addEventListener("click",  () => logoutModal.classList.add("show"));
+closeLogoutBtn.addEventListener("click", () => logoutModal.classList.remove("show"));
+logoutModal.addEventListener("click", e => {
+    if (e.target === logoutModal) logoutModal.classList.remove("show");
+});
+
+/* Sales Chart */
+const ctx = document.getElementById("salesChart");
 new Chart(ctx, {
-
-    type: 'bar',
-
+    type: "line",
     data: {
-
-        labels:
-            {{ month_labels|safe }},
-
+        labels:   {{ chart_labels|safe }},
         datasets: [{
-
-            label: 'Revenue',
-
-            data:
-                {{ month_revenue|safe }},
-
-            backgroundColor:
-                '#2563eb',
-
-            borderRadius: 10
-
+            label: "Revenue (₹)",
+            data:  {{ chart_revenue|safe }},
+            borderColor: "#3b82f6",
+            backgroundColor: "rgba(59,130,246,.12)",
+            borderWidth: 2.5,
+            pointBackgroundColor: "#3b82f6",
+            pointRadius: 4,
+            pointHoverRadius: 7,
+            tension: 0.4,
+            fill: true,
         }]
     },
-
     options: {
-
         responsive: true,
-
         plugins: {
-
-            legend: {
-                display: false
+            legend: { display: false },
+            tooltip: {
+                callbacks: {
+                    label: ctx => " ₹" + ctx.parsed.y.toLocaleString("en-IN")
+                }
             }
-
         },
-
         scales: {
-
+            x: {
+                grid: { color: "rgba(255,255,255,.04)" },
+                ticks: { color: "#6b7280", font: { size: 12 } }
+            },
             y: {
-
-                beginAtZero: true
-
+                beginAtZero: true,
+                grid: { color: "rgba(255,255,255,.06)" },
+                ticks: {
+                    color: "#6b7280",
+                    font: { size: 12 },
+                    callback: v => "₹" + v.toLocaleString("en-IN")
+                }
             }
-
         }
-
     }
-
 });
 
 </script>

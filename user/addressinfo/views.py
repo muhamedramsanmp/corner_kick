@@ -48,23 +48,22 @@ def add_address(request):
                 },
             )
 
-        # Optional: validate phone length
+        
         if len(phone) != 10:
             messages.error(request, "Enter a valid 10-digit phone number.")
             return render(request, "add_address.html")
 
-        # Optional: validate pincode
         if len(pincode) != 6:
             messages.error(request, "Enter a valid 6-digit pincode.")
             return render(request, "add_address.html")
 
-        # 💥 ONLY ONE DEFAULT ADDRESS
+
         if is_default:
             Address.objects.filter(user=request.user, is_default=True).update(
                 is_default=False
             )
 
-        # 🔥 SAVE
+        
         Address.objects.create(
             user=request.user,
             full_name=full_name,
@@ -91,7 +90,6 @@ def delete_address(request, id):
 
     address = Address.objects.filter(id=id, user=request.user).first()
 
-    # 🔴 IF NOT FOUND → REDIRECT (NO CRASH)
     if not address:
         return redirect("addressinfo:address_view")
 

@@ -1314,11 +1314,11 @@ document.addEventListener(
     }
 )
 
-</script>
+{% comment %} </script>
 <audio id="notification-sound" preload="auto">
     <source src="{% static 'sounds/notification.mp3.wav' %}" type="audio/wav">
 </audio>
-<script>
+<script> {% endcomment %}
 
 document.addEventListener("DOMContentLoaded", function () {
 

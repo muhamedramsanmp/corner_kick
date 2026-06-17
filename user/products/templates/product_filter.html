@@ -734,6 +734,48 @@ Shop
         display:none;
     }
 }
+.product-rating{
+
+    margin-bottom:18px;
+}
+
+.stars{
+
+    color:#f59e0b;
+
+    font-size:16px;
+
+    letter-spacing:2px;
+
+    margin-bottom:4px;
+}
+
+.rating-info{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:8px;
+
+    flex-wrap:wrap;
+}
+
+.rating-value{
+
+    font-size:14px;
+
+    font-weight:700;
+
+    color:#0f172a;
+}
+
+.review-count{
+
+    font-size:13px;
+
+    color:#64748b;
+}
 
 
 </style>
@@ -1050,7 +1092,35 @@ font-weight:700;
 {% endif %}
 
             </div>
-            
+            <div class="product-rating">
+
+    <span class="stars">
+
+        {% for i in "12345" %}
+
+            {% if forloop.counter <= product.average_rating %}
+                ★
+            {% else %}
+                ☆
+            {% endif %}
+
+        {% endfor %}
+
+    </span>
+
+    <span class="rating-value">
+
+        {{ product.average_rating }}
+
+    </span>
+
+    <span class="review-count">
+
+        ({{ product.review_count }})
+
+    </span>
+
+</div>
 
             <div class="price-row">
 

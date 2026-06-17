@@ -30,4 +30,18 @@ urlpatterns = [
         views.wishlist_to_cart,
         name="wishlist_to_cart",
     ),
+
+    path(
+    "review/add/<int:product_id>/",
+    views.add_review,
+    name="add_review",
+),
+
+
+
+path(
+    "review/<int:review_id>/delete/",
+    views.delete_review,
+    name="delete_review"
+),
 ]

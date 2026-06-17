@@ -812,15 +812,18 @@ Checkout
 
 <div id="selectedCouponDisplay">
 
+{% if applied_coupon %}
+    <strong>{{ applied_coupon }}</strong> Applied
+{% else %}
     No coupon applied
+{% endif %}
 
 </div>
-
 <button
     type="button"
     id="removeCouponBtn"
     class="coupon-open-btn"
-    style="display:none; margin-top:10px; background:#dc2626;"
+    style="{% if not applied_coupon %}display:none;{% endif %}"
     onclick="removeCoupon()"
 >
     REMOVE COUPON
@@ -1271,11 +1274,38 @@ function applyCoupon(code){
 
         if(!data.success){
 
-            showAjaxPopup(
-                data.message
-            )
+            document.getElementById(
+                "selectedCoupon"
+            ).value = "";
 
-            return
+            document.getElementById(
+                "selectedCouponDisplay"
+            ).innerHTML = "No coupon applied";
+
+            document.getElementById(
+                "discountAmount"
+            ).innerHTML = "₹0";
+
+            document.getElementById(
+                "removeCouponBtn"
+            ).style.display = "none";
+
+            let originalTotal =
+                document.getElementById(
+                    "amountAfterOffer"
+                ).value;
+
+            document.getElementById(
+                "totalAmount"
+            ).innerHTML = "₹" + originalTotal;
+
+            document.getElementById(
+                "finalAmount"
+            ).value = originalTotal;
+
+            showAjaxPopup(data.message);
+
+            return;
         }
 
         document

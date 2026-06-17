@@ -483,7 +483,47 @@ Wishlist
     }
 
 }
+.product-rating{
 
+    display:flex;
+
+    align-items:center;
+
+    gap:6px;
+
+    margin-bottom:14px;
+
+    flex-wrap:wrap;
+}
+
+.stars{
+
+    color:#f59e0b;
+
+    font-size:14px;
+
+    letter-spacing:1px;
+}
+
+.rating-value{
+
+    font-size:13px;
+
+    font-weight:700;
+
+    color:#0f172a;
+}
+
+.review-count{
+
+    font-size:12px;
+
+    color:#64748b;
+}
+.product-rating{
+
+    text-decoration:none;
+}
 </style>
 {% endblock %}
 
@@ -610,7 +650,43 @@ style="text-decoration:none;color:inherit;"
 <div class="product-category">
 {{ product.category.category_name }}
 </div>
+<div class="product-name">
 
+    {{ product.product_name }}
+
+</div>
+<a
+href="{% url 'user_products:product_details' product.slug %}#reviews"
+class="product-rating"
+>
+
+    <span class="stars">
+
+        {% for i in "12345" %}
+
+            {% if forloop.counter <= product.average_rating %}
+                ★
+            {% else %}
+                ☆
+            {% endif %}
+
+        {% endfor %}
+
+    </span>
+
+    <span class="rating-value">
+
+        {{ product.average_rating }}
+
+    </span>
+
+    <span class="review-count">
+
+        ({{ product.review_count }})
+
+    </span>
+
+</a>
 {% if product.price_data and product.price_data.offer %}
 
 <div

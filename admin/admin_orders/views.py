@@ -429,3 +429,110 @@ def return_request_details(request, request_id):
     context = {"return_request": return_request}
 
     return render(request, "return_request_details.html", context)
+
+from django.db.models import Avg, Q
+
+from django.core.paginator import Paginator
+
+def review_management(request):
+
+    reviews = Review.objects.select_related(
+        "user",
+        "product"
+    ).order_by("-created_at")
+
+    query = request.GET.get("q", "").strip()
+
+    if query:
+        reviews = reviews.filter(
+            Q(user__username__icontains=query) |
+            Q(product__product_name__icontains=query) |
+            Q(review_text__icontains=query)
+        )
+
+    paginator = Paginator(reviews, 5)  # 10 reviews per page
+
+    page_number = request.GET.get("page")
+
+    reviews = paginator.get_page(page_number)
+
+    total_reviews = Review.objects.count()
+
+    pending_reviews = Review.objects.filter(
+        status="pending"
+    ).count()
+
+    rejected_reviews = Review.objects.filter(
+        status="rejected"
+    ).count()
+
+    average_rating = round(
+        Review.objects.aggregate(
+            avg=Avg("rating")
+        )["avg"] or 0,
+        1
+    )
+
+    context = {
+        "reviews": reviews,
+        "query": query,
+        "total_reviews": total_reviews,
+        "pending_reviews": pending_reviews,
+        "rejected_reviews": rejected_reviews,
+        "average_rating": average_rating,
+    }
+
+    return render(
+        request,
+        "review_management.html",
+        context
+    )
+
+from django.contrib import messages
+from django.shortcuts import get_object_or_404, redirect
+
+from user.products.models import Review
+
+
+def approve_review(request, review_id):
+
+    review = get_object_or_404(
+        Review,
+        id=review_id
+    )
+
+    review.status = "approved"
+    review.save()
+
+    messages.success(
+        request,
+        "Review approved successfully."
+    )
+
+    return redirect("review_management")
+
+
+from django.contrib import messages
+from django.shortcuts import get_object_or_404, redirect
+
+from user.products.models import Review
+
+
+def reject_review(request, review_id):
+
+    review = get_object_or_404(
+        Review,
+        id=review_id
+    )
+
+    review.status = "rejected"
+    review.save()
+
+    messages.success(
+        request,
+        "Review rejected successfully."
+    )
+
+    return redirect("review_management")
+
+

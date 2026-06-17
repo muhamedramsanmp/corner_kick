@@ -63,8 +63,6 @@ def credit_referral_reward(request, user, order):
     referral.status = "completed"
     referral.save()
 
-    print("REFERRAL REWARD SESSION CREATED")
-
     request.session["referral_reward"] = {
         "amount": 500,
         "wallet_balance": str(wallet.balance),

@@ -3,6 +3,9 @@ from django.db import models
 from django.conf import settings
 from admin.admin_products.models import Variant, Product
 from admin.admin_offer.utils import calculate_discounted_price
+from user.user_orders.models import Order
+from admin.admin_products.models import Product
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 
 def save(self, *args, **kwargs):
@@ -96,3 +99,58 @@ class Wishlist(models.Model):
     def __str__(self):
 
         return f"{self.user} - {self.product.product_name}"
+
+
+
+class Review(models.Model):
+
+    STATUS_CHOICES = (
+        ("pending", "Pending"),
+        ("approved", "Approved"),
+        ("rejected", "Rejected"),
+    )
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="reviews"
+    )
+
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.CASCADE,
+        related_name="reviews"
+    )
+
+    order = models.ForeignKey(
+        Order,
+        on_delete=models.CASCADE,
+        related_name="reviews"
+    )
+
+    rating = models.PositiveSmallIntegerField(
+        validators=[
+            MinValueValidator(1),
+            MaxValueValidator(5),
+        ]
+    )
+
+    review_text = models.TextField()
+
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default="pending",
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ("user", "product")
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.user.username} - {self.product}"
+    
+    

@@ -69,82 +69,136 @@ User = get_user_model()
 @never_cache
 @admin_required
 def admin_dashboard(request):
-
-    total_revenue = Order.objects.aggregate(total=Sum("total_amount"))["total"] or 0
-
-    total_orders = Order.objects.count()
-
-    active_users = User.objects.filter(is_active=True, is_superuser=False).count()
-
-    pending_orders = Order.objects.filter(order_status="Pending").count()
-    top_seller_product = (
-        OrderItem.objects.filter(order__order_status="Delivered")
-        .select_related("product", "variant")
-        .order_by("-quantity")
-        .first()
-    )
-
-    top_category_data = (
-        OrderItem.objects.filter(order__order_status="Delivered")
-        .values("product__category")
-        .annotate(total_sales=Sum("quantity"))
-        .order_by("-total_sales")
-        .first()
-    )
-
-    top_category = None
-
-    if top_category_data:
-
-        top_category = Category.objects.filter(
-            id=top_category_data["product__category"]
-        ).first()
-
-        top_category.total_sales = top_category_data["total_sales"]
-    last_30_days = timezone.now() - timedelta(days=30)
-
-    trending_product = (
-        OrderItem.objects.filter(
-            order__order_status="Delivered", order__created_at__gte=last_30_days
-        )
-        .select_related("product", "variant")
-        .order_by("-quantity")
-        .first()
-    )
-    popular_products = (
-        OrderItem.objects.filter(order__order_status="Delivered")
-        .select_related("product", "variant")
-        .order_by("-quantity")
-    )
-
-    popular_product = popular_products[1] if popular_products.count() > 1 else None
-    monthly_sales = (
-        Order.objects.filter(order_status="Delivered")
-        .annotate(month=TruncMonth("created_at"))
-        .values("month")
-        .annotate(revenue=Sum("total_amount"))
-        .order_by("month")
-    )
-    month_labels = []
-    month_revenue = []
-
-    for sale in monthly_sales:
-        month_labels.append(sale["month"].strftime("%b"))
-        month_revenue.append(float(sale["revenue"]))
-
     import json
+    from django.db.models.functions import TruncDay, TruncWeek, TruncMonth, TruncYear
+
+    total_revenue = Order.objects.filter(payment_status="Paid").aggregate(total=Sum("total_amount"))["total"] or 0
+    total_orders = Order.objects.count()
+    active_users = User.objects.filter(is_active=True, is_superuser=False).count()
+    pending_orders = Order.objects.filter(order_status="Pending").count()
+
+    # ── Chart filter ───────────────────────────────────────────────────────────
+    chart_filter = request.GET.get("chart_filter", "monthly")
+    today = timezone.now()
+
+    if chart_filter == "daily":
+        start = today - timedelta(days=29)
+        orders_qs = Order.objects.filter(payment_status="Paid", created_at__gte=start)
+        trunc_fn = TruncDay("created_at")
+        label_fmt = "%d %b"
+    elif chart_filter == "weekly":
+        start = today - timedelta(weeks=11)
+        orders_qs = Order.objects.filter(payment_status="Paid", created_at__gte=start)
+        trunc_fn = TruncWeek("created_at")
+        label_fmt = "%d %b"
+    elif chart_filter == "yearly":
+        orders_qs = Order.objects.filter(payment_status="Paid")
+        trunc_fn = TruncYear("created_at")
+        label_fmt = "%Y"
+    else:  # monthly (default)
+        orders_qs = Order.objects.filter(payment_status="Paid")
+        trunc_fn = TruncMonth("created_at")
+        label_fmt = "%b %Y"
+
+    chart_data = (
+        orders_qs.annotate(period=trunc_fn)
+        .values("period")
+        .annotate(revenue=Sum("total_amount"))
+        .order_by("period")
+    )
+    chart_labels = []
+    chart_revenue = []
+    for row in chart_data:
+        chart_labels.append(row["period"].strftime(label_fmt))
+        chart_revenue.append(float(row["revenue"]))
+
+    # ── Top 10 Best-Selling Products ──────────────────────────────────────────
+    top_products = (
+        OrderItem.objects.values(
+            "product__id",
+            "product__product_name",
+        )
+        .annotate(
+            total_qty=Sum("quantity"),
+            total_revenue=Sum("total_price"),
+        )
+        .order_by("-total_qty")[:10]
+    )
+    # Attach primary image for each top product
+    from admin.admin_products.models import Variant as V
+    top_products_display = []
+    for i, p in enumerate(top_products):
+        variant = (
+            V.objects.filter(product_id=p["product__id"], is_deleted=False)
+            .select_related()
+            .first()
+        )
+        top_products_display.append({
+            "rank": i + 1,
+            "name": p["product__product_name"],
+            "total_qty": p["total_qty"],
+            "total_revenue": p["total_revenue"],
+            "image": variant.primary_image if variant else None,
+        })
+
+    # ── Top 10 Best-Selling Categories ───────────────────────────────────────
+    top_categories = (
+        OrderItem.objects.values(
+            "product__category__id",
+            "product__category__category_name",
+        )
+        .annotate(
+            total_qty=Sum("quantity"),
+            total_revenue=Sum("total_price"),
+        )
+        .order_by("-total_qty")[:10]
+    )
+    top_categories_display = []
+    for i, c in enumerate(top_categories):
+        cat = Category.objects.filter(id=c["product__category__id"]).first()
+        top_categories_display.append({
+            "rank": i + 1,
+            "name": c["product__category__category_name"],
+            "total_qty": c["total_qty"],
+            "total_revenue": c["total_revenue"],
+            "image": cat.category_img.url if cat and cat.category_img else None,
+        })
+
+    # ── Top 10 Best-Selling Brands (using category as brand proxy) ────────────
+    # Since no separate brand model exists, we group by product name prefix word
+    # (i.e. brand = first word of product_name, e.g. "Nike Air" → "Nike")
+    from django.db.models import CharField
+    from django.db.models.functions import Substr, StrIndex, Coalesce
+    top_brands_raw = (
+        OrderItem.objects.values("product__category__category_name")
+        .annotate(
+            total_qty=Sum("quantity"),
+            total_revenue=Sum("total_price"),
+        )
+        .order_by("-total_qty")[:10]
+    )
+    top_brands_display = []
+    for i, b in enumerate(top_brands_raw):
+        top_brands_display.append({
+            "rank": i + 1,
+            "name": b["product__category__category_name"],
+            "total_qty": b["total_qty"],
+            "total_revenue": b["total_revenue"],
+        })
 
     context = {
         "total_revenue": total_revenue,
         "total_orders": total_orders,
         "active_users": active_users,
         "pending_orders": pending_orders,
-        "top_seller_product": top_seller_product,
-        "top_category": top_category,
-        "trending_product": trending_product,
-        "popular_product": popular_product,
-        "month_labels": json.dumps(month_labels),
-        "month_revenue": json.dumps(month_revenue),
+        # chart
+        "chart_labels": json.dumps(chart_labels),
+        "chart_revenue": json.dumps(chart_revenue),
+        "chart_filter": chart_filter,
+        # top lists
+        "top_products": top_products_display,
+        "top_categories": top_categories_display,
+        "top_brands": top_brands_display,
     }
 
     return render(request, "admin_dashboard.html", context)

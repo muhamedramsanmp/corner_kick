@@ -16,6 +16,8 @@ from user.decorators import user_required
 from admin.admin_offer.utils import calculate_discounted_price
 import json
 from .utils import remove_invalid_cart_items
+from user.products.models import Review
+from user.user_orders.models import OrderItem
 
 def shop(request):
 
@@ -226,6 +228,26 @@ def product_details(request, slug):
 
     ordered_images = None
 
+    approved_reviews = product.reviews.filter(
+        status="approved"
+    ).select_related("user")
+    user_pending_review = None
+
+    if request.user.is_authenticated:
+
+        user_pending_review = product.reviews.filter(
+            user=request.user
+        ).exclude(
+            status="approved"
+        ).first()
+    user_review = None
+
+    if request.user.is_authenticated:
+
+        user_review = product.reviews.filter(
+            user=request.user
+        ).first()
+
     context = {
         "product": product,
         "variants": variants,
@@ -234,14 +256,121 @@ def product_details(request, slug):
         "primary_image": primary_image,
         "related_products": related_products,
         "variant_offer_data": variant_offer_data,
+        "approved_reviews": approved_reviews,
+        "can_review": product.can_user_review(request.user)
+        if request.user.is_authenticated
+        else False,   
         "is_wishlisted": (
             Wishlist.objects.filter(user=request.user, product=product).exists()
             if request.user.is_authenticated
             else False
         ),
+        "user_review": user_review,
+        "user_pending_review": user_pending_review,
     }
     return render(request, "product_details.html", context)
 
+
+
+@login_required(login_url="login")
+def add_review(request, product_id):
+
+    if request.method != "POST":
+        return redirect("user_products:shop")
+
+    product = get_object_or_404(
+        Product,
+        id=product_id,
+        is_active=True,
+        is_deleted=False,
+    )
+
+    rating = request.POST.get("rating")
+    review_text = request.POST.get("review_text", "").strip()
+
+    if not rating:
+        messages.error(request, "Please select a rating.")
+        return redirect(
+            "user_products:product_details",
+            slug=product.slug
+        )
+
+    existing_review = Review.objects.filter(
+        user=request.user,
+        product=product,
+    ).first()
+
+    if not existing_review and not product.can_user_review(request.user):
+
+        messages.error(
+            request,
+            "You cannot review this product."
+        )
+
+        return redirect(
+            "user_products:product_details",
+            slug=product.slug
+        )
+    
+    order_item = OrderItem.objects.filter(
+        order__user=request.user,
+        order__order_status="Delivered",
+        product=product,
+    ).order_by("-id").first()
+    if existing_review:
+
+        existing_review.rating = int(rating)
+
+        existing_review.review_text = review_text
+
+        existing_review.status = "pending"
+
+        existing_review.save()
+
+    else:
+
+        Review.objects.create(
+            user=request.user,
+            product=product,
+            order=order_item.order,
+            rating=int(rating),
+            review_text=review_text,
+            status="pending",
+        )
+
+        messages.success(
+            request,
+            "Review submitted successfully and awaiting approval."
+        )
+
+
+    return redirect(
+        "user_products:product_details",
+        slug=product.slug
+    )
+
+@login_required
+def delete_review(request, review_id):
+
+    review = get_object_or_404(
+        Review,
+        id=review_id,
+        user=request.user
+    )
+
+    product_slug = review.product.slug
+
+    review.delete()
+
+    messages.success(
+        request,
+        "Review deleted successfully."
+    )
+
+    return redirect(
+        "user_products:product_details",
+        slug=product_slug
+    )
 
 @login_required(login_url="login")
 def add_to_cart(request):
@@ -841,3 +970,4 @@ def wishlist_to_cart(request, product_id):
             "wishlist_count": wishlist_count,
         }
     )
+

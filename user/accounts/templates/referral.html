@@ -1136,7 +1136,7 @@ td{
             <div>
                 <span>Reward Amount</span>
                 <strong>
-                    ₹₹{{ latest_reward.created_at|date:"d M Y h:i A" }}
+                    ₹{{ latest_reward.reward_amount }}
                 </strong>
             </div>
 
@@ -1150,7 +1150,7 @@ td{
             <div>
                 <span>Wallet Balance</span>
                 <strong>
-                    ₹₹{{ wallet.balance }}
+                    ₹{{ wallet.balance }}
                 </strong>
             </div>
 
@@ -1164,7 +1164,7 @@ td{
             <div>
                 <span>Date & Time</span>
                 <strong>
-                    {{ reward_popup.date }}
+                    {{ latest_reward.created_at|date:"d M Y h:i A" }}
                 </strong>
             </div>
 

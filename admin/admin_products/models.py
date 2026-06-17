@@ -2,6 +2,8 @@
 from django.db import models
 from admin.admin_category.models import Category
 from django.utils.text import slugify
+from django.db.models import Avg
+
 
 
 class Product(models.Model):
@@ -92,7 +94,53 @@ class Product(models.Model):
             return variant
 
         return self.variants.filter(is_deleted=False, is_active=True).first()
+    
+    @property
+    def average_rating(self):
 
+        return round(
+            self.reviews.filter(
+                status="approved"
+            ).aggregate(
+                avg=Avg("rating")
+            )["avg"] or 0,
+            1
+        )
+
+
+    @property
+    def review_count(self):
+
+        return self.reviews.filter(
+            status="approved"
+        ).count()
+    
+
+    
+    def can_user_review(self, user):
+
+        from user.user_orders.models import OrderItem
+
+        if not user.is_authenticated:
+            return False
+
+        has_purchased = OrderItem.objects.filter(
+            order__user=user,
+            order__order_status="Delivered",
+            product=self,
+        ).exists()
+
+        if not has_purchased:
+            return False
+
+        already_reviewed = self.reviews.filter(
+            user=user
+        ).exists()
+
+        if already_reviewed:
+            return False
+
+        return True
 
 class Variant(models.Model):
 
@@ -225,3 +273,4 @@ class ProductImage(models.Model):
     def __str__(self):
 
         return str(self.variant)
+    

@@ -17,6 +17,19 @@ from user.decorators import user_required
 User = get_user_model()
 
 
+def validate_full_name(full_name):
+
+    if not re.match(
+        r"^[A-Za-z]+(?: [A-Za-z]+)*$",
+        full_name
+    ):
+        return (
+            "Name must contain only letters "
+            "and spaces."
+        )
+
+    return None
+
 def validate_password_strength(password):
     errors = []
 
@@ -97,6 +110,13 @@ def edit_profile(request):
         phone = request.POST.get("phone", "").strip()
         image = request.FILES.get("profile_image")
 
+        if full_name:
+
+            name_error = validate_full_name(full_name)
+
+            if name_error:
+                messages.error(request, name_error)
+                return redirect("userinfo:edit_profile")
         if phone:
 
             if not phone.isdigit():
