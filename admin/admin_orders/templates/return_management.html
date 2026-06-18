@@ -486,7 +486,51 @@ Manage customer return requests and refund approvals
 
     border-color:#2563eb;
 }
+.user-avatar{
 
+    width:54px;
+    height:54px;
+
+    border-radius:50%;
+
+    overflow:hidden;
+
+    flex-shrink:0;
+}
+
+.profile-img{
+
+    width:100%;
+
+    height:100%;
+
+    object-fit:cover;
+
+    border-radius:50%;
+}
+.pages{
+    display:flex;
+    align-items:center;
+    gap:6px;
+}
+
+.pages a,
+.pages span{
+    width:38px;
+    height:38px;
+    border-radius:10px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-decoration:none;
+    background:#111827;
+    color:#fff;
+    font-weight:600;
+}
+
+.pages .active{
+    background:#2563eb;
+}
 /* ================= RESPONSIVE ================= */
 
 @media(max-width:1200px){
@@ -752,11 +796,27 @@ Manage customer return requests and refund approvals
 
             <div class="customer-box">
 
-                <div class="user-avatar">
+<div class="user-avatar">
 
-                    {{ return_request.user.first_name|slice:":1" }}
+    {% if return_request.user.account_profile.image %}
 
-                </div>
+        <img
+            src="{{ return_request.user.account_profile.image.url }}"
+            alt="Profile"
+            class="profile-img"
+        >
+
+    {% else %}
+
+        <img
+            src="{% static 'images/default.png' %}"
+            alt="Default User"
+            class="profile-img"
+        >
+
+    {% endif %}
+
+</div>
 
                 <div>
 

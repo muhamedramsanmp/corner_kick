@@ -25,6 +25,8 @@ from django.db.models import Sum
 from user.user_wallet.models import Wallet
 from django.http import JsonResponse
 from django.core.paginator import Paginator
+from .utils import send_signup_otp
+from .utils import send_reset_password_otp
 
 User = get_user_model()
 
@@ -143,12 +145,10 @@ def signup_view(request):
             "referral_code": referral_code,
         }
 
-        send_mail(
-            "Your OTP Code",
-            f"Your OTP is {otp}",
-            settings.EMAIL_HOST_USER,
-            [email],
-            fail_silently=False,
+        send_signup_otp(
+            email=email,
+            full_name=full_name,
+            otp=otp
         )
 
         return redirect("verify_signup_otp")
@@ -241,12 +241,9 @@ def forgot_password(request):
         request.session["reset_email"] = email
 
         try:
-            send_mail(
-                "Your Password Reset OTP",
-                f"Your OTP is: {otp}",
-                settings.EMAIL_HOST_USER,
-                [email],
-                fail_silently=False,
+            send_reset_password_otp(
+                email=email,
+                otp=otp
             )
         except Exception:
             messages.error(request, "Failed to send email.")
@@ -348,12 +345,9 @@ def resend_otp(request):
 
     OTP.objects.create(email=email, code=otp, purpose="reset")
 
-    send_mail(
-        "New OTP",
-        f"Your OTP is: {otp}",
-        settings.EMAIL_HOST_USER,
-        [email],
-        fail_silently=False,
+    send_reset_password_otp(
+        email=email,
+        otp=otp
     )
 
     messages.success(request, "New OTP sent.")
@@ -527,6 +521,7 @@ def verify_signup_otp(request):
 
 
 def resend_signup_otp(request):
+
     data = request.session.get("signup_data")
 
     if not data:
@@ -536,22 +531,36 @@ def resend_signup_otp(request):
 
     otp = str(random.randint(100000, 999999))
 
-    
-    OTP.objects.filter(email=email, purpose="signup").delete()
+    OTP.objects.filter(
+        email=email,
+        purpose="signup"
+    ).delete()
 
-    
-    OTP.objects.create(email=email, code=otp, purpose="signup")
-
-    
-    send_mail(
-        "Your OTP Code",
-        f"Your OTP is {otp}",
-        settings.EMAIL_HOST_USER,
-        [email],
-        fail_silently=False,
+    OTP.objects.create(
+        email=email,
+        code=otp,
+        purpose="signup"
     )
-    messages.success(request, "New OTP sent successfully.")
-    return redirect("verify_signup_otp")
+
+    full_name = data.get(
+        "full_name",
+        ""
+    )
+
+    send_signup_otp(
+        email=email,
+        full_name=full_name,
+        otp=otp
+    )
+
+    messages.success(
+        request,
+        "New OTP sent successfully."
+    )
+
+    return redirect(
+        "verify_signup_otp"
+    )
 
 
 @login_required

@@ -68,3 +68,53 @@ def credit_referral_reward(request, user, order):
         "wallet_balance": str(wallet.balance),
         "date": timezone.now().strftime("%d %b %Y %I:%M %p"),
     }
+
+
+# utils.py
+
+from django.conf import settings
+from django.core.mail import send_mail
+
+
+def send_signup_otp(email, full_name, otp):
+
+    send_mail(
+        subject="Corner Kick - Email Verification OTP",
+        message=(
+            f"Hello {full_name},\n\n"
+            f"Welcome to Corner Kick.\n\n"
+            f"Your verification OTP is: {otp}\n\n"
+            f"OTP Expiry: 60 seconds\n\n"
+            f"Please do not share this OTP with anyone.\n\n"
+            f"Regards,\n"
+            f"Corner Kick Team"
+        ),
+        from_email=settings.EMAIL_HOST_USER,
+        recipient_list=[email],
+        fail_silently=False,
+    )
+
+
+from django.conf import settings
+from django.core.mail import send_mail
+
+
+def send_reset_password_otp(email, otp):
+
+    send_mail(
+        subject="Corner Kick - Password Reset OTP",
+        message=(
+            "Hello,\n\n"
+            "We received a request to reset your password.\n\n"
+            f"Your Password Reset OTP is: {otp}\n\n"
+            "OTP Expiry: 60 seconds\n\n"
+            "If you did not request a password reset, "
+            "please ignore this email.\n\n"
+            "Do not share this OTP with anyone.\n\n"
+            "Regards,\n"
+            "Corner Kick Team"
+        ),
+        from_email=settings.EMAIL_HOST_USER,
+        recipient_list=[email],
+        fail_silently=False,
+    )

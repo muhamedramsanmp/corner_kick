@@ -248,6 +248,31 @@ def product_details(request, slug):
             user=request.user
         ).first()
 
+    user_review_notification = Review.objects.filter(
+        user=request.user,
+        product=product,
+        show_message=True
+    ).first()
+
+    if user_review_notification:
+
+        if user_review_notification.status == "approved":
+
+            messages.success(
+                request,
+                user_review_notification.review_message
+            )
+
+        elif user_review_notification.status == "rejected":
+
+            messages.error(
+                request,
+                user_review_notification.review_message
+            )
+
+        user_review_notification.show_message = False
+
+        user_review_notification.save()
     context = {
         "product": product,
         "variants": variants,
@@ -317,6 +342,7 @@ def add_review(request, product_id):
         order__order_status="Delivered",
         product=product,
     ).order_by("-id").first()
+    
     if existing_review:
 
         existing_review.rating = int(rating)
@@ -326,6 +352,10 @@ def add_review(request, product_id):
         existing_review.status = "pending"
 
         existing_review.save()
+        messages.success(
+            request,
+            "Review updated successfully and awaiting approval."
+        )
 
     else:
 

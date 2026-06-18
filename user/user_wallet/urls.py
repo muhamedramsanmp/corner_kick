@@ -13,4 +13,5 @@ urlpatterns = [
     ),
     path("wallet-failed/", views.wallet_failed, name="wallet_failed"),
     path("apply-coupon/", views.apply_coupon, name="apply_coupon"),
+    
 ]

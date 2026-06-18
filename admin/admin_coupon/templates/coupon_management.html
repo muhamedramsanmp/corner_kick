@@ -629,7 +629,18 @@ Manage discount coupons and promotional campaigns
 
     background:#dc2626;
 }
+.status-expired{
 
+    background:#450a0a;
+
+    color:#ef4444;
+
+    padding:8px 14px;
+
+    border-radius:20px;
+
+    font-size:12px;
+}
 /* ====================================== */
 /* RESPONSIVE */
 /* ====================================== */
@@ -943,23 +954,31 @@ Manage discount coupons and promotional campaigns
 
     <div>
 
-        {% if coupon.is_active %}
+<div>
 
-            <span class="status-active">
+    {% now "Y-m-d" as today %}
 
-                ACTIVE
+    {% if coupon.end_date and coupon.end_date|date:"Y-m-d" < today %}
 
-            </span>
+        <span class="status-expired">
+            EXPIRED
+        </span>
 
-        {% else %}
+    {% elif coupon.is_active %}
 
-            <span class="status-inactive">
+        <span class="status-active">
+            ACTIVE
+        </span>
 
-                INACTIVE
+    {% else %}
 
-            </span>
+        <span class="status-inactive">
+            INACTIVE
+        </span>
 
-        {% endif %}
+    {% endif %}
+
+</div>
 
     </div>
 

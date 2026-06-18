@@ -378,6 +378,40 @@ Checkout
 
     cursor:pointer;
 }
+.coupon-applied-box{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.coupon-applied-box strong{
+    display:block;
+    color:#2d5cff;
+    font-size:15px;
+}
+
+.coupon-applied-box span{
+    color:#64748b;
+    font-size:13px;
+}
+
+.coupon-delete-btn{
+    width:38px;
+    height:38px;
+    border:none;
+    border-radius:8px;
+    background:#fee2e2;
+    color:#dc2626;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transition:0.3s;
+}
+
+.coupon-delete-btn:hover{
+    background:#fecaca;
+}
 
 @media (max-width: 992px) {
 
@@ -810,24 +844,35 @@ Checkout
 
 </div>
 
-<div id="selectedCouponDisplay">
+<div id="selectedCouponDisplay" class="coupon-selected">
 
 {% if applied_coupon %}
-    <strong>{{ applied_coupon }}</strong> Applied
+
+    <div class="coupon-applied-box">
+
+        <div>
+            <strong>{{ applied_coupon }}</strong>
+            <span>Applied</span>
+        </div>
+
+        <button
+            type="button"
+            id="removeCouponBtn"
+            class="coupon-delete-btn"
+            onclick="removeCoupon()"
+        >
+            <i class="fas fa-trash-alt"></i>
+        </button>
+
+    </div>
+
 {% else %}
+
     No coupon applied
+
 {% endif %}
 
 </div>
-<button
-    type="button"
-    id="removeCouponBtn"
-    class="coupon-open-btn"
-    style="{% if not applied_coupon %}display:none;{% endif %}"
-    onclick="removeCoupon()"
->
-    REMOVE COUPON
-</button>
 
 <input
     type="hidden"
@@ -886,7 +931,7 @@ Checkout
     id="discountAmount"
     style="color:#16a34a;"
     >
-        ₹0
+        ₹{{ coupon_discount }}
     </strong>
 
 </div>
@@ -1051,7 +1096,7 @@ class="coupon-modal"
 
 
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <script>
 
 document
@@ -1189,54 +1234,54 @@ function closeCouponModal(){
 }
 function removeCoupon(){
 
-    document
-    .getElementById(
-        "selectedCoupon"
-    )
-    .value = "";
+    fetch("{% url 'remove_coupon' %}",{
 
-    document
-    .getElementById(
-        "selectedCouponDisplay"
-    )
-    .innerHTML =
-    "No coupon applied";
+        method:"POST",
 
-    document
-    .getElementById(
-        "discountAmount"
-    )
-    .innerHTML =
-    "₹0";
+        headers:{
+            "X-CSRFToken":"{{ csrf_token }}"
+        }
 
-    let originalTotal =
-        document.getElementById(
-            "amountAfterOffer"
-        ).value;
+    })
+    .then(response => response.json())
+    .then(data => {
 
-    document
-    .getElementById(
-        "totalAmount"
-    )
-    .innerHTML =
-    "₹" + originalTotal;
+        if(data.success){
 
-    document
-    .getElementById(
-        "finalAmount"
-    )
-    .value =
-    originalTotal;
+            document.getElementById(
+                "selectedCoupon"
+            ).value = "";
 
-    document
-    .getElementById(
-        "removeCouponBtn"
-    )
-    .style.display = "none";
+            document.getElementById(
+                "selectedCouponDisplay"
+            ).innerHTML = "No coupon applied";
 
-    showAjaxPopup(
-        "Coupon removed successfully"
-    );
+            document.getElementById(
+                "discountAmount"
+            ).innerHTML = "₹0";
+
+            let originalTotal =
+                document.getElementById(
+                    "amountAfterOffer"
+                ).value;
+
+            document.getElementById(
+                "totalAmount"
+            ).innerHTML =
+            "₹" + originalTotal;
+
+            document.getElementById(
+                "finalAmount"
+            ).value =
+            originalTotal;
+
+            showAjaxPopup(
+                "Coupon removed successfully"
+            );
+        }
+
+    });
+
 }
 function applyCoupon(code){
     
@@ -1315,14 +1360,26 @@ function applyCoupon(code){
         .value =
         data.coupon
 
-        document
-        .getElementById(
-            "selectedCouponDisplay"
-        )
-        .innerHTML =
-        "<strong>" +
-        data.coupon +
-        "</strong> Applied"
+        document.getElementById("selectedCouponDisplay").innerHTML =
+        `
+        <div class="coupon-applied-box">
+
+            <div>
+                <strong>${data.coupon}</strong>
+                <span>Applied</span>
+            </div>
+
+            <button
+                type="button"
+                id="removeCouponBtn"
+                class="coupon-delete-btn"
+                onclick="removeCoupon()"
+            >
+                <i class="fas fa-trash-alt"></i>
+            </button>
+
+        </div>
+        `;
 
         document
         .getElementById(

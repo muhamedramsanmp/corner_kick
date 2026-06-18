@@ -33,10 +33,6 @@ from user.products.utils import remove_invalid_cart_items
 
 @user_required
 def checkout_page(request):
-
-    if request.method == "GET":
-        request.session.pop("coupon_id", None)
-
     cart = Cart.objects.filter(
         user=request.user
     ).first()
@@ -353,13 +349,47 @@ def checkout_page(request):
                     "selected_address_id": address_id,
                 },
             )
-    applied_coupon = request.session.get("coupon_code")
-    coupon_discount = request.session.get(
-        "coupon_discount",
-        0
-    )
+    coupon_discount = Decimal("0")
+    applied_coupon = None
 
-    total_amount = amount_after_offer - coupon_discount
+    coupon_id = request.session.get("coupon_id")
+
+    if coupon_id:
+
+        coupon = Coupon.objects.filter(
+            id=coupon_id
+        ).first()
+
+        if coupon:
+
+            applied_coupon = coupon.code
+
+            if coupon.discount_type == "PERCENTAGE":
+
+                coupon_discount = (
+                    amount_after_offer *
+                    coupon.discount_value
+                ) / 100
+
+                if (
+                    coupon.max_discount and
+                    coupon_discount >
+                    coupon.max_discount
+                ):
+                    coupon_discount = (
+                        coupon.max_discount
+                    )
+
+            else:
+
+                coupon_discount = (
+                    coupon.discount_value
+                )
+
+    total_amount = (
+        amount_after_offer -
+        coupon_discount
+    )
     wallet, created = Wallet.objects.get_or_create(user=request.user)
 
     context = {

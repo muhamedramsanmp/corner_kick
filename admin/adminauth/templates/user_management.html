@@ -378,7 +378,29 @@ h1{
 
     cursor:pointer;
 }
+.pages{
+    display:flex;
+    align-items:center;
+    gap:6px;
+}
 
+.pages a,
+.pages span{
+    width:38px;
+    height:38px;
+    border-radius:10px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-decoration:none;
+    background:#111827;
+    color:#fff;
+    font-weight:600;
+}
+
+.pages .active{
+    background:#2563eb;
+}
 /* ================= RESPONSIVE ================= */
 
 @media(max-width:1200px){
@@ -452,14 +474,7 @@ h1{
 <body>
 
 
-<!-- MAIN -->
 
-
-{% comment %} <h1>User Management</h1>
-<p class="sub">Manage your customer database and account statuses</p> {% endcomment %}
-
-
-<!-- CARDS -->
 <div class="cards">
 
     <div class="card">

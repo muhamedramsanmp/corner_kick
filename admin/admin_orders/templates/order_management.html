@@ -493,7 +493,29 @@ Manage customer orders and payments
 
     cursor:pointer;
 }
+.pages{
+    display:flex;
+    align-items:center;
+    gap:6px;
+}
 
+.pages a,
+.pages span{
+    width:38px;
+    height:38px;
+    border-radius:10px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-decoration:none;
+    background:#111827;
+    color:#fff;
+    font-weight:600;
+}
+
+.pages .active{
+    background:#2563eb;
+}
 /* ====================================== */
 /* RESPONSIVE */
 /* ====================================== */
@@ -814,7 +836,11 @@ Manage customer orders and payments
 
     {% else %}
 
-        {{ order.user.first_name|slice:":1" }}
+        <img
+            src="{% static 'images/default.png' %}"
+            alt="Default User"
+            class="profile-img"
+        >
 
     {% endif %}
 
@@ -934,33 +960,27 @@ Manage customer orders and payments
 
     <!-- PAGE NUMBERS -->
 
-    {% for num in orders.paginator.page_range %}
+{% for num in orders.paginator.page_range %}
+
+    {% if num >= orders.number and num < orders.number|add:"3" %}
 
         {% if orders.number == num %}
 
             <span class="active">
-
                 {{ num }}
-
             </span>
 
         {% else %}
 
-            <a
-            href="?page={{ num }}&q={{ query }}&status={{ status }}"
-            >
-
-                <span>
-
-                    {{ num }}
-
-                </span>
-
+            <a href="?page={{ num }}&q={{ query }}&status={{ status }}">
+                <span>{{ num }}</span>
             </a>
 
         {% endif %}
 
-    {% endfor %}
+    {% endif %}
+
+{% endfor %}
 
     <!-- NEXT -->
 

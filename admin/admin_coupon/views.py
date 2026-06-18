@@ -1,15 +1,12 @@
-from django.shortcuts import render
-
 from django.core.paginator import Paginator
 from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
 from django.db.models import Q
 from django.utils import timezone
-
 from .models import Coupon
-
 from admin.decorators import admin_required
-
+from decimal import Decimal
+from django.core.exceptions import ValidationError
 
 @admin_required
 def coupon_management(request):
@@ -79,15 +76,7 @@ def delete_coupon(request, coupon_id):
     return redirect("coupon_management")
 
 
-from decimal import Decimal
-from django.contrib import messages
-from django.shortcuts import render, redirect
 
-from .models import Coupon
-
-
-from django.core.exceptions import ValidationError
-from django.core.exceptions import ValidationError
 
 
 @admin_required

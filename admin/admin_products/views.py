@@ -533,43 +533,21 @@ def edit_variant(request, variant_id):
 
         variant.save()
 
-        images = request.FILES.getlist("images")
+        existing_images = list(
+            variant.images.order_by("id")
+        )
 
-        valid_images = [image for image in images if image and image.name]
+        uploaded_images = request.FILES.getlist("images")
 
-        existing_image_count = variant.images.count()
+        for index, new_image in enumerate(uploaded_images):
 
-        if valid_images:
+            if not new_image:
+                continue
 
-            total_images = len(valid_images)
+            if index < len(existing_images):
 
-        else:
-
-            total_images = existing_image_count
-
-        if total_images < 3:
-
-            messages.error(request, "Minimum 3 images are required")
-
-            return redirect("admin_products:edit_variant", variant_id=variant.id)
-
-        if total_images > 4:
-
-            messages.error(request, "Maximum 4 images allowed")
-
-            return redirect("admin_products:edit_variant", variant_id=variant.id)
-
-        if valid_images:
-
-            variant.images.all().delete()
-
-            for index, image in enumerate(valid_images):
-
-                ProductImage.objects.create(
-                    variant=variant,
-                    image=image,
-                    is_primary=True if index == 0 else False,
-                )
+                existing_images[index].image = new_image
+                existing_images[index].save()
 
         messages.success(request, "Variant updated successfully")
 

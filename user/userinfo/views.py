@@ -13,7 +13,7 @@ from .models import PasswordResetOTP
 from django.contrib.auth.hashers import make_password
 from user.accounts.models import Profile
 from user.decorators import user_required
-
+from user.accounts.utils import send_reset_password_otp
 User = get_user_model()
 
 
@@ -158,10 +158,20 @@ def edit_profile(request):
             PasswordResetOTP.objects.create(user=user, otp=otp)
 
             send_mail(
-                "Verify your email",
-                f"Your OTP is {otp}",
+                "Corner Kick - Email Verification OTP",
+                (
+                    f"Hello {full_name},\n\n"
+                    f"You requested to change your email address.\n\n"
+                    f"Your verification OTP is:\n\n"
+                    f"{otp}\n\n"
+                    f"OTP Expiry: 60 seconds\n\n"
+                    f"If you did not request this change, "
+                    f"please ignore this email.\n\n"
+                    f"Regards,\n"
+                    f"Corner Kick Team"
+                ),
                 settings.EMAIL_HOST_USER,
-                [email],
+                [user.email],
                 fail_silently=False,
             )
 
@@ -241,7 +251,6 @@ def change_email_verify(request):
                 {"error": "Invalid OTP", "time_left": time_left},
             )
 
-        # ✅ SUCCESS
         user = request.user
         user.email = new_email
         user.save()
@@ -270,10 +279,20 @@ def resend_change_email_otp(request):
     PasswordResetOTP.objects.create(user=user, otp=otp)
 
     send_mail(
-        "New OTP",
-        f"Your OTP is {otp}",
+        "Corner Kick - Email Verification OTP",
+        (
+            f"Hello {user.get_full_name()},\n\n"
+            f"You requested to change your email address.\n\n"
+            f"Your verification OTP is:\n\n"
+            f"{otp}\n\n"
+            f"OTP Expiry: 60 seconds\n\n"
+            f"If you did not request this change, "
+            f"please ignore this email.\n\n"
+            f"Regards,\n"
+            f"Corner Kick Team"
+        ),
         settings.EMAIL_HOST_USER,
-        [new_email],
+        [user.email],
         fail_silently=False,
     )
 
@@ -354,12 +373,9 @@ def forgot_password(request):
         request.session["reset_email"] = email
 
         # send email
-        send_mail(
-            "Password Reset OTP",
-            f"Your OTP is: {otp}",
-            settings.EMAIL_HOST_USER,
-            [email],
-            fail_silently=False,
+        send_reset_password_otp(
+            email=email,
+            otp=otp
         )
 
         messages.success(request, "OTP sent to your email.")
@@ -428,12 +444,9 @@ def resend_otp(request):
     PasswordResetOTP.objects.filter(user=user).delete()
     PasswordResetOTP.objects.create(user=user, otp=otp)
 
-    send_mail(
-        "New OTP",
-        f"Your new OTP is: {otp}",
-        settings.EMAIL_HOST_USER,
-        [email],
-        fail_silently=False,
+    send_reset_password_otp(
+        email=email,
+        otp=otp
     )
 
     messages.success(request, "New OTP sent.")

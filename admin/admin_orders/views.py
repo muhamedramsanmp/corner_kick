@@ -10,7 +10,10 @@ from user.user_orders.models import ReturnRequest, ReturnItem
 from admin.decorators import admin_required
 from user.user_wallet.models import Wallet, WalletTransaction
 from user.accounts.utils import credit_referral_reward
+from django.contrib import messages
+from django.shortcuts import get_object_or_404, redirect
 
+from user.products.models import Review
 
 @admin_required
 def order_management(request):
@@ -488,11 +491,6 @@ def review_management(request):
         context
     )
 
-from django.contrib import messages
-from django.shortcuts import get_object_or_404, redirect
-
-from user.products.models import Review
-
 
 def approve_review(request, review_id):
 
@@ -502,6 +500,11 @@ def approve_review(request, review_id):
     )
 
     review.status = "approved"
+
+
+    review.review_message = "Your review has been approved."
+    review.show_message = True
+
     review.save()
 
     messages.success(
@@ -509,13 +512,10 @@ def approve_review(request, review_id):
         "Review approved successfully."
     )
 
-    return redirect("review_management")
+    return redirect(
+        "review_management"
+    )
 
-
-from django.contrib import messages
-from django.shortcuts import get_object_or_404, redirect
-
-from user.products.models import Review
 
 
 def reject_review(request, review_id):
@@ -526,6 +526,10 @@ def reject_review(request, review_id):
     )
 
     review.status = "rejected"
+
+    review.review_message = "Your review has been rejected."
+    review.show_message = True
+    
     review.save()
 
     messages.success(
@@ -533,6 +537,8 @@ def reject_review(request, review_id):
         "Review rejected successfully."
     )
 
-    return redirect("review_management")
+    return redirect(
+        "review_management"
+    )
 
 

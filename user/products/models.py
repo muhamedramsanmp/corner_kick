@@ -142,6 +142,15 @@ class Review(models.Model):
         choices=STATUS_CHOICES,
         default="pending",
     )
+    review_message = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True
+    )
+
+    show_message = models.BooleanField(
+        default=False
+    )
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

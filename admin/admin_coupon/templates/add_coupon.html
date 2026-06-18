@@ -653,6 +653,7 @@ body{
     <input
         type="text"
         name="code"
+        value="{{ request.POST.code }}"
         placeholder="Enter coupon code"
         required
     >
@@ -669,15 +670,23 @@ body{
 
         <select name="discount_type">
 
-            <option value="FIXED">
-                Fixed Amount
-            </option>
+    <option value="FIXED"
+        {% if request.POST.discount_type == "FIXED" %}
+            selected
+        {% endif %}
+    >
+        Fixed Amount
+    </option>
 
-            <option value="PERCENTAGE">
-                Percentage
-            </option>
+    <option value="PERCENTAGE"
+        {% if request.POST.discount_type == "PERCENTAGE" %}
+            selected
+        {% endif %}
+    >
+        Percentage
+    </option>
 
-        </select>
+</select>
 
     </div>
 
@@ -690,6 +699,7 @@ body{
         <input
             type="number"
             step="0.01"
+             name="discount_value"
             name="discount_value"
             required
         >
@@ -709,6 +719,7 @@ body{
             type="number"
             step="0.01"
             name="min_purchase"
+            value="{{ request.POST.min_purchase }}"
         >
 
     </div>
@@ -723,6 +734,7 @@ body{
             type="number"
             step="0.01"
             name="max_discount"
+            value="{{ request.POST.max_discount }}"
         >
 
     </div>
@@ -740,6 +752,7 @@ body{
         <input
             type="number"
             name="usage_limit_per_user"
+            value="{{ request.POST.usage_limit_per_user }}"
             
         >
 
@@ -754,6 +767,7 @@ body{
         <input
             type="number"
             name="total_usage_limit"
+            value="{{ request.POST.total_usage_limit }}"
             
         >
 
@@ -784,10 +798,12 @@ body{
                 <label class="switch">
 
                     <input
-                        type="checkbox"
-                        name="is_active"
-                        checked
-                    >
+    type="checkbox"
+    name="is_active"
+    {% if request.method != "POST" or request.POST.is_active %}
+        checked
+    {% endif %}
+>
 
                     <span class="slider"></span>
 
@@ -814,6 +830,7 @@ body{
                 <input
                     type="date"
                     name="start_date"
+                    value="{{ request.POST.start_date }}"
                     required
                 >
 
@@ -828,6 +845,7 @@ body{
                 <input
                     type="date"
                     name="end_date"
+                    value="{{ request.POST.end_date }}"
                     required
                 >
 
