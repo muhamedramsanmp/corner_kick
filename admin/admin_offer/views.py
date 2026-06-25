@@ -44,7 +44,7 @@ def offer_management(request):
 
         offers = offers.filter(end_date__lt=today)
 
-    paginator = Paginator(offers, 10)
+    paginator = Paginator(offers, 6)
 
     page_number = request.GET.get("page")
 
@@ -319,9 +319,6 @@ def edit_offer(request, offer_id):
             return render(request, "edit_offer.html", context)
 
     return render(request, "edit_offer.html", context)
-
-
-from django.shortcuts import get_object_or_404, redirect
 
 
 @admin_required

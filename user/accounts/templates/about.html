@@ -1,0 +1,417 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+About Corner Kick
+{% endblock %}
+
+{% block content %}
+
+<style>
+
+.about-hero{
+    background:linear-gradient(135deg,#2563eb,#1d4ed8);
+    color:white;
+    text-align:center;
+    padding:120px 20px;
+}
+
+.about-hero h1{
+    font-size:60px;
+    font-weight:800;
+    margin-bottom:20px;
+}
+
+.about-hero p{
+    max-width:800px;
+    margin:auto;
+    font-size:18px;
+    opacity:.9;
+}
+
+.section{
+    max-width:1200px;
+    margin:80px auto;
+    padding:0 20px;
+}
+
+.section-title{
+    text-align:center;
+    margin-bottom:50px;
+}
+
+.section-title h2{
+    font-size:42px;
+    color:#0f172a;
+    font-weight:800;
+}
+
+.section-title p{
+    color:#64748b;
+    margin-top:10px;
+}
+
+.about-card{
+    background:white;
+    border-radius:24px;
+    padding:40px;
+    box-shadow:0 10px 30px rgba(0,0,0,.05);
+}
+
+.about-card p{
+    color:#64748b;
+    line-height:1.9;
+    font-size:16px;
+}
+
+.features{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+    gap:25px;
+}
+
+.feature-box{
+    background:white;
+    border-radius:20px;
+    padding:30px;
+    text-align:center;
+    box-shadow:0 8px 25px rgba(0,0,0,.05);
+}
+
+.feature-box i{
+    font-size:40px;
+    color:#2563eb;
+    margin-bottom:15px;
+}
+
+.feature-box h3{
+    margin-bottom:10px;
+}
+
+.feature-box p{
+    color:#64748b;
+}
+
+.stats{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:20px;
+}
+
+.stat-box{
+    background:#2563eb;
+    color:white;
+    text-align:center;
+    padding:40px;
+    border-radius:20px;
+}
+
+.stat-box h2{
+    font-size:40px;
+    font-weight:800;
+}
+
+.contact-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:30px;
+}
+
+.contact-info,
+.contact-form{
+    background:white;
+    padding:35px;
+    border-radius:20px;
+    box-shadow:0 8px 25px rgba(0,0,0,.05);
+}
+
+.contact-item{
+    margin-bottom:25px;
+}
+
+.contact-item h4{
+    color:#2563eb;
+    margin-bottom:8px;
+}
+
+.contact-item p{
+    color:#64748b;
+}
+
+.contact-form input,
+.contact-form textarea{
+    width:100%;
+    padding:14px;
+    margin-bottom:15px;
+    border:1px solid #dbeafe;
+    border-radius:10px;
+    outline:none;
+}
+
+.contact-form button{
+    background:#2563eb;
+    color:white;
+    border:none;
+    padding:14px 30px;
+    border-radius:10px;
+    cursor:pointer;
+    font-weight:700;
+}
+
+.cta{
+    text-align:center;
+    margin-top:80px;
+}
+
+.cta a{
+    background:#2563eb;
+    color:white;
+    text-decoration:none;
+    padding:15px 30px;
+    border-radius:12px;
+    font-weight:700;
+}
+
+@media(max-width:768px){
+
+    .about-hero h1{
+        font-size:42px;
+    }
+
+    .contact-grid{
+        grid-template-columns:1fr;
+    }
+
+}
+
+</style>
+
+<section class="about-hero">
+
+
+<h1>ABOUT CORNER KICK</h1>
+
+<p>
+    Your one-stop destination for premium sports equipment,
+    footwear, fitness accessories, and athletic essentials.
+</p>
+
+
+</section>
+
+<section class="section">
+
+<div class="section-title">
+    <h2>Who We Are</h2>
+</div>
+
+<div class="about-card">
+
+    <p>
+        Corner Kick is a modern sports e-commerce platform designed for
+        athletes, fitness enthusiasts, and sports lovers. We provide
+        high-quality sports products including football boots,
+        basketball equipment, fitness accessories, training gear,
+        and much more.
+    </p>
+
+    <p>
+        Our platform offers secure online payments, wallet management,
+        wishlist functionality, coupon discounts, referral rewards,
+        product reviews, order tracking, return requests, and fast delivery.
+    </p>
+
+</div>
+
+
+</section>
+
+<section class="section">
+
+
+<div class="section-title">
+    <h2>Our Mission</h2>
+    <p>Helping every athlete perform better.</p>
+</div>
+
+<div class="about-card">
+
+    <p>
+        Our mission is to make premium sports equipment accessible
+        to everyone. We aim to provide a seamless online shopping
+        experience combined with trusted products and exceptional service.
+    </p>
+
+</div>
+
+
+</section>
+
+<section class="section">
+
+
+<div class="section-title">
+    <h2>Why Choose Corner Kick?</h2>
+</div>
+
+<div class="features">
+
+    <div class="feature-box">
+        <i class="fas fa-futbol"></i>
+        <h3>Sports Products</h3>
+        <p>Premium quality sports equipment.</p>
+    </div>
+
+    <div class="feature-box">
+        <i class="fas fa-wallet"></i>
+        <h3>Wallet System</h3>
+        <p>Instant refunds and wallet credits.</p>
+    </div>
+
+    <div class="feature-box">
+        <i class="fas fa-tags"></i>
+        <h3>Offers & Coupons</h3>
+        <p>Best discounts on every purchase.</p>
+    </div>
+
+    <div class="feature-box">
+        <i class="fas fa-star"></i>
+        <h3>Verified Reviews</h3>
+        <p>Trusted customer feedback system.</p>
+    </div>
+
+</div>
+
+
+</section>
+
+<section class="section">
+
+
+<div class="section-title">
+    <h2>Platform Highlights</h2>
+</div>
+
+<div class="stats">
+
+    <div class="stat-box">
+        <h2>1000+</h2>
+        <p>Products</p>
+    </div>
+
+    <div class="stat-box">
+        <h2>5000+</h2>
+        <p>Customers</p>
+    </div>
+
+    <div class="stat-box">
+        <h2>50+</h2>
+        <p>Brands</p>
+    </div>
+
+    <div class="stat-box">
+        <h2>99%</h2>
+        <p>Satisfaction</p>
+    </div>
+
+</div>
+
+</section>
+
+<section class="section">
+
+
+<div class="section-title">
+    <h2>Contact Us</h2>
+</div>
+
+<div class="contact-grid">
+
+    <div class="contact-info">
+
+        <div class="contact-item">
+            <h4>Email</h4>
+            <p>cornerkick1010@gmail.com</p>
+        </div>
+
+        <div class="contact-item">
+            <h4>Phone</h4>
+            <p>+91 7736998047</p>
+        </div>
+
+        <div class="contact-item">
+            <h4>Address</h4>
+            <p>
+                Corner Kick Sports Pvt Ltd<br>
+                Malappuram, Kerala, India
+            </p>
+        </div>
+
+        <div class="contact-item">
+            <h4>Working Hours</h4>
+            <p>Monday - Saturday | 9:00 AM - 6:00 PM</p>
+        </div>
+
+    </div>
+
+    <div class="contact-form">
+
+        <form method="POST">
+
+            {% csrf_token %}
+
+            <input
+                type="text"
+                name="name"
+                placeholder="Your Name"
+                required
+            >
+
+            <input
+                type="email"
+                name="email"
+                placeholder="Your Email"
+                required
+            >
+
+            <input
+                type="text"
+                name="phone"
+                placeholder="Phone Number"
+                required
+            >
+
+            <textarea
+                name="message"
+                rows="5"
+                placeholder="Your Message"
+                required
+            ></textarea>
+
+            <button type="submit">
+                Send Message
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+</section>
+
+<section class="section cta">
+
+<h2>Ready To Elevate Your Game?</h2>
+
+<br>
+
+<a href="{% url 'user_products:shop' %}">
+    SHOP NOW
+</a>
+
+
+</section>
+
+{% endblock %}

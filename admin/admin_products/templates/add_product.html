@@ -525,6 +525,23 @@ body{
     box-shadow:
         0 12px 24px rgba(37,99,235,.30);
 }
+.form-control.is-invalid {
+    border: 2px solid #dc3545;
+    box-shadow: 0 0 5px rgba(220, 53, 69, 0.25);
+}
+
+.error-text {
+    display: block;
+    margin-top: 6px;
+    color: #dc3545;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.form-control.is-invalid:focus {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 0.2rem rgba(220,53,69,.25);
+}
 
 /* ================= MOBILE ================= */
 
@@ -647,6 +664,11 @@ body{
                 required
             >
 
+{% if errors.product_name %}
+    <small class="error-text">
+        {{ errors.product_name }}
+    </small>
+{% endif %}
         </div>
 
         <!-- CATEGORY -->

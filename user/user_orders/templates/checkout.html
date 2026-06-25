@@ -1319,6 +1319,8 @@ function applyCoupon(code){
 
         if(!data.success){
 
+            console.log("Coupon Error:", data);
+
             document.getElementById(
                 "selectedCoupon"
             ).value = "";
@@ -1331,9 +1333,14 @@ function applyCoupon(code){
                 "discountAmount"
             ).innerHTML = "₹0";
 
+            const removeBtn =
             document.getElementById(
                 "removeCouponBtn"
-            ).style.display = "none";
+            );
+
+            if(removeBtn){
+                removeBtn.style.display = "none";
+            }
 
             let originalTotal =
                 document.getElementById(
@@ -1347,6 +1354,8 @@ function applyCoupon(code){
             document.getElementById(
                 "finalAmount"
             ).value = originalTotal;
+
+            // temporary test alert(data.message); 
 
             showAjaxPopup(data.message);
 

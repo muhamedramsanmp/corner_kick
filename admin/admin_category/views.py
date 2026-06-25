@@ -7,7 +7,22 @@ from django.db.models import Q, Count
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.cache import never_cache
 from admin.decorators import admin_required
+import re
 
+def validate_category_name(category_name):
+    """
+    Allows only letters, numbers, and spaces.
+    """
+
+    if not category_name:
+        return "Category name is required."
+
+    pattern = r"^[A-Za-z0-9 ]+$"
+
+    if not re.fullmatch(pattern, category_name):
+        return "Category name must contain only letters, numbers, and spaces."
+
+    return None
 
 @never_cache
 @admin_required
@@ -53,33 +68,37 @@ def category_management(request):
     return render(request, "category_management.html", context)
 
 
+
 def add_category(request):
+
+    errors = {}
 
     if request.method == "POST":
 
         category_name = request.POST.get("name", "").strip()
-
         description = request.POST.get("description", "").strip()
-
         category_img = request.FILES.get("image")
-
         is_active = request.POST.get("is_active")
 
-        if not category_name:
+        # Validation
+        error = validate_category_name(category_name)
+        if error:
+            errors["category_name"] = error
 
-            messages.error(request, "Category name is required")
-
-            return redirect("add_category")
-
-        if Category.objects.filter(
-            category_name__iexact=category_name, is_deleted=False
+        elif Category.objects.filter(
+            category_name__iexact=category_name,
+            is_deleted=False
         ).exists():
+            errors["category_name"] = "Category already exists."
 
-            messages.error(request, "Category already exists")
-
-            return redirect("add_category")
-
-        # CREATE CATEGORY
+        if errors:
+            return render(
+                request,
+                "add_category.html",
+                {
+                    "errors": errors,
+                },
+            )
 
         Category.objects.create(
             category_name=category_name,
@@ -89,80 +108,84 @@ def add_category(request):
         )
 
         messages.success(request, "Category added successfully")
-
         return redirect("category_management")
 
-    return render(request, "add_category.html")
+    return render(
+        request,
+        "add_category.html",
+        {
+            "errors": {},
+        },
+    )
 
 
 def edit_category(request, category_id):
 
     category = get_object_or_404(Category, id=category_id)
 
+    errors = {}
+
     if request.method == "POST":
 
         category_name = request.POST.get("name", "").strip()
-
         description = request.POST.get("description", "").strip()
-
         category_img = request.FILES.get("category_img")
-
-        # STATUS
-
         is_active = True if request.POST.get("is_active") else False
 
-        # EMPTY VALIDATION
+        error = validate_category_name(category_name)
 
-        if not category_name:
+        if error:
+            errors["category_name"] = error
 
-            messages.error(request, "Category name is required")
-
-            return redirect("edit_category", category_id=category.id)
-
-        # DUPLICATE CHECK
-
-        if (
-            Category.objects.filter(category_name__iexact=category_name)
+        elif (
+            Category.objects.filter(
+                category_name__iexact=category_name,
+                is_deleted=False
+            )
             .exclude(id=category.id)
             .exists()
         ):
+            errors["category_name"] = "Category already exists."
 
-            messages.error(request, "Category already exists")
-
-            return redirect("edit_category", category_id=category.id)
-
-        # UPDATE
+        if errors:
+            return render(
+                request,
+                "edit_category.html",
+                {
+                    "category": category,
+                    "errors": errors,
+                },
+            )
 
         category.category_name = category_name
-
         category.description = description
-
-        category.is_active = True if request.POST.get("is_active") else False
+        category.is_active = is_active
 
         if category_img:
-
             category.category_img = category_img
 
         category.save()
 
         messages.success(request, "Category updated successfully")
-
         return redirect("category_management")
 
-    return render(request, "edit_category.html", {"category": category})
+    return render(
+        request,
+        "edit_category.html",
+        {
+            "category": category,
+            "errors": {},
+        },
+    )
 
 
 def toggle_category_status(request, category_id):
 
     category = get_object_or_404(Category, id=category_id)
 
-    # TOGGLE STATUS
-
     category.is_active = not category.is_active
 
     category.save()
-
-    # SUCCESS MESSAGE
 
     if category.is_active:
 

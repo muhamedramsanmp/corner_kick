@@ -19,396 +19,152 @@ from .models import OrderItem, ReturnRequest, ReturnItem
 from user.user_wallet.models import Wallet, WalletTransaction
 import uuid
 import razorpay
-from user.products.models import Cart
+from user.products.models import Cart,CartItem
 import json
 from django.http import JsonResponse
 from django.conf import settings
 from user.user_wallet.models import Wallet
 from admin.admin_coupon.models import Coupon
 from user.user_orders.models import Order, OrderItem
-from user.accounts.models import Referral, ReferralReward
 from user.accounts.utils import credit_referral_reward
 from admin.admin_offer.utils import calculate_discounted_price
 from user.products.utils import remove_invalid_cart_items
 
-@user_required
-def checkout_page(request):
-    cart = Cart.objects.filter(
-        user=request.user
-    ).first()
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from django.shortcuts import render, redirect
+from user.addressinfo.models import Address
 
+from user.products.utils import remove_invalid_cart_items
+from .checkout_helpers import (
+    get_cart_summary,
+    resolve_coupon,
+    validate_and_apply_coupon,
+    process_cod_payment,
+    process_wallet_payment,
+    process_razorpay_payment,
+    build_checkout_context,
+)
+
+
+SHIPPING_CHARGE = 0
+TAX_AMOUNT = 0
+
+
+@login_required
+def checkout_page(request):
+    cart = Cart.objects.filter(user=request.user).first()
     if cart:
         remove_invalid_cart_items(cart)
-    coupons = Coupon.objects.filter(
-        is_active=True,
-    )
 
     cart_items = CartItem.objects.filter(
         cart__user=request.user
-    ).select_related(
-        "variant",
-        "variant__product"
-    )
+    ).select_related("variant", "variant__product")
 
     if not cart_items.exists():
-
-        messages.error(
-            request,
-            "One or more products are no longer available."
-        )
-
+        messages.error(request, "One or more products are no longer available.")
         return redirect("user_products:cart")
 
     addresses = Address.objects.filter(user=request.user).order_by("-is_default")
-
-    subtotal = Decimal("0")
-    offer_discount = Decimal("0")
-
-    for item in cart_items:
-
-        price_data = calculate_discounted_price(item.variant)
-        item.checkout_total = price_data["final_price"] * item.quantity
-
-        item.original_total = price_data["original_price"] * item.quantity
-
-        subtotal += price_data["original_price"] * item.quantity
-
-        offer_discount += price_data["discount_amount"] * item.quantity
-    shipping_charge = 0
-
-    tax_amount = 0
-
-    discount_amount = 0
-
-    total_amount = subtotal - offer_discount - discount_amount
+    coupons = Coupon.objects.filter(is_active=True)
+    subtotal, offer_discount = get_cart_summary(cart_items)
     amount_after_offer = subtotal - offer_discount
 
     if request.method == "POST":
+
         if cart:
             remove_invalid_cart_items(cart)
 
         cart_items = CartItem.objects.filter(
             cart__user=request.user
-        ).select_related(
-            "variant",
-            "variant__product"
-        )
+        ).select_related("variant", "variant__product")
 
         if not cart_items.exists():
-
-            messages.error(
-                request,
-                "One or more products are no longer available."
-            )
-
+            messages.error(request, "One or more products are no longer available.")
             return redirect("user_products:cart")
-        address_id = request.POST.get("selected_address")
 
+        address_id = request.POST.get("selected_address")
         payment_method = request.POST.get("payment_method")
         coupon_code = request.POST.get("coupon_code")
 
-        discount_amount = Decimal("0")
-        applied_coupon = None
-
-        # Check session first, fallback to code from POST
-        coupon_id = request.session.get("coupon_id")
-        coupon = None
-        if coupon_id:
-            try:
-                coupon = Coupon.objects.get(id=coupon_id, is_deleted=False)
-            except Coupon.DoesNotExist:
-                pass
-
-        if not coupon and coupon_code:
-            try:
-                coupon = Coupon.objects.get(code__iexact=coupon_code, is_deleted=False)
-            except Coupon.DoesNotExist:
-                pass
-
-        if coupon:
-            amount_after_offer = subtotal - offer_discount
-            today = timezone.now().date()
-            is_valid = True
-
-            if coupon.total_usage_limit:
-                total_used = Order.objects.filter(coupon=coupon).count()
-                if total_used >= coupon.total_usage_limit:
-                    is_valid = False
-
-            if coupon.usage_limit_per_user:
-                user_used = Order.objects.filter(user=request.user, coupon=coupon).count()
-                if user_used >= coupon.usage_limit_per_user:
-                    is_valid = False
-
-            if not coupon.is_active:
-                is_valid = False
-
-            if coupon.start_date and today < coupon.start_date:
-                is_valid = False
-
-            if coupon.end_date and today > coupon.end_date:
-                is_valid = False
-
-            if coupon.min_purchase and amount_after_offer < coupon.min_purchase:
-                is_valid = False
-
-            if is_valid:
-                applied_coupon = coupon
-                if coupon.discount_type == "PERCENTAGE":
-                    discount_amount = (amount_after_offer * coupon.discount_value) / 100
-                    if coupon.max_discount:
-                        discount_amount = min(discount_amount, coupon.max_discount)
-                else:
-                    discount_amount = coupon.discount_value
-
-                if discount_amount > amount_after_offer:
-                    discount_amount = amount_after_offer
-
-                discount_amount = Decimal(discount_amount)
-
-        amount_after_offer = subtotal - offer_discount
-
-        total_amount = (
-            amount_after_offer - discount_amount + shipping_charge + tax_amount
+        coupon = resolve_coupon(request, coupon_code)
+        discount_amount, applied_coupon = _apply_coupon_if_valid(
+            coupon, request.user, amount_after_offer
         )
 
+        total_amount = amount_after_offer - discount_amount + SHIPPING_CHARGE + TAX_AMOUNT
+
         if not address_id:
-
             messages.error(request, "Please select address.")
-
             return redirect("checkout_page")
 
         try:
-
             selected_address = Address.objects.get(id=address_id, user=request.user)
-
         except Address.DoesNotExist:
-
             messages.error(request, "Invalid address.")
-
             return redirect("checkout_page")
 
         for item in cart_items:
-
             if item.quantity > item.variant.stock:
-
                 messages.error(
                     request,
-                    f"Only {item.variant.stock} stock available for {item.variant.product.product_name}",
+                    f"Only {item.variant.stock} stock available for "
+                    f"{item.variant.product.product_name}",
                 )
-
                 return redirect("checkout_page")
-
-        # COD FLOW
+        common_kwargs = dict(
+            request=request,
+            cart_items=cart_items,
+            selected_address=selected_address,
+            subtotal=subtotal,
+            offer_discount=offer_discount,
+            discount_amount=discount_amount,
+            total_amount=total_amount,
+            shipping_charge=SHIPPING_CHARGE,
+            tax_amount=TAX_AMOUNT,
+            applied_coupon=applied_coupon,
+        )
 
         if payment_method == "COD":
-
-            with transaction.atomic():
-
-                order = Order.objects.create(
-                    user=request.user,
-                    order_id=str(uuid.uuid4()).replace("-", "")[:12].upper(),
-                    coupon=applied_coupon,
-                    address=selected_address,
-                    payment_method="COD",
-                    payment_status="Pending",
-                    subtotal=subtotal,
-                    shipping_charge=shipping_charge,
-                    tax_amount=tax_amount,
-                    discount_amount=discount_amount,
-                    total_amount=total_amount,
-                    offer_discount=offer_discount,
-                )
-
-                for item in cart_items:
-
-                    price_data = calculate_discounted_price(item.variant)
-
-                    OrderItem.objects.create(
-                        order=order,
-                        product=item.variant.product,
-                        variant=item.variant,
-                        quantity=item.quantity,
-                        original_price=price_data["original_price"],
-                        offer_discount=price_data["discount_amount"],
-                        offer_name=(
-                            price_data["offer"].offer_name
-                            if price_data["offer"]
-                            else None
-                        ),
-                        price=price_data["final_price"],
-                        total_price=(price_data["final_price"] * item.quantity),
-                    )
-
-                    item.variant.stock -= item.quantity
-
-                    item.variant.save()
-
-                cart_items.delete()
-                request.session.pop("coupon_id", None)
-
-            return redirect("order_success", order_id=order.order_id)
-        # WALLET FLOW
+            return process_cod_payment(**common_kwargs)
 
         elif payment_method == "WALLET":
-
-            wallet, created = Wallet.objects.get_or_create(user=request.user)
-
-            if wallet.balance < total_amount:
-
-                messages.error(
-                    request,
-                    f"Insufficient wallet balance. Available balance ₹{wallet.balance}",
-                )
-
-                return redirect("checkout_page")
-
-            with transaction.atomic():
-
-                wallet.balance -= total_amount
-
-                wallet.save()
-
-                order = Order.objects.create(
-                    user=request.user,
-                    order_id=str(uuid.uuid4()).replace("-", "")[:12].upper(),
-                    coupon=applied_coupon,
-                    address=selected_address,
-                    payment_method="WALLET",
-                    payment_status="Paid",
-                    subtotal=subtotal,
-                    shipping_charge=shipping_charge,
-                    tax_amount=tax_amount,
-                    discount_amount=discount_amount,
-                    total_amount=total_amount,
-                    offer_discount=offer_discount,
-                )
-
-                for item in cart_items:
-
-                    price_data = calculate_discounted_price(item.variant)
-
-                    OrderItem.objects.create(
-                        order=order,
-                        product=item.variant.product,
-                        variant=item.variant,
-                        quantity=item.quantity,
-                        original_price=price_data["original_price"],
-                        offer_discount=price_data["discount_amount"],
-                        offer_name=(
-                            price_data["offer"].offer_name
-                            if price_data["offer"]
-                            else None
-                        ),
-                        price=price_data["final_price"],
-                        total_price=(price_data["final_price"] * item.quantity),
-                    )
-
-                    item.variant.stock -= item.quantity
-
-                    item.variant.save()
-                credit_referral_reward(request, request.user, order)
-
-                WalletTransaction.objects.create(
-                    wallet=wallet,
-                    order=order,
-                    transaction_type="DEBIT",
-                    status="SUCCESS",
-                    amount=total_amount,
-                    description=(f"Wallet payment for order " f"{order.order_id}"),
-                )
-
-                cart_items.delete()
-                request.session.pop("coupon_id", None)
-
-            return redirect("order_success", order_id=order.order_id)
-
-        # RAZORPAY FLOW
+            return process_wallet_payment(**common_kwargs)
 
         elif payment_method == "RAZORPAY":
-            request.session["checkout_data"] = {
-                "subtotal": str(subtotal),
-                "offer_discount": str(offer_discount),
-                "discount_amount": str(discount_amount),
-                "total_amount": str(total_amount),
-                "coupon_id": (applied_coupon.id if applied_coupon else None),
-            }
-
-            return render(
-                request,
-                "checkout.html",
-                {
-                    "cart_items": cart_items,
-                    "addresses": addresses,
-                    "subtotal": subtotal,
-                    "shipping_charge": shipping_charge,
-                    "tax_amount": tax_amount,
-                    "discount_amount": discount_amount,
-                    "total_amount": total_amount,
-                    "open_razorpay": True,
-                    "selected_address_id": address_id,
-                },
+            return process_razorpay_payment(
+                **common_kwargs,
+                addresses=addresses,
+                address_id=address_id,
             )
-    coupon_discount = Decimal("0")
-    applied_coupon = None
 
-    coupon_id = request.session.get("coupon_id")
-
-    if coupon_id:
-
-        coupon = Coupon.objects.filter(
-            id=coupon_id
-        ).first()
-
-        if coupon:
-
-            applied_coupon = coupon.code
-
-            if coupon.discount_type == "PERCENTAGE":
-
-                coupon_discount = (
-                    amount_after_offer *
-                    coupon.discount_value
-                ) / 100
-
-                if (
-                    coupon.max_discount and
-                    coupon_discount >
-                    coupon.max_discount
-                ):
-                    coupon_discount = (
-                        coupon.max_discount
-                    )
-
-            else:
-
-                coupon_discount = (
-                    coupon.discount_value
-                )
-
-    total_amount = (
-        amount_after_offer -
-        coupon_discount
+    context = build_checkout_context(
+        request=request,
+        cart_items=cart_items,
+        addresses=addresses,
+        subtotal=subtotal,
+        offer_discount=offer_discount,
+        shipping_charge=SHIPPING_CHARGE,
+        tax_amount=TAX_AMOUNT,
+        coupons=coupons,
     )
-    wallet, created = Wallet.objects.get_or_create(user=request.user)
-
-    context = {
-        "cart_items": cart_items,
-        "addresses": addresses,
-        "subtotal": subtotal,
-        "shipping_charge": shipping_charge,
-        "tax_amount": tax_amount,
-        "discount_amount": discount_amount,
-        "total_amount": total_amount,
-        "amount_after_offer": amount_after_offer,
-        "wallet": wallet,
-        "coupons": coupons,
-        "offer_discount": offer_discount,
-        "applied_coupon": applied_coupon,
-        "coupon_discount": coupon_discount,
-    }
-
     return render(request, "checkout.html", context)
+
+def _apply_coupon_if_valid(coupon, user, amount_after_offer):
+ 
+    from decimal import Decimal
+
+    if not coupon:
+        return Decimal("0"), None
+
+    is_valid, discount_amount = validate_and_apply_coupon(
+        coupon, user, amount_after_offer
+    )
+
+    if is_valid:
+        return discount_amount, coupon
+
+    return Decimal("0"), None
 
 
 @user_required
@@ -767,7 +523,35 @@ def order_details(request, order_id):
 
         summary_offer_discount += item.offer_discount * item.quantity
 
-    summary_coupon_discount = order.discount_amount
+    active_items = order.items.filter(item_status="Active")
+
+    if active_items.exists():
+
+        active_total = sum(
+            item.total_price
+            for item in active_items
+        )
+
+        original_total = sum(
+            item.total_price
+            for item in order.items.all()
+        )
+
+        if original_total > 0:
+
+            summary_coupon_discount = (
+                order.discount_amount
+                * active_total
+                / original_total
+            ).quantize(Decimal("0.01"))
+
+        else:
+
+            summary_coupon_discount = 0
+
+    else:
+
+        summary_coupon_discount = 0
 
     summary_total = (
         summary_subtotal
@@ -775,7 +559,35 @@ def order_details(request, order_id):
         - summary_coupon_discount
         + order.shipping_charge
         + order.tax_amount
+    ).quantize(Decimal("0.01"))
+
+    all_items_price_sum = sum(
+        i.total_price for i in order.items.all()
     )
+
+    for item in order.items.all():
+
+        if all_items_price_sum > 0:
+
+            item.coupon_share = (
+                item.total_price * order.discount_amount
+            ) / all_items_price_sum
+
+            item.coupon_share = item.coupon_share.quantize(
+                Decimal("0.01")
+            )
+
+            item.final_paid_amount = (
+                item.total_price - item.coupon_share
+            ).quantize(
+                Decimal("0.01")
+            )
+
+        else:
+
+            item.coupon_share = 0
+
+            item.final_paid_amount = item.total_price
 
     context = {
         "order": order,
@@ -846,8 +658,6 @@ def cancel_order_item(request, item_id):
 
             wallet, created = Wallet.objects.get_or_create(user=order_item.order.user)
 
-            # Calculate proportional refund based on actual amount paid
-            # sum of total_price of all items (offer-discounted) at order time
             order = order_item.order
             all_items_price_sum = sum(
                 i.total_price for i in order.items.all()

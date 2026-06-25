@@ -429,6 +429,13 @@ body{
     color:#ef4444;
     margin-left:4px;
 }
+.input-error{ 
+    border:1px solid #ef4444 !important; 
+}
+.input-error:focus{ 
+    border-color:#ef4444 !important; 
+    box-shadow:0 0 0 2px rgba(239,68,68,.2); 
+}
 </style>
 </head>
 
@@ -469,6 +476,18 @@ body{
         <p class="sub">
             Create a new category for your products
         </p>
+
+{% if messages %}
+    {% for message in messages %}
+        <div class="error-box">
+            <span class="material-symbols-outlined">
+                error
+            </span>
+            {{ message }}
+        </div>
+    {% endfor %}
+{% endif %}
+
 
         <!-- FORM -->
 
@@ -515,12 +534,15 @@ body{
 
                 <label>CATEGORY NAME<span class="required">*</span></label>
 
-                <input
-                    type="text"
-                    name="name"
-                    placeholder="Enter category name..."
-                    required
-                >
+                <input type="text" name="name" 
+                placeholder="Enter category name..." 
+                value="{{ request.POST.name }}" 
+                class="{% if errors.category_name %}input-error{% endif %}" >
+
+                {% if errors.category_name %} 
+                <div class="error-box" style="margin-top:8px;"> 
+                    <span class="material-symbols-outlined"> error </span> {{ errors.category_name }} 
+                </div> {% endif %}
 
             </div>
 

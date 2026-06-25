@@ -860,42 +860,43 @@ class="invoice-btn"
 
                                     </h3>
 
-                                    <p>
+<p>
+    Size:
+    {{ item.variant.size }}
+</p>
 
-                                        Size:
-                                        {{ item.variant.size }}
+<p>
+    Quantity:
+    {{ item.quantity }}
+</p>
+<p>
+    Original Price :
+    ₹{{ item.original_price|floatformat:2 }}
+</p>
 
-                                    </p>
-
-                                    <p>
-
-                                        Quantity:
-                                        {{ item.quantity }}
-
-                                    </p>
-                                    {% if item.offer_name %}
+{% if item.offer_name %}
 
 <p>
     Offer :
     {{ item.offer_name }}
 </p>
 
-<p>
-    Original Price :
-    ₹{{ item.original_price }}
-</p>
-
 <p style="color:#16a34a;font-weight:600;">
-    Discount :
-    ₹{{ item.offer_discount }}
-</p>
-
-<p>
-    Final Price :
-    ₹{{ item.price }}
+    Offer Discount :
+    - ₹{{ item.offer_discount|floatformat:2 }}
 </p>
 
 {% endif %}
+
+<p style="color:#16a34a;font-weight:600;">
+    Coupon Share :
+    - ₹{{ item.coupon_share|floatformat:2 }}
+</p>
+
+<p style="font-weight:700;">
+    Paid Amount :
+    ₹{{ item.final_paid_amount|floatformat:2 }}
+</p>
 
                                 </div>
 
@@ -906,7 +907,7 @@ class="invoice-btn"
 
     <h2>
 
-        ₹{{ item.total_price }}
+        ₹{{ item.final_paid_amount|floatformat:2 }}
 
     </h2>
 
@@ -1151,7 +1152,7 @@ style="margin-top:15px;"
 
     <strong class="discount">
 
-        - ₹{{ summary_coupon_discount }}
+        - ₹{{ summary_coupon_discount|floatformat:2 }}
 
     </strong>
 

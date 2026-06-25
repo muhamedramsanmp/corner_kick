@@ -321,6 +321,7 @@ def logout_user(request):
 def change_password(request):
 
     if request.method == "POST":
+
         user = request.user
 
         old_password = request.POST.get("old_password", "").strip()
@@ -328,15 +329,46 @@ def change_password(request):
         confirm_password = request.POST.get("confirm_password", "").strip()
 
         if not user.check_password(old_password):
-            messages.error(request, "Current password is incorrect")
-            return redirect("userinfo:change_password")
-
-        if new_password != confirm_password:
-            messages.error(request, "Passwords do not match")
+            messages.error(
+                request,
+                "Current password is incorrect",
+                extra_tags="password",
+            )
             return redirect("userinfo:change_password")
 
         if not new_password:
-            messages.error(request, "New password cannot be empty")
+            messages.error(
+                request,
+                "New password cannot be empty",
+                extra_tags="password",
+            )
+            return redirect("userinfo:change_password")
+
+        password_errors = validate_password_strength(new_password)
+
+        if password_errors:
+            for error in password_errors:
+                messages.error(
+                    request,
+                    error,
+                    extra_tags="password",
+                )
+            return redirect("userinfo:change_password")
+
+        if new_password != confirm_password:
+            messages.error(
+                request,
+                "Passwords do not match",
+                extra_tags="password",
+            )
+            return redirect("userinfo:change_password")
+
+        if old_password == new_password:
+            messages.error(
+                request,
+                "New password cannot be the same as the current password.",
+                extra_tags="password",
+            )
             return redirect("userinfo:change_password")
 
         user.set_password(new_password)
@@ -345,12 +377,15 @@ def change_password(request):
         update_session_auth_hash(request, user)
 
         messages.success(
-            request, "Password updated successfully", extra_tags="password"
+            request,
+            "Password updated successfully.",
+            extra_tags="password",
         )
 
         return redirect("userinfo:profile")
 
     return render(request, "change_password.html")
+
 
 
 def forgot_password(request):

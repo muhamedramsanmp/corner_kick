@@ -624,3 +624,51 @@ def mark_reward_seen(request, reward_id):
         reward.save()
 
     return JsonResponse({"success": True})
+
+
+
+from django.contrib import messages
+from django.core.mail import send_mail
+from django.conf import settings
+from django.shortcuts import render, redirect
+
+from .models import ContactMessage
+
+
+def about_page(request):
+
+    if request.method == "POST":
+
+        name = request.POST.get("name")
+        email = request.POST.get("email")
+        phone = request.POST.get("phone")
+        user_message = request.POST.get("message")
+
+        ContactMessage.objects.create(
+            name=name,
+            email=email,
+            phone=phone,
+            message=user_message,
+        )
+
+        send_mail(
+            subject=f"Corner Kick Contact Form - {name}",
+            message=(
+                f"Name: {name}\n\n"
+                f"Email: {email}\n\n"
+                f"Phone: {phone}\n\n"
+                f"Message:\n{user_message}"
+            ),
+            from_email=settings.EMAIL_HOST_USER,
+            recipient_list=["cornerkick1010@gmail.com"],
+            fail_silently=False,
+        )
+
+        messages.success(
+            request,
+            "Your message has been sent successfully."
+        )
+
+        return redirect("about")
+
+    return render(request, "about.html")

@@ -184,9 +184,9 @@ def product_details(request, slug):
         offer_data = calculate_discounted_price(variant)
 
         variant_offer_data[str(variant.id)] = {
-            "original_price": str(offer_data["original_price"]),
-            "final_price": str(offer_data["final_price"]),
-            "discount_amount": str(offer_data["discount_amount"]),
+            "original_price": f"{offer_data['original_price']:.2f}",
+            "final_price": f"{offer_data['final_price']:.2f}",
+            "discount_amount": f"{offer_data['discount_amount']:.2f}",
             "offer_name": (
                 offer_data["offer"].offer_name if offer_data["offer"] else ""
             ),
@@ -231,6 +231,7 @@ def product_details(request, slug):
     approved_reviews = product.reviews.filter(
         status="approved"
     ).select_related("user")
+
     user_pending_review = None
 
     if request.user.is_authenticated:
@@ -248,11 +249,15 @@ def product_details(request, slug):
             user=request.user
         ).first()
 
-    user_review_notification = Review.objects.filter(
-        user=request.user,
-        product=product,
-        show_message=True
-    ).first()
+    user_review_notification = None
+
+    if request.user.is_authenticated:
+
+        user_review_notification = Review.objects.filter(
+            user=request.user,
+            product=product,
+            show_message=True
+        ).first()
 
     if user_review_notification:
 

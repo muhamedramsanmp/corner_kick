@@ -5,9 +5,6 @@ from .models import Offer
 
 
 def get_discount_amount(price, offer):
-    """
-    Calculate actual discount amount for an offer.
-    """
 
     if price < offer.min_purchase:
         return Decimal("0")
@@ -25,9 +22,6 @@ def get_discount_amount(price, offer):
 
 
 def get_best_offer(product, price):
-    """
-    Return the offer that gives the highest discount.
-    """
 
     today = timezone.now().date()
 
@@ -70,9 +64,6 @@ def get_best_offer(product, price):
 
 
 def calculate_discounted_price(variant):
-    """
-    Calculate final price after applying best offer.
-    """
 
     original_price = variant.price
 

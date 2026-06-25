@@ -169,13 +169,17 @@ def apply_coupon(request):
 
     if coupon.total_usage_limit:
 
-        total_used = Order.objects.filter(coupon=coupon).count()
+        total_used = Order.objects.filter(
+            coupon=coupon,
+            order_status__in=["Delivered", "Processing", "Shipped"]
+        ).count()
 
         if total_used >= coupon.total_usage_limit:
-
-            return JsonResponse(
-                {"success": False, "message": "Coupon usage limit reached"}
-            )
+            
+            return JsonResponse({
+                "success": False,
+                "message": "Coupon usage limit reached"
+            })
 
 
     if coupon.usage_limit_per_user:
@@ -212,7 +216,6 @@ def apply_coupon(request):
         if today > coupon.end_date:
 
             return JsonResponse({"success": False, "message": "Coupon has expired"})
-
 
     if coupon.min_purchase:
 
@@ -251,9 +254,12 @@ def apply_coupon(request):
     return JsonResponse(
         {
             "success": True,
-            "message": f"{coupon.code} applied successfully",
+            "message": (
+                f"{coupon.code} applied successfully. "
+                f"You saved ₹{discount:.2f}"
+            ),
             "coupon": coupon.code,
-            "discount": round(discount, 2),
-            "total": round(total, 2),
+            "discount": float(discount.quantize(Decimal("0.01"))),
+            "total": float(total.quantize(Decimal("0.01"))),
         }
     )

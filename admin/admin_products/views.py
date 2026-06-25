@@ -10,6 +10,34 @@ from .models import Product, Variant, ProductImage, Category
 from django.views.decorators.cache import never_cache
 from admin.decorators import admin_required
 
+import re
+
+def validate_product_name(product_name):
+    """
+    Allows only letters, numbers and spaces.
+    """
+    if not product_name or not product_name.strip():
+        return "Product name is required."
+
+    if not re.fullmatch(r"[A-Za-z0-9 ]+", product_name):
+        return "Product name must contain only letters, numbers, and spaces."
+
+    return None
+
+def validate_sku(sku):
+    """
+    SKU format: YEL-18-001
+    """
+
+    if not sku:
+        return "SKU is required."
+
+    pattern = r"^[A-Z]{3}-(?:[A-Z]{1,2}|\d{1,2})-\d{3}$"
+
+    if not re.fullmatch(pattern, sku):
+        return "SKU must be in the format BLK-M-001."
+
+    return None
 
 @never_cache
 @admin_required
@@ -86,9 +114,11 @@ def add_product(request):
 
     categories = Category.objects.filter(is_active=True, is_deleted=False)
 
+    errors = {}
+
     if request.method == "POST":
 
-        product_name = request.POST.get("product_name")
+        product_name = request.POST.get("product_name", "").strip()
         description = request.POST.get("description")
         category_id = request.POST.get("category")
 
@@ -99,14 +129,23 @@ def add_product(request):
 
         is_active = True if request.POST.get("is_active") else False
 
+        if not re.fullmatch(r"[A-Za-z0-9 ]+", product_name):
+            errors["product_name"] = "Product name must contain only letters, numbers and spaces."
+
         try:
-
             category = Category.objects.get(id=category_id)
-
         except Category.DoesNotExist:
+            errors["category"] = "Invalid category."
 
-            messages.error(request, "Invalid category")
-            return redirect("add_product")
+        if errors:
+            return render(
+                request,
+                "add_product.html",
+                {
+                    "categories": categories,
+                    "errors": errors,
+                },
+            )
 
         Product.objects.create(
             product_name=product_name,
@@ -120,7 +159,6 @@ def add_product(request):
         )
 
         messages.success(request, "Product added successfully")
-
         return redirect("admin_products:product_management")
 
     return render(
@@ -128,52 +166,57 @@ def add_product(request):
         "add_product.html",
         {
             "categories": categories,
+            "errors": {},
         },
     )
-
 
 @never_cache
 @admin_required
 def edit_product(request, product_id):
 
     product = get_object_or_404(Product, id=product_id, is_deleted=False)
-
     categories = Category.objects.filter(is_active=True, is_deleted=False)
+
+    errors = {}
 
     if request.method == "POST":
 
-        product.product_name = request.POST.get("product_name")
+        product_name = request.POST.get("product_name", "").strip()
 
-        product.description = request.POST.get("description")
-
-        product.description_fit = request.POST.get("description_fit")
-
-        product.materials = request.POST.get("materials")
-
-        product.care_guide = request.POST.get("care_guide")
-
-        product.delivery_returns = request.POST.get("delivery_returns")
+        error = validate_product_name(product_name)
+        if error:
+            errors["product_name"] = error
 
         category_id = request.POST.get("category")
 
-        product.is_active = True if request.POST.get("is_active") else False
-
         try:
-
             category = Category.objects.get(id=category_id)
-
-            product.category = category
-
         except Category.DoesNotExist:
+            errors["category"] = "Invalid category."
 
-            messages.error(request, "Invalid category")
+        if errors:
+            return render(
+                request,
+                "edit_product.html",
+                {
+                    "product": product,
+                    "categories": categories,
+                    "errors": errors,
+                },
+            )
 
-            return redirect("edit_product", product_id=product.id)
+        product.product_name = product_name
+        product.description = request.POST.get("description")
+        product.description_fit = request.POST.get("description_fit")
+        product.materials = request.POST.get("materials")
+        product.care_guide = request.POST.get("care_guide")
+        product.delivery_returns = request.POST.get("delivery_returns")
+        product.category = category
+        product.is_active = True if request.POST.get("is_active") else False
 
         product.save()
 
         messages.success(request, "Product updated successfully")
-
         return redirect("admin_products:product_management")
 
     return render(
@@ -182,9 +225,9 @@ def edit_product(request, product_id):
         {
             "product": product,
             "categories": categories,
+            "errors": {},
         },
     )
-
 
 @never_cache
 @login_required(login_url="login")
@@ -313,10 +356,10 @@ def add_variant(request, product_id):
 
             return render(request, "add_variant.html", context)
 
-        if not sku:
+        error = validate_sku(sku)
 
-            messages.error(request, "SKU is required", extra_tags="variant")
-
+        if error:
+            messages.error(request, error, extra_tags="variant")
             return render(request, "add_variant.html", context)
 
         if Variant.objects.filter(sku=sku, is_deleted=False).exists():
@@ -451,10 +494,10 @@ def edit_variant(request, variant_id):
 
             return redirect("admin_products:edit_variant", variant_id=variant.id)
 
-        if not sku:
+        error = validate_sku(sku)
 
-            messages.error(request, "SKU is required")
-
+        if error:
+            messages.error(request, error)
             return redirect("admin_products:edit_variant", variant_id=variant.id)
 
         if (

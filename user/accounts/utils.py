@@ -7,7 +7,9 @@ from user.user_wallet.models import Wallet, WalletTransaction
 from .models import Referral, ReferralReward
 from django.utils import timezone
 from user.user_orders.models import Order
-
+from django.conf import settings
+from django.core.mail import EmailMultiAlternatives
+from django.template.loader import render_to_string
 
 def generate_referral_code():
 
@@ -72,49 +74,51 @@ def credit_referral_reward(request, user, order):
 
 # utils.py
 
-from django.conf import settings
-from django.core.mail import send_mail
-
 
 def send_signup_otp(email, full_name, otp):
 
-    send_mail(
-        subject="Corner Kick - Email Verification OTP",
-        message=(
-            f"Hello {full_name},\n\n"
-            f"Welcome to Corner Kick.\n\n"
-            f"Your verification OTP is: {otp}\n\n"
-            f"OTP Expiry: 60 seconds\n\n"
-            f"Please do not share this OTP with anyone.\n\n"
-            f"Regards,\n"
-            f"Corner Kick Team"
-        ),
-        from_email=settings.EMAIL_HOST_USER,
-        recipient_list=[email],
-        fail_silently=False,
+    html_content = render_to_string(
+        "signup_otp.html",
+        {
+            "full_name": full_name,
+            "otp": otp,
+        },
     )
 
+    email_message = EmailMultiAlternatives(
+        subject="Corner Kick - Email Verification OTP",
+        body=f"Your OTP is {otp}",
+        from_email=settings.EMAIL_HOST_USER,
+        to=[email],
+    )
 
-from django.conf import settings
-from django.core.mail import send_mail
+    email_message.attach_alternative(
+        html_content,
+        "text/html"
+    )
+
+    email_message.send()
 
 
 def send_reset_password_otp(email, otp):
 
-    send_mail(
-        subject="Corner Kick - Password Reset OTP",
-        message=(
-            "Hello,\n\n"
-            "We received a request to reset your password.\n\n"
-            f"Your Password Reset OTP is: {otp}\n\n"
-            "OTP Expiry: 60 seconds\n\n"
-            "If you did not request a password reset, "
-            "please ignore this email.\n\n"
-            "Do not share this OTP with anyone.\n\n"
-            "Regards,\n"
-            "Corner Kick Team"
-        ),
-        from_email=settings.EMAIL_HOST_USER,
-        recipient_list=[email],
-        fail_silently=False,
+    html_content = render_to_string(
+        "reset_password_otp.html",
+        {
+            "otp": otp,
+        },
     )
+
+    email_message = EmailMultiAlternatives(
+        subject="Corner Kick - Password Reset OTP",
+        body=f"Your OTP is {otp}",
+        from_email=settings.EMAIL_HOST_USER,
+        to=[email],
+    )
+
+    email_message.attach_alternative(
+        html_content,
+        "text/html"
+    )
+
+    email_message.send()

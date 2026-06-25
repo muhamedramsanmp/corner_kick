@@ -521,7 +521,17 @@ body{
     box-shadow:
         0 12px 24px rgba(37,99,235,.30);
 }
+.form-control.is-invalid {
+    border: 2px solid #dc3545;
+}
 
+.error-text {
+    color: #dc3545;
+    font-size: 13px;
+    font-weight: 500;
+    margin-top: 5px;
+    display: block;
+}
 /* ================= MOBILE ================= */
 
 @media(max-width:768px){
@@ -628,7 +638,11 @@ body{
                 value="{{ product.product_name }}"
                 required
             >
-
+    {% if errors.product_name %}
+        <small class="error-text">
+            {{ errors.product_name }}
+        </small>
+    {% endif %}
         </div>
 
         <!-- CATEGORY -->

@@ -322,6 +322,12 @@ body{
     object-fit:cover;
     display:none;
 }
+.input-error{
+     border:1px solid #ef4444 !important; 
+}.input-error:focus{
+     border-color:#ef4444 !important;
+      box-shadow:0 0 0 2px rgba(239,68,68,.2); 
+}
 </style>
 </head>
 
@@ -371,14 +377,14 @@ body{
 
                 <label>CATEGORY NAME</label>
 
-                <input
-                    type="text"
-                    name="name"
-                    value="{{ category.category_name }}"
-                    placeholder="Enter category name..."
-                    required
-                >
+<input type="text" name="name" 
+value="{% if request.method == 'POST' %}{{ request.POST.name }}{% else %}{{ category.category_name }}{% endif %}"
+placeholder="Enter category name..." 
+class="{% if errors.category_name %}input-error{% endif %}" >
 
+{% if errors.category_name %} 
+<div class="error-box"> <span class="material-symbols-outlined"> error </span> 
+    {{ errors.category_name }} </div> {% endif %}
             </div>
 
             <!-- CATEGORY IMAGE -->
