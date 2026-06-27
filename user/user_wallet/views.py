@@ -1,19 +1,22 @@
-from django.core.paginator import Paginator
-from django.shortcuts import render, redirect
-from user.decorators import user_required
-from django.urls import reverse
-from decimal import Decimal
-from django.contrib import messages
-from .models import Wallet, WalletTransaction
-from admin.admin_coupon.models import Coupon, CouponUsage
-from user.user_orders.models import Order
 import json
-import razorpay
-from django.http import JsonResponse
-from django.conf import settings
-from django.utils import timezone
+from decimal import Decimal
 
+import razorpay
+from django.conf import settings
+from django.contrib import messages
+from django.core.paginator import Paginator
+from django.http import JsonResponse
+from django.shortcuts import redirect, render
+from django.urls import reverse
+from django.utils import timezone
 from django.views.decorators.http import require_POST
+
+from admin.admin_coupon.models import Coupon, CouponUsage
+from user.decorators import user_required
+from user.user_orders.models import Order
+
+from .models import Wallet, WalletTransaction
+
 
 @user_required
 def wallet_page(request):
@@ -101,7 +104,6 @@ def wallet_failed(request):
     return render(request, "wallet_failed.html", context)
 
 
-
 @require_POST
 @user_required
 def create_wallet_order(request):
@@ -147,7 +149,6 @@ def wallet_payment_success(request):
     return redirect(reverse("wallet_success") + f"?amount={amount}")
 
 
-
 @user_required
 def apply_coupon(request):
 
@@ -170,17 +171,14 @@ def apply_coupon(request):
     if coupon.total_usage_limit:
 
         total_used = Order.objects.filter(
-            coupon=coupon,
-            order_status__in=["Delivered", "Processing", "Shipped"]
+            coupon=coupon, order_status__in=["Delivered", "Processing", "Shipped"]
         ).count()
 
         if total_used >= coupon.total_usage_limit:
-            
-            return JsonResponse({
-                "success": False,
-                "message": "Coupon usage limit reached"
-            })
 
+            return JsonResponse(
+                {"success": False, "message": "Coupon usage limit reached"}
+            )
 
     if coupon.usage_limit_per_user:
 
@@ -192,7 +190,6 @@ def apply_coupon(request):
                 {"success": False, "message": "You have already used this coupon"}
             )
 
-
     if not coupon.is_active:
 
         return JsonResponse(
@@ -201,7 +198,6 @@ def apply_coupon(request):
 
     today = timezone.now().date()
 
-
     if coupon.start_date:
 
         if today < coupon.start_date:
@@ -209,7 +205,6 @@ def apply_coupon(request):
             return JsonResponse(
                 {"success": False, "message": f"Coupon starts on {coupon.start_date}"}
             )
-
 
     if coupon.end_date:
 
@@ -242,7 +237,6 @@ def apply_coupon(request):
 
         discount = Decimal(coupon.discount_value)
 
-
     if discount > subtotal:
 
         discount = subtotal
@@ -255,8 +249,7 @@ def apply_coupon(request):
         {
             "success": True,
             "message": (
-                f"{coupon.code} applied successfully. "
-                f"You saved ₹{discount:.2f}"
+                f"{coupon.code} applied successfully. " f"You saved ₹{discount:.2f}"
             ),
             "coupon": coupon.code,
             "discount": float(discount.quantize(Decimal("0.01"))),

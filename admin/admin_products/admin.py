@@ -1,12 +1,7 @@
-# products/admin.py
 
 from django.contrib import admin
 
-from .models import Product, Variant, ProductImage
-
-# =========================================================
-# PRODUCT IMAGE INLINE
-# =========================================================
+from .models import Product, ProductImage, Variant
 
 
 class ProductImageInline(admin.TabularInline):
@@ -16,11 +11,6 @@ class ProductImageInline(admin.TabularInline):
     extra = 1
 
 
-# =========================================================
-# VARIANT INLINE
-# =========================================================
-
-
 class VariantInline(admin.TabularInline):
 
     model = Variant
@@ -28,11 +18,6 @@ class VariantInline(admin.TabularInline):
     extra = 1
 
     fields = ("sku", "size", "color", "price", "stock", "is_active")
-
-
-# =========================================================
-# PRODUCT ADMIN
-# =========================================================
 
 
 @admin.register(Product)
@@ -57,11 +42,6 @@ class ProductAdmin(admin.ModelAdmin):
     inlines = [VariantInline]
 
 
-# =========================================================
-# VARIANT ADMIN
-# =========================================================
-
-
 @admin.register(Variant)
 class VariantAdmin(admin.ModelAdmin):
 
@@ -82,11 +62,6 @@ class VariantAdmin(admin.ModelAdmin):
     list_filter = ("is_active", "color", "size")
 
     inlines = [ProductImageInline]
-
-
-# =========================================================
-# PRODUCT IMAGE ADMIN
-# =========================================================
 
 
 @admin.register(ProductImage)

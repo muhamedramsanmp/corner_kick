@@ -1,51 +1,36 @@
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
-from django.contrib import messages
-from django.db import transaction
-from user.products.models import CartItem
-from user.addressinfo.models import Address
-from .models import Order, OrderItem
-from django.utils import timezone
-from django.core.paginator import Paginator
+import json
 import uuid
-from django.db.models import Q
-from user.decorators import user_required
-from django.template.loader import get_template
-from django.http import HttpResponse
-from xhtml2pdf import pisa
 from datetime import timedelta
 from decimal import Decimal
-from .models import OrderItem, ReturnRequest, ReturnItem
-from user.user_wallet.models import Wallet, WalletTransaction
-import uuid
+
 import razorpay
-from user.products.models import Cart,CartItem
-import json
-from django.http import JsonResponse
 from django.conf import settings
-from user.user_wallet.models import Wallet
-from admin.admin_coupon.models import Coupon
-from user.user_orders.models import Order, OrderItem
-from user.accounts.utils import credit_referral_reward
-from admin.admin_offer.utils import calculate_discounted_price
-from user.products.utils import remove_invalid_cart_items
-
-from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
+from django.db import transaction
+from django.db.models import Q
+from django.http import HttpResponse, JsonResponse
+from django.shortcuts import get_object_or_404, redirect, render
+from django.template.loader import get_template
+from django.utils import timezone
+from xhtml2pdf import pisa
+
+from admin.admin_coupon.models import Coupon
+from admin.admin_offer.utils import calculate_discounted_price
+from user.accounts.utils import credit_referral_reward
 from user.addressinfo.models import Address
-
+from user.decorators import user_required
+from user.products.models import Cart, CartItem
 from user.products.utils import remove_invalid_cart_items
-from .checkout_helpers import (
-    get_cart_summary,
-    resolve_coupon,
-    validate_and_apply_coupon,
-    process_cod_payment,
-    process_wallet_payment,
-    process_razorpay_payment,
-    build_checkout_context,
-)
+from user.user_orders.models import Order, OrderItem
+from user.user_wallet.models import Wallet, WalletTransaction
 
+from .checkout_helpers import (build_checkout_context, get_cart_summary,
+                               process_cod_payment, process_razorpay_payment,
+                               process_wallet_payment, resolve_coupon,
+                               validate_and_apply_coupon)
+from .models import Order, OrderItem, ReturnItem, ReturnRequest
 
 SHIPPING_CHARGE = 0
 TAX_AMOUNT = 0
@@ -57,9 +42,9 @@ def checkout_page(request):
     if cart:
         remove_invalid_cart_items(cart)
 
-    cart_items = CartItem.objects.filter(
-        cart__user=request.user
-    ).select_related("variant", "variant__product")
+    cart_items = CartItem.objects.filter(cart__user=request.user).select_related(
+        "variant", "variant__product"
+    )
 
     if not cart_items.exists():
         messages.error(request, "One or more products are no longer available.")
@@ -75,9 +60,9 @@ def checkout_page(request):
         if cart:
             remove_invalid_cart_items(cart)
 
-        cart_items = CartItem.objects.filter(
-            cart__user=request.user
-        ).select_related("variant", "variant__product")
+        cart_items = CartItem.objects.filter(cart__user=request.user).select_related(
+            "variant", "variant__product"
+        )
 
         if not cart_items.exists():
             messages.error(request, "One or more products are no longer available.")
@@ -92,7 +77,9 @@ def checkout_page(request):
             coupon, request.user, amount_after_offer
         )
 
-        total_amount = amount_after_offer - discount_amount + SHIPPING_CHARGE + TAX_AMOUNT
+        total_amount = (
+            amount_after_offer - discount_amount + SHIPPING_CHARGE + TAX_AMOUNT
+        )
 
         if not address_id:
             messages.error(request, "Please select address.")
@@ -150,8 +137,9 @@ def checkout_page(request):
     )
     return render(request, "checkout.html", context)
 
+
 def _apply_coupon_if_valid(coupon, user, amount_after_offer):
- 
+
     from decimal import Decimal
 
     if not coupon:
@@ -171,9 +159,8 @@ def _apply_coupon_if_valid(coupon, user, amount_after_offer):
 def create_razorpay_order(request):
 
     if request.method != "POST":
-        
+
         return JsonResponse({"success": False}, status=400)
-    
 
     data = json.loads(request.body)
 
@@ -194,7 +181,6 @@ def create_razorpay_order(request):
             "razorpay_order_id": razorpay_order["id"],
         }
     )
-    
 
 
 @user_required
@@ -264,8 +250,7 @@ def payment_success(request):
         try:
             coupon = Coupon.objects.get(id=coupon_id, is_active=True, is_deleted=False)
             amount_after_offer = subtotal - offer_discount
-            
-            # Re-validate
+
             today = timezone.now().date()
             is_valid = True
             if coupon.total_usage_limit:
@@ -273,7 +258,9 @@ def payment_success(request):
                 if total_used >= coupon.total_usage_limit:
                     is_valid = False
             if coupon.usage_limit_per_user:
-                user_used = Order.objects.filter(user=request.user, coupon=coupon).count()
+                user_used = Order.objects.filter(
+                    user=request.user, coupon=coupon
+                ).count()
                 if user_used >= coupon.usage_limit_per_user:
                     is_valid = False
             if coupon.start_date and today < coupon.start_date:
@@ -282,7 +269,7 @@ def payment_success(request):
                 is_valid = False
             if coupon.min_purchase and amount_after_offer < coupon.min_purchase:
                 is_valid = False
-                
+
             if is_valid:
                 applied_coupon = coupon
                 if coupon.discount_type == "PERCENTAGE":
@@ -291,10 +278,10 @@ def payment_success(request):
                         discount_amount = min(discount_amount, coupon.max_discount)
                 else:
                     discount_amount = coupon.discount_value
-                
+
                 if discount_amount > amount_after_offer:
                     discount_amount = amount_after_offer
-                    
+
                 discount_amount = Decimal(discount_amount)
         except Coupon.DoesNotExist:
             pass
@@ -527,22 +514,14 @@ def order_details(request, order_id):
 
     if active_items.exists():
 
-        active_total = sum(
-            item.total_price
-            for item in active_items
-        )
+        active_total = sum(item.total_price for item in active_items)
 
-        original_total = sum(
-            item.total_price
-            for item in order.items.all()
-        )
+        original_total = sum(item.total_price for item in order.items.all())
 
         if original_total > 0:
 
             summary_coupon_discount = (
-                order.discount_amount
-                * active_total
-                / original_total
+                order.discount_amount * active_total / original_total
             ).quantize(Decimal("0.01"))
 
         else:
@@ -561,9 +540,7 @@ def order_details(request, order_id):
         + order.tax_amount
     ).quantize(Decimal("0.01"))
 
-    all_items_price_sum = sum(
-        i.total_price for i in order.items.all()
-    )
+    all_items_price_sum = sum(i.total_price for i in order.items.all())
 
     for item in order.items.all():
 
@@ -573,13 +550,9 @@ def order_details(request, order_id):
                 item.total_price * order.discount_amount
             ) / all_items_price_sum
 
-            item.coupon_share = item.coupon_share.quantize(
-                Decimal("0.01")
-            )
+            item.coupon_share = item.coupon_share.quantize(Decimal("0.01"))
 
-            item.final_paid_amount = (
-                item.total_price - item.coupon_share
-            ).quantize(
+            item.final_paid_amount = (item.total_price - item.coupon_share).quantize(
                 Decimal("0.01")
             )
 
@@ -653,15 +626,12 @@ def cancel_order_item(request, item_id):
 
         order_item.variant.save()
 
-
         if order_item.order.payment_method in ["RAZORPAY", "WALLET"]:
 
             wallet, created = Wallet.objects.get_or_create(user=order_item.order.user)
 
             order = order_item.order
-            all_items_price_sum = sum(
-                i.total_price for i in order.items.all()
-            )
+            all_items_price_sum = sum(i.total_price for i in order.items.all())
             if all_items_price_sum > 0:
                 refund_amount = (
                     order_item.total_price * order.total_amount
@@ -736,15 +706,12 @@ def cancel_entire_order(request, order_id):
 
         active_items = order.items.filter(item_status="Active")
 
-        # Proportional refund: distribute order.total_amount across items
-        # by each item's share of the total offer-discounted item prices
         all_items_price_sum = sum(i.total_price for i in order.items.all())
 
         refund_amount = Decimal("0")
 
         for item in active_items:
 
-            # Proportional share of what was actually paid
             if all_items_price_sum > 0:
                 item_refund = (
                     item.total_price * order.total_amount
@@ -824,10 +791,8 @@ def return_single_item(request, item_id):
         return_reason = request.POST.get("return_reason")
 
         return_note = request.POST.get("return_note")
-        # Proportional refund based on actual paid amount
-        all_items_price_sum = sum(
-            i.total_price for i in order_item.order.items.all()
-        )
+
+        all_items_price_sum = sum(i.total_price for i in order_item.order.items.all())
 
         if all_items_price_sum <= 0:
 
@@ -897,7 +862,6 @@ def return_entire_order(request, order_id):
 
         items = order.items.filter(id__in=selected_items, item_status="Active")
 
-        # Proportional refund: each item's share of the actual paid total
         all_items_price_sum = sum(i.total_price for i in order.items.all())
 
         if all_items_price_sum <= 0:
@@ -906,14 +870,11 @@ def return_entire_order(request, order_id):
 
             return redirect("order_details", order_id=order.order_id)
 
-        # Pre-compute per-item refunds
         item_refunds = {}
         total_refund = Decimal("0")
         for item in items:
 
-            item_refund = (
-                item.total_price * order.total_amount
-            ) / all_items_price_sum
+            item_refund = (item.total_price * order.total_amount) / all_items_price_sum
 
             item_refund = item_refund.quantize(Decimal("0.01"))
 
@@ -1039,4 +1000,3 @@ def download_invoice(request, order_id):
     pisa.CreatePDF(html, dest=response)
 
     return response
-

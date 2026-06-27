@@ -1,18 +1,19 @@
-
 import uuid
-from django.shortcuts import render, redirect
-from django.db import transaction
-from .models import Order, OrderItem
-from django.utils import timezone
 from decimal import Decimal
-from user.user_wallet.models import Wallet, WalletTransaction
-from user.user_wallet.models import Wallet
-from admin.admin_coupon.models import Coupon
-from user.user_orders.models import Order, OrderItem
-from user.accounts.utils import credit_referral_reward
-from admin.admin_offer.utils import calculate_discounted_price
+
 from django.contrib import messages
+from django.db import transaction
+from django.shortcuts import redirect, render
+from django.utils import timezone
+
+from admin.admin_coupon.models import Coupon
 from admin.admin_offer.utils import calculate_discounted_price
+from user.accounts.utils import credit_referral_reward
+from user.user_orders.models import Order, OrderItem
+from user.user_wallet.models import Wallet, WalletTransaction
+
+from .models import Order, OrderItem
+
 
 def get_cart_summary(cart_items):
 
@@ -28,6 +29,7 @@ def get_cart_summary(cart_items):
         offer_discount += price_data["discount_amount"] * item.quantity
 
     return subtotal, offer_discount
+
 
 def validate_and_apply_coupon(coupon, user, amount_after_offer):
 
@@ -65,10 +67,10 @@ def validate_and_apply_coupon(coupon, user, amount_after_offer):
         else:
             discount_amount = Decimal(coupon.discount_value)
 
-        # Cap discount to avoid negative totals
         discount_amount = min(Decimal(discount_amount), amount_after_offer)
 
     return is_valid, discount_amount
+
 
 def resolve_coupon(request, coupon_code=None):
     coupon_id = request.session.get("coupon_id")
@@ -87,6 +89,7 @@ def resolve_coupon(request, coupon_code=None):
             pass
 
     return coupon
+
 
 def create_order_with_items(
     user,
@@ -139,6 +142,7 @@ def create_order_with_items(
 
     return order
 
+
 def process_cod_payment(
     request,
     cart_items,
@@ -171,6 +175,7 @@ def process_cod_payment(
         request.session.pop("coupon_id", None)
 
     return redirect("order_success", order_id=order.order_id)
+
 
 def process_wallet_payment(
     request,
@@ -228,6 +233,7 @@ def process_wallet_payment(
 
     return redirect("order_success", order_id=order.order_id)
 
+
 def process_razorpay_payment(
     request,
     cart_items,
@@ -240,7 +246,7 @@ def process_razorpay_payment(
     applied_coupon,
     address_id,
 ):
-    from django.shortcuts import render  
+    from django.shortcuts import render
 
     request.session["checkout_data"] = {
         "subtotal": str(subtotal),
@@ -264,6 +270,7 @@ def process_razorpay_payment(
             "selected_address_id": address_id,
         },
     )
+
 
 def build_checkout_context(
     request,

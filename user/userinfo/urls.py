@@ -1,4 +1,5 @@
 from django.urls import path
+
 from . import views
 
 app_name = "userinfo"
@@ -14,5 +15,9 @@ urlpatterns = [
     path("resend-otp/", views.resend_otp, name="resend_otp"),
     path("reset-password/", views.reset_password, name="reset_password"),
     path("change-email-verify/", views.change_email_verify, name="change_email_verify"),
-    path("resend-change-email-otp/",views.resend_change_email_otp,name="resend_change_email",),
+    path(
+        "resend-change-email-otp/",
+        views.resend_change_email_otp,
+        name="resend_change_email",
+    ),
 ]

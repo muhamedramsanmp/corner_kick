@@ -1,16 +1,18 @@
-from django.shortcuts import render, redirect, get_object_or_404
+import re
+
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.db.models import Q
-from django.contrib.auth.decorators import login_required
+from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.text import slugify
-from .models import Product, Variant, ProductImage
-from admin.admin_category.models import Category
-from django.contrib import messages
-from .models import Product, Variant, ProductImage, Category
 from django.views.decorators.cache import never_cache
+
+from admin.admin_category.models import Category
 from admin.decorators import admin_required
 
-import re
+from .models import Category, Product, ProductImage, Variant
+
 
 def validate_product_name(product_name):
     """
@@ -23,6 +25,7 @@ def validate_product_name(product_name):
         return "Product name must contain only letters, numbers, and spaces."
 
     return None
+
 
 def validate_sku(sku):
     """
@@ -38,6 +41,7 @@ def validate_sku(sku):
         return "SKU must be in the format BLK-M-001."
 
     return None
+
 
 @never_cache
 @admin_required
@@ -130,7 +134,9 @@ def add_product(request):
         is_active = True if request.POST.get("is_active") else False
 
         if not re.fullmatch(r"[A-Za-z0-9 ]+", product_name):
-            errors["product_name"] = "Product name must contain only letters, numbers and spaces."
+            errors["product_name"] = (
+                "Product name must contain only letters, numbers and spaces."
+            )
 
         try:
             category = Category.objects.get(id=category_id)
@@ -169,6 +175,7 @@ def add_product(request):
             "errors": {},
         },
     )
+
 
 @never_cache
 @admin_required
@@ -228,6 +235,7 @@ def edit_product(request, product_id):
             "errors": {},
         },
     )
+
 
 @never_cache
 @login_required(login_url="login")
@@ -576,9 +584,7 @@ def edit_variant(request, variant_id):
 
         variant.save()
 
-        existing_images = list(
-            variant.images.order_by("id")
-        )
+        existing_images = list(variant.images.order_by("id"))
 
         uploaded_images = request.FILES.getlist("images")
 

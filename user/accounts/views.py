@@ -1,48 +1,41 @@
-import re
-from django.shortcuts import render, redirect
-from django.contrib import messages
-from django.contrib.auth import get_user_model
-from django.contrib.auth import authenticate, login
-from django.contrib.auth.hashers import make_password
-from django.contrib.auth.decorators import login_required
-from django.views.decorators.cache import never_cache, cache_control
-from django.core.mail import send_mail
-import secrets
-from django.conf import settings
-from django.utils import timezone
-from .models import OTP
 import random
+import re
+import secrets
 import time
+
+from django.conf import settings
+from django.contrib import messages
+from django.contrib.auth import authenticate, get_user_model, login
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.hashers import make_password
 from django.contrib.messages import get_messages
+from django.core.mail import send_mail
+from django.core.paginator import Paginator
+from django.db.models import Sum
+from django.http import JsonResponse
+from django.shortcuts import redirect, render
+from django.utils import timezone
+from django.views.decorators.cache import cache_control, never_cache
+
 from admin.admin_category.models import Category
 from admin.admin_products.models import Product, Variant
 from user.decorators import user_required
-from .utils import generate_referral_code
-from .models import ReferralCode, Referral, ReferralReward
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import render
-from django.db.models import Sum
 from user.user_wallet.models import Wallet
-from django.http import JsonResponse
-from django.core.paginator import Paginator
-from .utils import send_signup_otp
-from .utils import send_reset_password_otp
+
+from .models import OTP, Referral, ReferralCode, ReferralReward
+from .utils import (generate_referral_code, send_reset_password_otp,
+                    send_signup_otp)
 
 User = get_user_model()
 
 
 import re
 
+
 def validate_full_name(full_name):
 
-    if not re.match(
-        r"^[A-Za-z]+(?: [A-Za-z]+)*$",
-        full_name
-    ):
-        return (
-            "Name must contain only letters "
-            "and spaces."
-        )
+    if not re.match(r"^[A-Za-z]+(?: [A-Za-z]+)*$", full_name):
+        return "Name must contain only letters " "and spaces."
 
     return None
 
@@ -51,7 +44,6 @@ def validate_password_strength(password):
 
     errors = []
 
-    # single strong password regex
     password_regex = r'^(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*(),.?":{}|<>]).{8,}$'
 
     if not re.match(password_regex, password):
@@ -87,7 +79,6 @@ def signup_view(request):
             "referral_code": referral_code,
         }
 
-        # required
         if not full_name:
             errors["full_name"] = "Full name is required"
         elif validate_full_name(full_name):
@@ -115,22 +106,13 @@ def signup_view(request):
             return render(request, "signup.html", {"errors": errors, "data": data})
         if referral_code:
 
-            referral_obj = ReferralCode.objects.filter(
-                code=referral_code
-            ).first()
+            referral_obj = ReferralCode.objects.filter(code=referral_code).first()
 
             if not referral_obj:
                 errors["referral_code"] = "Invalid referral code"
 
         if errors:
-            return render(
-                request,
-                "signup.html",
-                {
-                    "errors": errors,
-                    "data": data
-                }
-            )
+            return render(request, "signup.html", {"errors": errors, "data": data})
 
         otp = str(random.randint(100000, 999999))
 
@@ -145,11 +127,7 @@ def signup_view(request):
             "referral_code": referral_code,
         }
 
-        send_signup_otp(
-            email=email,
-            full_name=full_name,
-            otp=otp
-        )
+        send_signup_otp(email=email, full_name=full_name, otp=otp)
 
         return redirect("verify_signup_otp")
 
@@ -241,10 +219,7 @@ def forgot_password(request):
         request.session["reset_email"] = email
 
         try:
-            send_reset_password_otp(
-                email=email,
-                otp=otp
-            )
+            send_reset_password_otp(email=email, otp=otp)
         except Exception:
             messages.error(request, "Failed to send email.")
             return render(request, "forgotpassword.html")
@@ -317,7 +292,6 @@ def verify_otp(request):
 
             return render(request, "loginotpverify.html", {"time_left": time_left})
 
-      
         otp_obj.is_verified = True
 
         otp_obj.save()
@@ -345,10 +319,7 @@ def resend_otp(request):
 
     OTP.objects.create(email=email, code=otp, purpose="reset")
 
-    send_reset_password_otp(
-        email=email,
-        otp=otp
-    )
+    send_reset_password_otp(email=email, otp=otp)
 
     messages.success(request, "New OTP sent.")
     return redirect("verify_otp")
@@ -415,7 +386,6 @@ def verify_signup_otp(request):
     for _ in storage:
         pass
 
-
     data = request.session.get("signup_data")
 
     if not data:
@@ -449,7 +419,6 @@ def verify_signup_otp(request):
 
             return render(request, "signup_verify.html", {"time_left": time_left})
 
-
         otp_obj = (
             OTP.objects.filter(email=email, purpose="signup")
             .order_by("-created_at")
@@ -462,13 +431,11 @@ def verify_signup_otp(request):
 
             return render(request, "signup_verify.html", {"time_left": time_left})
 
-
         if otp_obj.is_expired():
 
             messages.error(request, "OTP expired. Please resend.", extra_tags="otp")
 
             return render(request, "signup_verify.html", {"time_left": 0})
-
 
         if entered_otp != otp_obj.code:
 
@@ -531,36 +498,17 @@ def resend_signup_otp(request):
 
     otp = str(random.randint(100000, 999999))
 
-    OTP.objects.filter(
-        email=email,
-        purpose="signup"
-    ).delete()
+    OTP.objects.filter(email=email, purpose="signup").delete()
 
-    OTP.objects.create(
-        email=email,
-        code=otp,
-        purpose="signup"
-    )
+    OTP.objects.create(email=email, code=otp, purpose="signup")
 
-    full_name = data.get(
-        "full_name",
-        ""
-    )
+    full_name = data.get("full_name", "")
 
-    send_signup_otp(
-        email=email,
-        full_name=full_name,
-        otp=otp
-    )
+    send_signup_otp(email=email, full_name=full_name, otp=otp)
 
-    messages.success(
-        request,
-        "New OTP sent successfully."
-    )
+    messages.success(request, "New OTP sent successfully.")
 
-    return redirect(
-        "verify_signup_otp"
-    )
+    return redirect("verify_signup_otp")
 
 
 @login_required
@@ -582,7 +530,6 @@ def referral_dashboard(request):
     page_number = request.GET.get("page")
 
     page_obj = paginator.get_page(page_number)
-    print(request.session.get("referral_reward"))
 
     reward_popup = request.session.pop("referral_reward", None)
 
@@ -626,11 +573,10 @@ def mark_reward_seen(request, reward_id):
     return JsonResponse({"success": True})
 
 
-
+from django.conf import settings
 from django.contrib import messages
 from django.core.mail import send_mail
-from django.conf import settings
-from django.shortcuts import render, redirect
+from django.shortcuts import redirect, render
 
 from .models import ContactMessage
 
@@ -664,10 +610,7 @@ def about_page(request):
             fail_silently=False,
         )
 
-        messages.success(
-            request,
-            "Your message has been sent successfully."
-        )
+        messages.success(request, "Your message has been sent successfully.")
 
         return redirect("about")
 

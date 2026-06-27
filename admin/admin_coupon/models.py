@@ -1,8 +1,10 @@
-from django.db import models
-from django.conf import settings
-from user.user_orders.models import Order
 import re
+
+from django.conf import settings
 from django.core.exceptions import ValidationError
+from django.db import models
+
+from user.user_orders.models import Order
 
 
 class Coupon(models.Model):

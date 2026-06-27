@@ -1,7 +1,8 @@
-from django.db import models
-from django.contrib.auth import get_user_model
-from django.utils import timezone
 from datetime import timedelta
+
+from django.contrib.auth import get_user_model
+from django.db import models
+from django.utils import timezone
 
 User = get_user_model()
 
@@ -13,7 +14,7 @@ class OTP(models.Model):
         ("reset", "Reset Password"),
     )
 
-    email = models.EmailField(null=True, blank=True)  # TEMP
+    email = models.EmailField(null=True, blank=True)
     code = models.CharField(max_length=6)
     purpose = models.CharField(max_length=20, choices=PURPOSE_CHOICES)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -40,16 +41,10 @@ class Profile(models.Model):
     )
 
     image = models.ImageField(upload_to="profiles/", blank=True, null=True)
-    phone = models.CharField(max_length=15, blank=True, null=True)  # 🔥 ADD THIS
+    phone = models.CharField(max_length=15, blank=True, null=True)
 
     def __str__(self):
         return self.user.email
-
-
-from django.db import models
-from django.contrib.auth import get_user_model
-
-User = get_user_model()
 
 
 class ReferralCode(models.Model):
@@ -121,7 +116,6 @@ class ReferralReward(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
 
-# models.py
 
 class ContactMessage(models.Model):
 

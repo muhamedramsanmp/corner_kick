@@ -1,9 +1,11 @@
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .models import Address
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import get_object_or_404, redirect, render
+
 from user.accounts.models import Profile
 from user.decorators import user_required
+
+from .models import Address
 
 
 @user_required
@@ -31,7 +33,6 @@ def add_address(request):
         address_type = request.POST.get("address_type", "").strip()
         is_default = True if request.POST.get("is_default") else False
 
-        # 🔥 VALIDATION (THIS IS WHAT YOU NEED)
         if not all([full_name, phone, pincode, state, city, address_line]):
             messages.error(request, "Please fill all fields.")
             return render(
@@ -48,7 +49,6 @@ def add_address(request):
                 },
             )
 
-        
         if len(phone) != 10:
             messages.error(request, "Enter a valid 10-digit phone number.")
             return render(request, "add_address.html")
@@ -57,13 +57,11 @@ def add_address(request):
             messages.error(request, "Enter a valid 6-digit pincode.")
             return render(request, "add_address.html")
 
-
         if is_default:
             Address.objects.filter(user=request.user, is_default=True).update(
                 is_default=False
             )
 
-        
         Address.objects.create(
             user=request.user,
             full_name=full_name,
@@ -115,7 +113,7 @@ def edit_address(request, id):
         address.city = request.POST.get("city")
         address.pincode = request.POST.get("pincode")
         address.state = request.POST.get("state")
-        address.country = request.POST.get("country")  # ✅ NOW VALID
+        address.country = request.POST.get("country")
         address.address_line = request.POST.get("address_line")
 
         address.address_type = request.POST.get("address_type") or "home"

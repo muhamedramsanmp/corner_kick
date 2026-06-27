@@ -1,15 +1,17 @@
 import random
 import string
 
-from .models import ReferralCode
-from django.contrib.sessions.backends.db import SessionStore
-from user.user_wallet.models import Wallet, WalletTransaction
-from .models import Referral, ReferralReward
-from django.utils import timezone
-from user.user_orders.models import Order
 from django.conf import settings
+from django.contrib.sessions.backends.db import SessionStore
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
+from django.utils import timezone
+
+from user.user_orders.models import Order
+from user.user_wallet.models import Wallet, WalletTransaction
+
+from .models import Referral, ReferralCode, ReferralReward
+
 
 def generate_referral_code():
 
@@ -92,10 +94,7 @@ def send_signup_otp(email, full_name, otp):
         to=[email],
     )
 
-    email_message.attach_alternative(
-        html_content,
-        "text/html"
-    )
+    email_message.attach_alternative(html_content, "text/html")
 
     email_message.send()
 
@@ -116,9 +115,6 @@ def send_reset_password_otp(email, otp):
         to=[email],
     )
 
-    email_message.attach_alternative(
-        html_content,
-        "text/html"
-    )
+    email_message.attach_alternative(html_content, "text/html")
 
     email_message.send()

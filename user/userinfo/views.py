@@ -1,34 +1,34 @@
-from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required
-from django.contrib import messages
-from django.views.decorators.cache import never_cache
-from django.contrib.auth import logout, get_user_model, update_session_auth_hash
-import re
-import random
 import os
+import random
+import re
 import secrets
-from django.core.mail import send_mail
+
 from django.conf import settings
-from .models import PasswordResetOTP
+from django.contrib import messages
+from django.contrib.auth import (get_user_model, logout,
+                                 update_session_auth_hash)
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.hashers import make_password
+from django.core.mail import send_mail
+from django.shortcuts import redirect, render
+from django.views.decorators.cache import never_cache
+
 from user.accounts.models import Profile
-from user.decorators import user_required
 from user.accounts.utils import send_reset_password_otp
+from user.decorators import user_required
+
+from .models import PasswordResetOTP
+
 User = get_user_model()
 
 
 def validate_full_name(full_name):
 
-    if not re.match(
-        r"^[A-Za-z]+(?: [A-Za-z]+)*$",
-        full_name
-    ):
-        return (
-            "Name must contain only letters "
-            "and spaces."
-        )
+    if not re.match(r"^[A-Za-z]+(?: [A-Za-z]+)*$", full_name):
+        return "Name must contain only letters " "and spaces."
 
     return None
+
 
 def validate_password_strength(password):
     errors = []
@@ -387,7 +387,6 @@ def change_password(request):
     return render(request, "change_password.html")
 
 
-
 def forgot_password(request):
     if request.method == "POST":
         email = request.POST.get("email", "").strip().lower()
@@ -408,10 +407,7 @@ def forgot_password(request):
         request.session["reset_email"] = email
 
         # send email
-        send_reset_password_otp(
-            email=email,
-            otp=otp
-        )
+        send_reset_password_otp(email=email, otp=otp)
 
         messages.success(request, "OTP sent to your email.")
         return redirect("userinfo:profile_verify_otp")
@@ -479,10 +475,7 @@ def resend_otp(request):
     PasswordResetOTP.objects.filter(user=user).delete()
     PasswordResetOTP.objects.create(user=user, otp=otp)
 
-    send_reset_password_otp(
-        email=email,
-        otp=otp
-    )
+    send_reset_password_otp(email=email, otp=otp)
 
     messages.success(request, "New OTP sent.")
     return redirect("userinfo:profile_verify_otp")
@@ -492,7 +485,6 @@ def resend_otp(request):
 def reset_password(request):
     email = request.session.get("reset_email")
 
-    # 🔴 If no session → restart flow
     if not email:
         return redirect("userinfo:forgot_password")
 
@@ -500,7 +492,6 @@ def reset_password(request):
 
     otp_obj = PasswordResetOTP.objects.filter(user=user, is_verified=True).first()
 
-    # 🔴 If OTP not verified → block
     if not otp_obj:
         messages.error(request, "OTP not verified.")
         return redirect("userinfo:profile_verify_otp")
@@ -517,11 +508,9 @@ def reset_password(request):
             messages.error(request, "Password must be at least 8 characters.")
             return render(request, "reset_password.html")
 
-        # ✅ Save password
         user.set_password(password)
         user.save()
 
-        # 🔴 CLEAN EVERYTHING (IMPORTANT)
         PasswordResetOTP.objects.filter(user=user).delete()
         request.session.flush()
 

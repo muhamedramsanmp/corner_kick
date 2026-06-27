@@ -1,13 +1,16 @@
-from django.shortcuts import render, redirect, get_object_or_404
-from .models import Category
-from django.contrib import messages
-from .models import Category
-from django.core.paginator import Paginator
-from django.db.models import Q, Count
-from django.contrib.auth.decorators import login_required
-from django.views.decorators.cache import never_cache
-from admin.decorators import admin_required
 import re
+
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
+from django.db.models import Count, Q
+from django.shortcuts import get_object_or_404, redirect, render
+from django.views.decorators.cache import never_cache
+
+from admin.decorators import admin_required
+
+from .models import Category
+
 
 def validate_category_name(category_name):
     """
@@ -23,6 +26,7 @@ def validate_category_name(category_name):
         return "Category name must contain only letters, numbers, and spaces."
 
     return None
+
 
 @never_cache
 @admin_required
@@ -68,7 +72,6 @@ def category_management(request):
     return render(request, "category_management.html", context)
 
 
-
 def add_category(request):
 
     errors = {}
@@ -80,14 +83,12 @@ def add_category(request):
         category_img = request.FILES.get("image")
         is_active = request.POST.get("is_active")
 
-        # Validation
         error = validate_category_name(category_name)
         if error:
             errors["category_name"] = error
 
         elif Category.objects.filter(
-            category_name__iexact=category_name,
-            is_deleted=False
+            category_name__iexact=category_name, is_deleted=False
         ).exists():
             errors["category_name"] = "Category already exists."
 
@@ -139,8 +140,7 @@ def edit_category(request, category_id):
 
         elif (
             Category.objects.filter(
-                category_name__iexact=category_name,
-                is_deleted=False
+                category_name__iexact=category_name, is_deleted=False
             )
             .exclude(id=category.id)
             .exists()

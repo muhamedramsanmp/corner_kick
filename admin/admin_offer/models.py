@@ -1,12 +1,17 @@
-from django.db import models
+import re
 
-from user.products.models import Product
-from admin.admin_category.models import Category
-from django.utils import timezone
 from django.core.exceptions import ValidationError
+from django.db import models
 from django.utils import timezone
 import re
 
+from django.core.exceptions import ValidationError
+from django.utils import timezone
+
+from admin.admin_category.models import Category
+from admin.admin_products.models import Product
+
+from admin.admin_category.models import Category
 
 class Offer(models.Model):
 
@@ -147,15 +152,6 @@ class CategoryOffer(models.Model):
 
         unique_together = ("offer", "category")
 
-    from django.db import models
-
-
-from user.products.models import Product
-from admin.admin_category.models import Category
-from django.utils import timezone
-from django.core.exceptions import ValidationError
-from django.utils import timezone
-import re
 
 
 class Offer(models.Model):

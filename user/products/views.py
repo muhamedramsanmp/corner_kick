@@ -1,23 +1,22 @@
-from django.shortcuts import render, redirect
-from django.core.paginator import Paginator
-from django.db.models import Q, Count
-from django.contrib import messages
-
-from admin.admin_products.models import Product
-from admin.admin_products.models import Variant, Product, ProductImage
-from admin.admin_category.models import Category
-from django.shortcuts import render, get_object_or_404
-from django.contrib.auth.decorators import login_required
-from .models import Cart, CartItem
-from .models import Wishlist
-from django.http import JsonResponse
-from django.db.models import Sum
-from user.decorators import user_required
-from admin.admin_offer.utils import calculate_discounted_price
 import json
-from .utils import remove_invalid_cart_items
+
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
+from django.db.models import Count, Q, Sum
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404, redirect, render
+
+from admin.admin_category.models import Category
+from admin.admin_offer.utils import calculate_discounted_price
+from admin.admin_products.models import Product, ProductImage, Variant
+from user.decorators import user_required
 from user.products.models import Review
 from user.user_orders.models import OrderItem
+
+from .models import Cart, CartItem, Wishlist
+from .utils import remove_invalid_cart_items
+
 
 def shop(request):
 
@@ -228,52 +227,38 @@ def product_details(request, slug):
 
     ordered_images = None
 
-    approved_reviews = product.reviews.filter(
-        status="approved"
-    ).select_related("user")
+    approved_reviews = product.reviews.filter(status="approved").select_related("user")
 
     user_pending_review = None
 
     if request.user.is_authenticated:
 
-        user_pending_review = product.reviews.filter(
-            user=request.user
-        ).exclude(
-            status="approved"
-        ).first()
+        user_pending_review = (
+            product.reviews.filter(user=request.user).exclude(status="approved").first()
+        )
     user_review = None
 
     if request.user.is_authenticated:
 
-        user_review = product.reviews.filter(
-            user=request.user
-        ).first()
+        user_review = product.reviews.filter(user=request.user).first()
 
     user_review_notification = None
 
     if request.user.is_authenticated:
 
         user_review_notification = Review.objects.filter(
-            user=request.user,
-            product=product,
-            show_message=True
+            user=request.user, product=product, show_message=True
         ).first()
 
     if user_review_notification:
 
         if user_review_notification.status == "approved":
 
-            messages.success(
-                request,
-                user_review_notification.review_message
-            )
+            messages.success(request, user_review_notification.review_message)
 
         elif user_review_notification.status == "rejected":
 
-            messages.error(
-                request,
-                user_review_notification.review_message
-            )
+            messages.error(request, user_review_notification.review_message)
 
         user_review_notification.show_message = False
 
@@ -287,9 +272,11 @@ def product_details(request, slug):
         "related_products": related_products,
         "variant_offer_data": variant_offer_data,
         "approved_reviews": approved_reviews,
-        "can_review": product.can_user_review(request.user)
-        if request.user.is_authenticated
-        else False,   
+        "can_review": (
+            product.can_user_review(request.user)
+            if request.user.is_authenticated
+            else False
+        ),
         "is_wishlisted": (
             Wishlist.objects.filter(user=request.user, product=product).exists()
             if request.user.is_authenticated
@@ -299,7 +286,6 @@ def product_details(request, slug):
         "user_pending_review": user_pending_review,
     }
     return render(request, "product_details.html", context)
-
 
 
 @login_required(login_url="login")
@@ -320,10 +306,7 @@ def add_review(request, product_id):
 
     if not rating:
         messages.error(request, "Please select a rating.")
-        return redirect(
-            "user_products:product_details",
-            slug=product.slug
-        )
+        return redirect("user_products:product_details", slug=product.slug)
 
     existing_review = Review.objects.filter(
         user=request.user,
@@ -332,22 +315,20 @@ def add_review(request, product_id):
 
     if not existing_review and not product.can_user_review(request.user):
 
-        messages.error(
-            request,
-            "You cannot review this product."
-        )
+        messages.error(request, "You cannot review this product.")
 
-        return redirect(
-            "user_products:product_details",
-            slug=product.slug
+        return redirect("user_products:product_details", slug=product.slug)
+
+    order_item = (
+        OrderItem.objects.filter(
+            order__user=request.user,
+            order__order_status="Delivered",
+            product=product,
         )
-    
-    order_item = OrderItem.objects.filter(
-        order__user=request.user,
-        order__order_status="Delivered",
-        product=product,
-    ).order_by("-id").first()
-    
+        .order_by("-id")
+        .first()
+    )
+
     if existing_review:
 
         existing_review.rating = int(rating)
@@ -357,10 +338,7 @@ def add_review(request, product_id):
         existing_review.status = "pending"
 
         existing_review.save()
-        messages.success(
-            request,
-            "Review updated successfully and awaiting approval."
-        )
+        messages.success(request, "Review updated successfully and awaiting approval.")
 
     else:
 
@@ -374,38 +352,25 @@ def add_review(request, product_id):
         )
 
         messages.success(
-            request,
-            "Review submitted successfully and awaiting approval."
+            request, "Review submitted successfully and awaiting approval."
         )
 
+    return redirect("user_products:product_details", slug=product.slug)
 
-    return redirect(
-        "user_products:product_details",
-        slug=product.slug
-    )
 
 @login_required
 def delete_review(request, review_id):
 
-    review = get_object_or_404(
-        Review,
-        id=review_id,
-        user=request.user
-    )
+    review = get_object_or_404(Review, id=review_id, user=request.user)
 
     product_slug = review.product.slug
 
     review.delete()
 
-    messages.success(
-        request,
-        "Review deleted successfully."
-    )
+    messages.success(request, "Review deleted successfully.")
 
-    return redirect(
-        "user_products:product_details",
-        slug=product_slug
-    )
+    return redirect("user_products:product_details", slug=product_slug)
+
 
 @login_required(login_url="login")
 def add_to_cart(request):
@@ -593,40 +558,29 @@ def cart(request):
 
 @login_required(login_url="login")
 def update_cart_quantity(request, item_id):
-    cart_item = CartItem.objects.filter(
-        id=item_id,
-        cart__user=request.user
-    ).first()
+    cart_item = CartItem.objects.filter(id=item_id, cart__user=request.user).first()
 
     if not cart_item:
 
-        return JsonResponse({
-            "success": False,
-            "message": "Cart item not found"
-        })
+        return JsonResponse({"success": False, "message": "Cart item not found"})
 
-    remove_invalid_cart_items(
-        cart_item.cart
-    )
+    remove_invalid_cart_items(cart_item.cart)
 
-    cart_item = CartItem.objects.filter(
-        id=item_id,
-        cart__user=request.user
-    ).first()
+    cart_item = CartItem.objects.filter(id=item_id, cart__user=request.user).first()
 
     if not cart_item:
 
-        return JsonResponse({
-            "success": False,
-            "removed": True,
-            "message": "Product is no longer available"
-        })
+        return JsonResponse(
+            {
+                "success": False,
+                "removed": True,
+                "message": "Product is no longer available",
+            }
+        )
 
     price_data = calculate_discounted_price(cart_item.variant)
 
     final_price = price_data["final_price"]
-
-    # Current cart total (for validation responses)
 
     cart_total = 0
 
@@ -687,7 +641,6 @@ def update_cart_quantity(request, item_id):
     elif action == "decrease":
 
         if cart_item.quantity <= 1:
-            # cart_item.delete()
 
             return JsonResponse(
                 {
@@ -713,7 +666,6 @@ def update_cart_quantity(request, item_id):
 
         return JsonResponse({"success": False, "message": "Invalid action"})
 
-    # Recalculate totals AFTER update
 
     subtotal = 0
     total_discount = 0
@@ -731,9 +683,7 @@ def update_cart_quantity(request, item_id):
     total = subtotal - total_discount
 
     cart_count = (
-        CartItem.objects.filter(
-            cart__user=request.user
-        ).aggregate(
+        CartItem.objects.filter(cart__user=request.user).aggregate(
             total=Sum("quantity")
         )["total"]
         or 0
@@ -781,9 +731,7 @@ def remove_cart_item(request, item_id):
 
         subtotal += original_total
 
-        total_discount += (
-            price_data["discount_amount"] * item.quantity
-        )
+        total_discount += price_data["discount_amount"] * item.quantity
 
     total = subtotal - total_discount
 
@@ -857,14 +805,12 @@ def wishlist_page(request):
 
     sort = request.GET.get("sort", "")
 
-    # Remove wishlist items whose product/category is inactive
     Wishlist.objects.filter(user=request.user).filter(
         Q(product__is_deleted=True)
         | Q(product__is_active=False)
         | Q(product__category__is_active=False)
     ).delete()
 
-    # Remove wishlist items whose product has no active variants
     Wishlist.objects.filter(user=request.user).annotate(
         active_variants=Count(
             "product__variants", filter=Q(product__variants__is_active=True)
@@ -1005,4 +951,3 @@ def wishlist_to_cart(request, product_id):
             "wishlist_count": wishlist_count,
         }
     )
-

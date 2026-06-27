@@ -1,19 +1,15 @@
-from django.shortcuts import render
+from django.contrib import messages
 from django.core.paginator import Paginator
-from django.db.models import Sum
-from user.user_orders.models import Order
-from django.shortcuts import render, get_object_or_404, redirect
-from django.contrib import messages
+from django.db.models import Q, Sum
+from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
-from django.db.models import Q
-from user.user_orders.models import ReturnRequest, ReturnItem
-from admin.decorators import admin_required
-from user.user_wallet.models import Wallet, WalletTransaction
-from user.accounts.utils import credit_referral_reward
-from django.contrib import messages
-from django.shortcuts import get_object_or_404, redirect
 
+from admin.decorators import admin_required
+from user.accounts.utils import credit_referral_reward
 from user.products.models import Review
+from user.user_orders.models import Order, ReturnItem, ReturnRequest
+from user.user_wallet.models import Wallet, WalletTransaction
+
 
 @admin_required
 def order_management(request):
@@ -161,8 +157,8 @@ def admin_order_view(request, order_id):
 
 
 from django.http import HttpResponse
-from reportlab.pdfgen import canvas
 from reportlab.lib.units import inch
+from reportlab.pdfgen import canvas
 
 
 @admin_required
@@ -365,8 +361,6 @@ def return_request_details(request, request_id):
 
             order.save()
 
-            # WALLET REFUND
-
             if (
                 return_request.refund_method == "Store Wallet"
                 and return_request.return_status == "approved"
@@ -389,19 +383,13 @@ def return_request_details(request, request_id):
                     ),
                 )
 
-            # UPDATE ITEMS
-
             for item in return_request.items.all():
 
                 order_item = item.order_item
 
-                # ITEM STATUS
-
                 order_item.item_status = "Returned"
 
                 order_item.save()
-
-                # RESTORE STOCK
 
                 variant = order_item.variant
 
@@ -433,27 +421,25 @@ def return_request_details(request, request_id):
 
     return render(request, "return_request_details.html", context)
 
-from django.db.models import Avg, Q
 
 from django.core.paginator import Paginator
+from django.db.models import Avg, Q
+
 
 def review_management(request):
 
-    reviews = Review.objects.select_related(
-        "user",
-        "product"
-    ).order_by("-created_at")
+    reviews = Review.objects.select_related("user", "product").order_by("-created_at")
 
     query = request.GET.get("q", "").strip()
 
     if query:
         reviews = reviews.filter(
-            Q(user__username__icontains=query) |
-            Q(product__product_name__icontains=query) |
-            Q(review_text__icontains=query)
+            Q(user__username__icontains=query)
+            | Q(product__product_name__icontains=query)
+            | Q(review_text__icontains=query)
         )
 
-    paginator = Paginator(reviews, 5)  # 10 reviews per page
+    paginator = Paginator(reviews, 5)  
 
     page_number = request.GET.get("page")
 
@@ -461,20 +447,11 @@ def review_management(request):
 
     total_reviews = Review.objects.count()
 
-    pending_reviews = Review.objects.filter(
-        status="pending"
-    ).count()
+    pending_reviews = Review.objects.filter(status="pending").count()
 
-    rejected_reviews = Review.objects.filter(
-        status="rejected"
-    ).count()
+    rejected_reviews = Review.objects.filter(status="rejected").count()
 
-    average_rating = round(
-        Review.objects.aggregate(
-            avg=Avg("rating")
-        )["avg"] or 0,
-        1
-    )
+    average_rating = round(Review.objects.aggregate(avg=Avg("rating"))["avg"] or 0, 1)
 
     context = {
         "reviews": reviews,
@@ -485,60 +462,36 @@ def review_management(request):
         "average_rating": average_rating,
     }
 
-    return render(
-        request,
-        "review_management.html",
-        context
-    )
+    return render(request, "review_management.html", context)
 
 
 def approve_review(request, review_id):
 
-    review = get_object_or_404(
-        Review,
-        id=review_id
-    )
+    review = get_object_or_404(Review, id=review_id)
 
     review.status = "approved"
-
 
     review.review_message = "Your review has been approved."
     review.show_message = True
 
     review.save()
 
-    messages.success(
-        request,
-        "Review approved successfully."
-    )
+    messages.success(request, "Review approved successfully.")
 
-    return redirect(
-        "review_management"
-    )
-
+    return redirect("review_management")
 
 
 def reject_review(request, review_id):
 
-    review = get_object_or_404(
-        Review,
-        id=review_id
-    )
+    review = get_object_or_404(Review, id=review_id)
 
     review.status = "rejected"
 
     review.review_message = "Your review has been rejected."
     review.show_message = True
-    
+
     review.save()
 
-    messages.success(
-        request,
-        "Review rejected successfully."
-    )
+    messages.success(request, "Review rejected successfully.")
 
-    return redirect(
-        "review_management"
-    )
-
-
+    return redirect("review_management")

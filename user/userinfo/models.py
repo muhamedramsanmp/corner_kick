@@ -1,7 +1,8 @@
-from django.db import models
-from django.contrib.auth import get_user_model
-from django.utils import timezone
 from datetime import timedelta
+
+from django.contrib.auth import get_user_model
+from django.db import models
+from django.utils import timezone
 
 User = get_user_model()
 
@@ -14,11 +15,9 @@ class PasswordResetOTP(models.Model):
     is_verified = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
-    # 🔥 FIXED → 60 seconds
     def is_expired(self):
         return timezone.now() > self.created_at + timedelta(seconds=60)
 
-    # 🔥 FIXED → 60 seconds
     def time_left(self):
         expire_time = self.created_at + timedelta(seconds=60)
         remaining = (expire_time - timezone.now()).total_seconds()

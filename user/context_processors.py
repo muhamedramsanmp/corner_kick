@@ -1,6 +1,5 @@
 from user.accounts.models import Profile
-from user.products.models import CartItem
-from user.products.models import Wishlist
+from user.products.models import CartItem, Wishlist
 
 
 def user_profile(request):

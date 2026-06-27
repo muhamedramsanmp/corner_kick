@@ -1,4 +1,5 @@
 from django.urls import path
+
 from . import views
 
 urlpatterns = [
@@ -12,6 +13,8 @@ urlpatterns = [
     path("reset-password/", views.reset_password, name="reset_password"),
     path("resend-signup-otp/", views.resend_signup_otp, name="resend_signup_otp"),
     path("referral/", views.referral_dashboard, name="referral_dashboard"),
-    path("reward-seen/<int:reward_id>/", views.mark_reward_seen, name="mark_reward_seen"),
+    path(
+        "reward-seen/<int:reward_id>/", views.mark_reward_seen, name="mark_reward_seen"
+    ),
     path("about/", views.about_page, name="about"),
 ]

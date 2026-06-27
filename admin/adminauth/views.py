@@ -1,32 +1,24 @@
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth import authenticate, login
-from django.contrib import messages
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth import get_user_model
-from django.core.paginator import Paginator
-from django.utils import timezone
-from django.db.models import Q
-from django.views.decorators.cache import never_cache
-from django.contrib.auth import logout
-from admin.decorators import admin_required
-from django.db.models.functions import TruncMonth
-from django.db.models import Sum
-from django.db.models import Count
 from datetime import timedelta
-from user.user_orders.models import (
-    Order,
-    OrderItem,
-    ReturnRequest,
-    ReturnItem,
-)
-from admin.admin_products.models import Product, Variant
-from admin.admin_category.models import Category
-from openpyxl import Workbook
+from io import BytesIO
+
+from django.contrib import messages
+from django.contrib.auth import authenticate, get_user_model, login, logout
+from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
+from django.db.models import Count, Q, Sum
+from django.db.models.functions import TruncMonth
 from django.http import HttpResponse
+from django.shortcuts import get_object_or_404, redirect, render
+from django.utils import timezone
+from django.views.decorators.cache import never_cache
+from openpyxl import Workbook
+from reportlab.lib import colors
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
 
-from reportlab.lib import colors
-from io import BytesIO
+from admin.admin_category.models import Category
+from admin.admin_products.models import Product, Variant
+from admin.decorators import admin_required
+from user.user_orders.models import Order, OrderItem, ReturnItem, ReturnRequest
 
 User = get_user_model()
 
@@ -60,8 +52,8 @@ def admin_login(request):
     return render(request, "admin_login.html")
 
 
-from django.db.models import Sum
 from django.contrib.auth import get_user_model
+from django.db.models import Sum
 
 User = get_user_model()
 
@@ -70,14 +62,20 @@ User = get_user_model()
 @admin_required
 def admin_dashboard(request):
     import json
-    from django.db.models.functions import TruncDay, TruncWeek, TruncMonth, TruncYear
 
-    total_revenue = Order.objects.filter(payment_status="Paid").aggregate(total=Sum("total_amount"))["total"] or 0
+    from django.db.models.functions import (TruncDay, TruncMonth, TruncWeek,
+                                            TruncYear)
+
+    total_revenue = (
+        Order.objects.filter(payment_status="Paid").aggregate(
+            total=Sum("total_amount")
+        )["total"]
+        or 0
+    )
     total_orders = Order.objects.count()
     active_users = User.objects.filter(is_active=True, is_superuser=False).count()
     pending_orders = Order.objects.filter(order_status="Pending").count()
 
-    # ── Chart filter ───────────────────────────────────────────────────────────
     chart_filter = request.GET.get("chart_filter", "monthly")
     today = timezone.now()
 
@@ -95,7 +93,7 @@ def admin_dashboard(request):
         orders_qs = Order.objects.filter(payment_status="Paid")
         trunc_fn = TruncYear("created_at")
         label_fmt = "%Y"
-    else:  # monthly (default)
+    else:  
         orders_qs = Order.objects.filter(payment_status="Paid")
         trunc_fn = TruncMonth("created_at")
         label_fmt = "%b %Y"
@@ -112,7 +110,6 @@ def admin_dashboard(request):
         chart_labels.append(row["period"].strftime(label_fmt))
         chart_revenue.append(float(row["revenue"]))
 
-    # ── Top 10 Best-Selling Products ──────────────────────────────────────────
     top_products = (
         OrderItem.objects.values(
             "product__id",
@@ -124,8 +121,9 @@ def admin_dashboard(request):
         )
         .order_by("-total_qty")[:10]
     )
-    # Attach primary image for each top product
+    
     from admin.admin_products.models import Variant as V
+
     top_products_display = []
     for i, p in enumerate(top_products):
         variant = (
@@ -133,15 +131,16 @@ def admin_dashboard(request):
             .select_related()
             .first()
         )
-        top_products_display.append({
-            "rank": i + 1,
-            "name": p["product__product_name"],
-            "total_qty": p["total_qty"],
-            "total_revenue": p["total_revenue"],
-            "image": variant.primary_image if variant else None,
-        })
+        top_products_display.append(
+            {
+                "rank": i + 1,
+                "name": p["product__product_name"],
+                "total_qty": p["total_qty"],
+                "total_revenue": p["total_revenue"],
+                "image": variant.primary_image if variant else None,
+            }
+        )
 
-    # ── Top 10 Best-Selling Categories ───────────────────────────────────────
     top_categories = (
         OrderItem.objects.values(
             "product__category__id",
@@ -156,19 +155,16 @@ def admin_dashboard(request):
     top_categories_display = []
     for i, c in enumerate(top_categories):
         cat = Category.objects.filter(id=c["product__category__id"]).first()
-        top_categories_display.append({
-            "rank": i + 1,
-            "name": c["product__category__category_name"],
-            "total_qty": c["total_qty"],
-            "total_revenue": c["total_revenue"],
-            "image": cat.category_img.url if cat and cat.category_img else None,
-        })
+        top_categories_display.append(
+            {
+                "rank": i + 1,
+                "name": c["product__category__category_name"],
+                "total_qty": c["total_qty"],
+                "total_revenue": c["total_revenue"],
+                "image": cat.category_img.url if cat and cat.category_img else None,
+            }
+        )
 
-    # ── Top 10 Best-Selling Brands (using category as brand proxy) ────────────
-    # Since no separate brand model exists, we group by product name prefix word
-    # (i.e. brand = first word of product_name, e.g. "Nike Air" → "Nike")
-    from django.db.models import CharField
-    from django.db.models.functions import Substr, StrIndex, Coalesce
     top_brands_raw = (
         OrderItem.objects.values("product__category__category_name")
         .annotate(
@@ -179,23 +175,23 @@ def admin_dashboard(request):
     )
     top_brands_display = []
     for i, b in enumerate(top_brands_raw):
-        top_brands_display.append({
-            "rank": i + 1,
-            "name": b["product__category__category_name"],
-            "total_qty": b["total_qty"],
-            "total_revenue": b["total_revenue"],
-        })
+        top_brands_display.append(
+            {
+                "rank": i + 1,
+                "name": b["product__category__category_name"],
+                "total_qty": b["total_qty"],
+                "total_revenue": b["total_revenue"],
+            }
+        )
 
     context = {
         "total_revenue": total_revenue,
         "total_orders": total_orders,
         "active_users": active_users,
         "pending_orders": pending_orders,
-        # chart
         "chart_labels": json.dumps(chart_labels),
         "chart_revenue": json.dumps(chart_revenue),
         "chart_filter": chart_filter,
-        # top lists
         "top_products": top_products_display,
         "top_categories": top_categories_display,
         "top_brands": top_brands_display,
@@ -215,7 +211,6 @@ def sales_report(request):
 
     orders = Order.objects.all()
 
-    # Period filter
     if period == "daily":
 
         orders = orders.filter(created_at__date=today)
@@ -234,7 +229,6 @@ def sales_report(request):
 
         orders = orders.filter(created_at__year=today.year)
 
-    # Custom date range
     if start_date and end_date:
 
         orders = orders.filter(created_at__date__range=[start_date, end_date])
@@ -491,7 +485,7 @@ def export_sales_pdf(request):
 
 @never_cache
 def admin_logout(request):
-    logout(request)  # ✅ clears session
+    logout(request)  
     messages.success(request, "You have been logged out successfully")
     return redirect("admin_login")
 
@@ -505,7 +499,6 @@ def user_management(request):
 
     users_list = User.objects.filter(is_staff=False).order_by("-id")
 
-    # 🔥 IMPROVED SEARCH (multi-field + startswith behavior)
     if query:
         users_list = users_list.filter(
             Q(username__istartswith=query)
@@ -525,7 +518,6 @@ def user_management(request):
     page_number = request.GET.get("page")
     users = paginator.get_page(page_number)
 
-    # stats based on filtered result
     total_users = users_list.count()
     active_users = users_list.filter(is_active=True).count()
     banned_users = users_list.filter(is_active=False).count()
@@ -538,7 +530,7 @@ def user_management(request):
         "user_management.html",
         {
             "users": users,
-            "query": query,  # 🔥 IMPORTANT (to keep value in search box)
+            "query": query,  
             "total_users": total_users,
             "active_users": active_users,
             "banned_users": banned_users,
@@ -558,7 +550,6 @@ def toggle_user_status(request, user_id):
     user.is_active = not user.is_active
     user.save()
 
-    # 👇 Better message (with user info)
     name = f"{user.first_name} {user.last_name}".strip() or user.email
 
     if user.is_active:

@@ -1,16 +1,16 @@
-from django.shortcuts import render, redirect
-from django.core.paginator import Paginator
-from django.db.models import Q
-from django.utils import timezone
-from admin.decorators import admin_required
-from .models import Offer
 from django.contrib import messages
-from .models import Offer, OfferProduct, CategoryOffer
-from user.products.models import Product
-from admin.admin_category.models import Category
-from django.db import transaction
-from django.shortcuts import get_object_or_404
 from django.core.exceptions import ValidationError
+from django.core.paginator import Paginator
+from django.db import transaction
+from django.db.models import Q
+from django.shortcuts import get_object_or_404, redirect, render
+from django.utils import timezone
+
+from admin.admin_category.models import Category
+from admin.decorators import admin_required
+from user.products.models import Product
+
+from .models import CategoryOffer, Offer, OfferProduct
 
 
 @admin_required

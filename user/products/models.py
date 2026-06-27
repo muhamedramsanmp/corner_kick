@@ -1,11 +1,11 @@
-from django.utils.text import slugify
-from django.db import models
 from django.conf import settings
-from admin.admin_products.models import Variant, Product
+from django.core.validators import MaxValueValidator, MinValueValidator
+from django.db import models
+from django.utils.text import slugify
+
 from admin.admin_offer.utils import calculate_discounted_price
+from admin.admin_products.models import Product, Variant
 from user.user_orders.models import Order
-from admin.admin_products.models import Product
-from django.core.validators import MinValueValidator, MaxValueValidator
 
 
 def save(self, *args, **kwargs):
@@ -101,7 +101,6 @@ class Wishlist(models.Model):
         return f"{self.user} - {self.product.product_name}"
 
 
-
 class Review(models.Model):
 
     STATUS_CHOICES = (
@@ -111,22 +110,14 @@ class Review(models.Model):
     )
 
     user = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-        related_name="reviews"
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="reviews"
     )
 
     product = models.ForeignKey(
-        Product,
-        on_delete=models.CASCADE,
-        related_name="reviews"
+        Product, on_delete=models.CASCADE, related_name="reviews"
     )
 
-    order = models.ForeignKey(
-        Order,
-        on_delete=models.CASCADE,
-        related_name="reviews"
-    )
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="reviews")
 
     rating = models.PositiveSmallIntegerField(
         validators=[
@@ -142,15 +133,9 @@ class Review(models.Model):
         choices=STATUS_CHOICES,
         default="pending",
     )
-    review_message = models.CharField(
-        max_length=255,
-        blank=True,
-        null=True
-    )
+    review_message = models.CharField(max_length=255, blank=True, null=True)
 
-    show_message = models.BooleanField(
-        default=False
-    )
+    show_message = models.BooleanField(default=False)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -161,5 +146,3 @@ class Review(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.product}"
-    
-    
