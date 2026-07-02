@@ -6,7 +6,7 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <link rel="icon" type="image/png" href="{% static 'images/favicon.png' %}">
 
     <title>
@@ -14,8 +14,12 @@
     </title>
 
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
 
     <!-- GOOGLE FONTS -->
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
@@ -23,699 +27,629 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     <!-- FONT AWESOME -->
-    <link rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
     {% block extra_css %}{% endblock %}
 
     <style>
-
-        *{
-            margin:0;
-            padding:0;
-            box-sizing:border-box;
-            font-family:"Inter",sans-serif;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Inter", sans-serif;
         }
 
-        body{
-            background:#eef2f7;
-            
+        body {
+            background: #eef2f7;
+
         }
 
         /* ================= NAVBAR ================= */
-.navbar{
-    min-height:60px;
-    background:white;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    padding:0 15px;
-    flex-wrap:wrap;
-    gap:10px;
-}
-
-        .nav-left{
-            font-size:22px;
-            font-weight:800;
-            color:#2563eb;
+        .navbar {
+            min-height: 60px;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 15px;
+            flex-wrap: wrap;
+            gap: 10px;
         }
 
-.nav-center{
-    display:flex;
-    gap:20px;
-    align-items:center;
-}
-
-
-        .nav-center a{
-            text-decoration:none;
-            color:#64748b;
-            font-size:14px;
-            font-weight:600;
-            position:relative;
-            transition:0.3s;
+        .nav-left {
+            font-size: 22px;
+            font-weight: 800;
+            color: #2563eb;
         }
 
-        .nav-center a:hover{
-            color:#2563eb;
+        .nav-center {
+            display: flex;
+            gap: 20px;
+            align-items: center;
         }
 
-        .nav-center a::after{
-            content:"";
-            position:absolute;
-            width:0;
-            height:2px;
-            background:#2563eb;
-            left:0;
-            bottom:-6px;
-            transition:0.3s;
+        @media(max-width:768px) {
+
+            .nav-center {
+                display: none;
+            }
+
         }
 
-        .nav-center a:hover::after{
-            width:100%;
+        .nav-center a {
+            text-decoration: none;
+            color: #64748b;
+            font-size: 14px;
+            font-weight: 600;
+            position: relative;
+            transition: 0.3s;
         }
 
-.nav-right{
-    display:flex;
-    align-items:center;
-    gap:12px;
-}
+        .nav-center a:hover {
+            color: #2563eb;
+        }
 
-.search-box{
-    display:flex;
-    align-items:center;
-    background:#f1f5f9;
-    border-radius:999px;
-    width:200px;
-    height:40px;
-    padding:0 12px;
-}
+        .nav-center a::after {
+            content: "";
+            position: absolute;
+            width: 0;
+            height: 2px;
+            background: #2563eb;
+            left: 0;
+            bottom: -6px;
+            transition: 0.3s;
+        }
 
+        .nav-center a:hover::after {
+            width: 100%;
+        }
 
-.search-box input{
-    border:none;
-    outline:none;
-    background:transparent;
-    width:100%;
-    height:100%;
-    margin-left:10px;
-    font-size:14px;
-    color:#475569;
-}
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
 
-.search-box input::placeholder{
-    color:#64748b;
-    font-size:14px;
-}
+        .search-box {
+            display: flex;
+            align-items: center;
+            background: #f1f5f9;
+            border-radius: 999px;
+            width: 200px;
+            height: 40px;
+            padding: 0 12px;
+        }
 
-.search-icon{
-    font-size:22px;
-    color:#64748b;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-}
+        @media(max-width:768px) {
+
+            .search-box {
+                width: 140px;
+            }
+
+        }
+
+        @media(max-width:480px) {
+
+            .search-box {
+                display: none;
+            }
+
+        }
+
+        .search-box input {
+            border: none;
+            outline: none;
+            background: transparent;
+            width: 100%;
+            height: 100%;
+            margin-left: 10px;
+            font-size: 14px;
+            color: #475569;
+        }
+
+        .search-box input::placeholder {
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        .search-icon {
+            font-size: 22px;
+            color: #64748b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
 
         /* ICONS */
 
-        .nav-icons{
-            display:flex;
-            gap:10px;
+        .nav-icons {
+            display: flex;
+            gap: 10px;
         }
 
-        .icon-btn{
-            font-size:24px;
-            color:#475569;
-            padding:6px;
-            border-radius:50%;
-            transition:0.2s;
-            cursor:pointer;
+        .icon-btn {
+            font-size: 24px;
+            color: #475569;
+            padding: 6px;
+            border-radius: 50%;
+            transition: 0.2s;
+            cursor: pointer;
         }
 
-        .icon-btn:hover{
-            background:#f1f5f9;
-            color:#2563eb;
+        .icon-btn:hover {
+            background: #f1f5f9;
+            color: #2563eb;
         }
-        .icon-wrapper{
 
-    position:relative;
+        .icon-wrapper {
 
-    text-decoration:none;
+            position: relative;
 
-}
+            text-decoration: none;
 
-.icon-count{
+        }
 
-    position:absolute;
+        .icon-count {
 
-    top:-5px;
-    right:-5px;
+            position: absolute;
 
-    min-width:20px;
-    height:20px;
+            top: -5px;
+            right: -5px;
 
-    padding:0 5px;
+            min-width: 20px;
+            height: 20px;
 
-    border-radius:50px;
+            padding: 0 5px;
 
-    background:#2563eb;
+            border-radius: 50px;
 
-    color:white;
+            background: #2563eb;
 
-    font-size:11px;
-    font-weight:700;
+            color: white;
 
-    display:flex;
+            font-size: 11px;
+            font-weight: 700;
 
-    align-items:center;
-    justify-content:center;
+            display: flex;
 
-    border:2px solid white;
+            align-items: center;
+            justify-content: center;
 
-    box-shadow:
-        0 4px 12px rgba(0,0,0,.15);
+            border: 2px solid white;
 
-}
+            box-shadow:
+                0 4px 12px rgba(0, 0, 0, .15);
+
+        }
 
         /* ================= MAIN CONTENT ================= */
 
-        .main-content{
-            width:100%;
+        .main-content {
+            width: 100%;
         }
 
         /* ================= FOOTER ================= */
 
-        .footer{
-            background:#f1f5f9;
-            padding:40px 15px;
-            margin-top:80px;
-            text-align:center;
+        .footer {
+            background: #f1f5f9;
+            padding: 40px 15px;
+            margin-top: 80px;
+            text-align: center;
         }
 
-        .footer-logo{
-            font-size:18px;
-            font-weight:800;
-            color:#94a3b8;
-            margin-bottom:20px;
+        .footer-logo {
+            font-size: 18px;
+            font-weight: 800;
+            color: #94a3b8;
+            margin-bottom: 20px;
         }
 
-        .footer-links{
-            display:flex;
-            justify-content:center;
-            gap:15px;
-            flex-wrap:wrap;
-            margin-bottom:20px;
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
         }
 
-        .footer-links a{
-            text-decoration:none;
-            font-size:11px;
-            color:#94a3b8;
-            letter-spacing:1px;
-            text-transform:uppercase;
+        .footer-links a {
+            text-decoration: none;
+            font-size: 11px;
+            color: #94a3b8;
+            letter-spacing: 1px;
+            text-transform: uppercase;
         }
 
-        .footer-links a:hover{
-            color:#2563eb;
+        .footer-links a:hover {
+            color: #2563eb;
         }
 
-        .footer-copy{
-            font-size:11px;
-            color:#cbd5e1;
-            letter-spacing:1px;
+        .footer-copy {
+            font-size: 11px;
+            color: #cbd5e1;
+            letter-spacing: 1px;
         }
-.message-container{
-    position:fixed;
-    top:80px;
-    right:20px;
 
-    z-index:9999;
+        .message-container {
+            position: fixed;
+            top: 80px;
+            right: 20px;
 
-    display:flex;
-    flex-direction:column;
-    align-items:flex-end;
+            z-index: 9999;
 
-    gap:14px;
-}
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
 
-.alert{
-    min-width:280px;
-    max-width:400px;
-    width:auto;
-    padding:16px 18px;
+            gap: 14px;
+        }
 
-    border-radius:16px;
+        .alert {
+            min-width: 280px;
+            max-width: 400px;
+            width: auto;
+            padding: 16px 18px;
 
-    display:flex;
-    align-items:center;
+            border-radius: 16px;
 
-    gap:12px;
+            display: flex;
+            align-items: center;
 
-    color:#ffffff;
+            gap: 12px;
 
-    font-size:14px;
-    font-weight:600;
+            color: #ffffff;
 
-    box-shadow:
-        0 12px 30px rgba(0,0,0,.12);
+            font-size: 14px;
+            font-weight: 600;
 
-    animation:slideIn .35s ease;
-}
+            box-shadow:
+                0 12px 30px rgba(0, 0, 0, .12);
 
-/* SUCCESS */
+            animation: slideIn .35s ease;
+        }
 
-.alert.success{
-    background:linear-gradient(
-        90deg,
-        #059669,
-        #10b981
-    );
-}
+        /* SUCCESS */
 
-/* ERROR */
+        .alert.success {
+            background: linear-gradient(90deg,
+                    #059669,
+                    #10b981);
+        }
 
-.alert.error{
-    background:linear-gradient(
-        90deg,
-        #dc2626,
-        #ef4444
-    );
-}
+        /* ERROR */
 
-/* INFO */
+        .alert.error {
+            background: linear-gradient(90deg,
+                    #dc2626,
+                    #ef4444);
+        }
 
-.alert.info{
-    background:linear-gradient(
-        90deg,
-        #2563eb,
-        #3b82f6
-    );
-}
+        /* INFO */
 
-.alert span{
-    font-size:22px;
-}
+        .alert.info {
+            background: linear-gradient(90deg,
+                    #2563eb,
+                    #3b82f6);
+        }
 
-/* ANIMATION */
+        .alert span {
+            font-size: 22px;
+        }
 
-@keyframes slideIn{
+        /* ANIMATION */
 
-    from{
-        opacity:0;
-        transform:translateX(40px);
-    }
+        @keyframes slideIn {
 
-    to{
-        opacity:1;
-        transform:translateX(0);
-    }
-}
-#ajax-popup{
+            from {
+                opacity: 0;
+                transform: translateX(40px);
+            }
 
-    position:fixed;
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
 
-    top:90px;
-    right:30px;
+        #ajax-popup {
 
-    background:#059669;
+            position: fixed;
 
-    color:white;
+            top: 90px;
+            right: 30px;
 
-    padding:16px 22px;
+            background: #059669;
 
-    border-radius:16px;
+            color: white;
 
-    font-size:14px;
-    font-weight:600;
+            padding: 16px 22px;
 
-    opacity:0;
+            border-radius: 16px;
 
-    visibility:hidden;
+            font-size: 14px;
+            font-weight: 600;
 
-    transform:translateY(-20px);
+            opacity: 0;
 
-    transition:0.3s ease;
+            visibility: hidden;
 
-    z-index:99999;
+            transform: translateY(-20px);
 
-    box-shadow:
-        0 12px 30px rgba(18, 15, 15, 0.16);
+            transition: 0.3s ease;
 
-}
+            z-index: 99999;
 
-#ajax-popup.show{
+            box-shadow:
+                0 12px 30px rgba(18, 15, 15, 0.16);
 
-    opacity:1;
+        }
 
-    visibility:visible;
+        #ajax-popup.show {
 
-    transform:translateY(0);
+            opacity: 1;
 
-}
-/* ================= PROFILE DROPDOWN ================= */
+            visibility: visible;
 
-.profile-dropdown-wrapper{
-    position:relative;
-}
+            transform: translateY(0);
 
-.profile-trigger{
-    border:none;
-    background:none;
-    cursor:pointer;
-}
+        }
 
-.nav-profile-img{
-    width:42px;
-    height:42px;
-    border-radius:50%;
-    object-fit:cover;
-    border:2px solid #2563eb;
-}
+        /* ================= PROFILE DROPDOWN ================= */
 
-/* ================= PROFILE DROPDOWN ================= */
+        .profile-dropdown-wrapper {
+            position: relative;
+        }
 
-.profile-dropdown-wrapper{
-    position:relative;
-}
+        .profile-trigger {
+            border: none;
+            background: none;
+            cursor: pointer;
+        }
 
-.profile-trigger{
-    border:none;
-    background:none;
-    cursor:pointer;
-    display:flex;
-    align-items:center;
-}
+        .nav-profile-img {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #2563eb;
+        }
 
-/* NAV IMAGE */
+        /* ================= PROFILE DROPDOWN ================= */
 
-.nav-profile-img{
+        .profile-dropdown-wrapper {
+            position: relative;
+        }
 
-    width:42px;
-    height:42px;
+        .profile-trigger {
+            border: none;
+            background: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+        }
 
-    border-radius:50%;
+        /* NAV IMAGE */
 
-    object-fit:cover;
+        .nav-profile-img {
 
-    border:2px solid #2563eb;
+            width: 42px;
+            height: 42px;
 
-    transition:.2s;
-}
+            border-radius: 50%;
 
-.nav-profile-img:hover{
+            object-fit: cover;
 
-    transform:scale(1.05);
+            border: 2px solid #2563eb;
 
-}
+            transition: .2s;
+        }
 
-/* DROPDOWN */
+        .nav-profile-img:hover {
 
-.profile-dropdown{
+            transform: scale(1.05);
 
-    position:absolute;
+        }
 
-    top:58px;
-    right:0;
+        /* DROPDOWN */
 
-    width:320px;
+        .profile-dropdown {
 
-    background:#ffffff;
+            position: absolute;
 
-    border-radius:22px;
+            top: 58px;
+            right: 0;
 
-    padding:20px;
+            width: 320px;
 
-    border:1px solid #e2e8f0;
+            background: #ffffff;
 
-    box-shadow:
-        0 20px 40px rgba(15,23,42,.08);
+            border-radius: 22px;
 
-    opacity:0;
-    visibility:hidden;
+            padding: 20px;
 
-    transform:
-        translateY(12px);
+            border: 1px solid #e2e8f0;
 
-    transition:.25s ease;
+            box-shadow:
+                0 20px 40px rgba(15, 23, 42, .08);
 
-    z-index:99999;
+            opacity: 0;
+            visibility: hidden;
 
-}
-@media (max-width:768px){
+            transform:
+                translateY(12px);
 
-    .navbar{
-        display:flex;
-        align-items:center;
-        justify-content:space-between;
-        flex-wrap:nowrap;
-        padding:10px 15px;
-    }
+            transition: .25s ease;
 
-    .nav-left{
-        font-size:18px;
-        white-space:nowrap;
-    }
+            z-index: 99999;
 
-    .nav-center{
-        display:flex;
-        gap:12px;
-        flex:1;
-        justify-content:center;
-    }
+        }
 
-    .nav-center a{
-        font-size:12px;
-    }
+        @media(max-width:480px) {
 
-    .nav-right{
-        margin-left:auto;
-    }
+            .profile-dropdown {
 
-    .search-box{
-        display:none;
-    }
+                width: 90vw;
 
-    .nav-icons{
-        gap:6px;
-    }
+                right: -10px;
 
-    .icon-btn{
-        font-size:22px;
-    }
+            }
 
-    .nav-profile-img{
-        width:36px;
-        height:36px;
-    }
+        }
 
-}
-@media(max-width:480px){
+        /* SHOW */
 
-    .profile-dropdown{
+        .profile-dropdown.active {
 
-        width:90vw;
+            opacity: 1;
+            visibility: visible;
 
-        right:-10px;
+            transform:
+                translateY(0);
 
-    }
+        }
 
-}
-@media (max-width:480px){
+        /* TOP USER */
 
-    .navbar{
-        padding:10px 12px;
-    }
+        .dropdown-user {
 
-    .nav-left{
-        font-size:16px;
-    }
+            display: flex;
 
-    .nav-center{
-        gap:8px;
-    }
+            align-items: center;
 
-    .nav-center a{
-        font-size:11px;
-    }
+            gap: 14px;
 
-    .nav-right{
-        margin-left:auto;
-    }
+            padding-bottom: 18px;
 
-    .nav-icons{
-        gap:4px;
-    }
+            border-bottom:
+                1px solid #e2e8f0;
 
-    .icon-btn{
-        font-size:20px;
-        padding:4px;
-    }
+            margin-bottom: 18px;
 
-    .nav-profile-img{
-        width:34px;
-        height:34px;
-    }
+        }
 
-    .icon-count{
-        min-width:16px;
-        height:16px;
-        font-size:9px;
-    }
+        .dropdown-profile-img {
 
-}
-/* SHOW */
+            width: 60px;
+            height: 60px;
 
-.profile-dropdown.active{
+            border-radius: 50%;
 
-    opacity:1;
-    visibility:visible;
+            object-fit: cover;
 
-    transform:
-        translateY(0);
+            border: 2px solid #3b82f6;
 
-}
+        }
 
-/* TOP USER */
+        .dropdown-user h3 {
 
-.dropdown-user{
+            font-size: 18px;
+            font-weight: 700;
 
-    display:flex;
+            color: #0f172a;
 
-    align-items:center;
+        }
 
-    gap:14px;
+        .dropdown-user p {
 
-    padding-bottom:18px;
+            font-size: 13px;
 
-    border-bottom:
-        1px solid #e2e8f0;
+            color: #64748b;
 
-    margin-bottom:18px;
+            margin-top: 4px;
 
-}
+        }
 
-.dropdown-profile-img{
+        /* MENU */
 
-    width:60px;
-    height:60px;
+        .dropdown-menu {
 
-    border-radius:50%;
+            display: flex;
+            flex-direction: column;
 
-    object-fit:cover;
+            gap: 8px;
 
-    border:2px solid #3b82f6;
+        }
 
-}
+        /* ITEM */
 
-.dropdown-user h3{
+        .dropdown-item {
 
-    font-size:18px;
-    font-weight:700;
+            display: flex;
 
-    color:#0f172a;
+            align-items: center;
 
-}
+            gap: 14px;
 
-.dropdown-user p{
+            padding: 14px 16px;
 
-    font-size:13px;
+            border-radius: 16px;
 
-    color:#64748b;
+            text-decoration: none;
 
-    margin-top:4px;
+            color: #334155;
 
-}
+            font-size: 15px;
+            font-weight: 600;
 
-/* MENU */
+            transition: .2s ease;
 
-.dropdown-menu{
+        }
 
-    display:flex;
-    flex-direction:column;
+        .dropdown-item span {
 
-    gap:8px;
+            font-size: 22px;
 
-}
+            color: #2563eb;
 
-/* ITEM */
+        }
 
-.dropdown-item{
+        /* HOVER */
 
-    display:flex;
+        .dropdown-item:hover {
 
-    align-items:center;
+            background: #eff6ff;
 
-    gap:14px;
+            color: #2563eb;
 
-    padding:14px 16px;
+            transform: translateX(4px);
 
-    border-radius:16px;
+        }
 
-    text-decoration:none;
+        /* LOGOUT */
 
-    color:#334155;
+        .logout-btn {
 
-    font-size:15px;
-    font-weight:600;
+            color: #dc2626;
 
-    transition:.2s ease;
+        }
 
-}
+        .logout-btn span {
 
-.dropdown-item span{
+            color: #dc2626;
 
-    font-size:22px;
+        }
 
-    color:#2563eb;
+        .logout-btn:hover {
 
-}
+            background: #fef2f2;
 
-/* HOVER */
+            color: #dc2626;
 
-.dropdown-item:hover{
+        }
 
-    background:#eff6ff;
+        .alert {
 
-    color:#2563eb;
+            cursor: pointer;
 
-    transform:translateX(4px);
+            transition: .25s ease;
+        }
 
-}
+        .alert:hover {
 
-/* LOGOUT */
+            transform: translateX(-4px);
 
-.logout-btn{
-
-    color:#dc2626;
-
-}
-
-.logout-btn span{
-
-    color:#dc2626;
-
-}
-
-.logout-btn:hover{
-
-    background:#fef2f2;
-
-    color:#dc2626;
-
-}
-.alert{
-
-    cursor:pointer;
-
-    transition:.25s ease;
-}
-
-.alert:hover{
-
-    transform:translateX(-4px);
-
-    opacity:.9;
-}
+            opacity: .9;
+        }
     </style>
 
 </head>
@@ -727,9 +661,11 @@
 
     <div class="navbar">
 
-        <a href="{% url 'home' %}"><div class="nav-left">
-            CORNER KICK
-        </div></a>
+        <a href="{% url 'home' %}">
+            <div class="nav-left">
+                CORNER KICK
+            </div>
+        </a>
 
         <div class="nav-center">
 
@@ -743,283 +679,219 @@
 
         <div class="nav-right">
 
-<form
-    action="{% url 'user_products:shop' %}"
-    method="GET"
-    class="search-box"
->
-    <span class="material-symbols-outlined search-icon">
-        search
-    </span>
+            <form action="{% url 'user_products:shop' %}" method="GET" class="search-box">
+                <span class="material-symbols-outlined search-icon">
+                    search
+                </span>
 
-    <input
-        type="text"
-        name="search"
-        placeholder="Search products..."
-        value="{{ request.GET.search }}"
-    >
-</form>
+                <input type="text" name="search" placeholder="Search products..." value="{{ request.GET.search }}">
+            </form>
 
             <div class="nav-icons">
 
-    <!-- CART -->
+                <!-- CART -->
 
-    <a
-    href="{% url 'user_products:cart' %}"
-    class="icon-wrapper"
-    >
+                <a href="{% url 'user_products:cart' %}" class="icon-wrapper">
 
-        <span class="material-symbols-outlined icon-btn">
-            shopping_bag
-        </span>
+                    <span class="material-symbols-outlined icon-btn">
+                        shopping_bag
+                    </span>
 
-        <span
-        class="icon-count"
-        id="cart-count"
-        >
-            {{ cart_count }}
-        </span>
+                    <span class="icon-count" id="cart-count">
+                        {{ cart_count }}
+                    </span>
 
-    </a>
+                </a>
 
-    <!-- WISHLIST -->
+                <!-- WISHLIST -->
 
-    <a
-    href="{% url 'user_products:wishlist' %}"
-    class="icon-wrapper"
-    >
+                <a href="{% url 'user_products:wishlist' %}" class="icon-wrapper">
 
-        <span class="material-symbols-outlined icon-btn">
-            favorite
-        </span>
+                    <span class="material-symbols-outlined icon-btn">
+                        favorite
+                    </span>
 
-        <span
-        class="icon-count"
-        id="wishlist-count"
-        >
-            {{ wishlist_count }}
-        </span>
+                    <span class="icon-count" id="wishlist-count">
+                        {{ wishlist_count }}
+                    </span>
 
-    </a>
+                </a>
 
-    <!-- PROFILE -->
+                <!-- PROFILE -->
 
-<!-- PROFILE -->
+                <!-- PROFILE -->
 
-{% if user.is_authenticated %}
+                {% if user.is_authenticated %}
 
-<!-- PROFILE -->
+                <!-- PROFILE -->
 
-<div class="profile-dropdown-wrapper">
+                <div class="profile-dropdown-wrapper">
 
-    <button
-    class="profile-trigger"
-    id="profileTrigger"
-    >
+                    <button class="profile-trigger" id="profileTrigger">
 
-        {% if profile.image %}
-            <img
-            src="{{ profile.image.url }}"
-            class="nav-profile-img"
-            >
-        {% else %}
-            <img
-            src="{% static 'images/default.png' %}"
-            class="nav-profile-img"
-            >
-        {% endif %}
+                        {% if profile.image %}
+                        <img src="{{ profile.image.url }}" class="nav-profile-img">
+                        {% else %}
+                        <img src="{% static 'images/default.png' %}" class="nav-profile-img">
+                        {% endif %}
 
-    </button>
+                    </button>
 
-    <!-- DROPDOWN -->
+                    <!-- DROPDOWN -->
 
-    <div
-    class="profile-dropdown"
-    id="profileDropdown"
-    >
+                    <div class="profile-dropdown" id="profileDropdown">
 
-        <!-- TOP -->
+                        <!-- TOP -->
 
-        <div class="dropdown-user">
+                        <div class="dropdown-user">
 
-            {% if profile.image %}
-                <img
-                src="{{ profile.image.url }}"
-                class="dropdown-profile-img"
-                >
-            {% else %}
-                <img
-                src="{% static 'images/default.png' %}"
-                class="dropdown-profile-img"
-                >
-            {% endif %}
+                            {% if profile.image %}
+                            <img src="{{ profile.image.url }}" class="dropdown-profile-img">
+                            {% else %}
+                            <img src="{% static 'images/default.png' %}" class="dropdown-profile-img">
+                            {% endif %}
 
-            <div>
+                            <div>
 
-                <h3>
-                    {{ user.first_name }}
-                    {{ user.last_name }}
-                </h3>
+                                <h3>
+                                    {{ user.first_name }}
+                                    {{ user.last_name }}
+                                </h3>
 
-                <p>
-                    {{ user.email }}
-                </p>
+                                <p>
+                                    {{ user.email }}
+                                </p>
 
-            </div>
+                            </div>
 
-        </div>
+                        </div>
 
-        <!-- MENU -->
+                        <!-- MENU -->
 
-        <div class="dropdown-menu">
+                        <div class="dropdown-menu">
 
-            <a
-            href="{% url 'userinfo:profile' %}"
-            class="dropdown-item"
-            >
+                            <a href="{% url 'userinfo:profile' %}" class="dropdown-item">
 
-                <span class="material-symbols-outlined">
-                    person
-                </span>
+                                <span class="material-symbols-outlined">
+                                    person
+                                </span>
 
-                My Profile
+                                My Profile
 
-            </a>
+                            </a>
 
-            <a
-            href="{% url 'addressinfo:address_view' %}"
-            class="dropdown-item"
-            >
+                            <a href="{% url 'addressinfo:address_view' %}" class="dropdown-item">
 
-                <span class="material-symbols-outlined">
-                    location_on
-                </span>
+                                <span class="material-symbols-outlined">
+                                    location_on
+                                </span>
 
-                Address
+                                Address
 
-            </a>
+                            </a>
 
-            <a
-            href="{% url 'my_orders' %}"
-            class="dropdown-item"
-            >
+                            <a href="{% url 'my_orders' %}" class="dropdown-item">
 
-                <span class="material-symbols-outlined">
-                    shopping_bag
-                </span>
+                                <span class="material-symbols-outlined">
+                                    shopping_bag
+                                </span>
 
-                My Orders
+                                My Orders
 
-            </a>
+                            </a>
 
-            <a
-            href="{% url 'user_products:wishlist' %}"
-            class="dropdown-item"
-            >
+                            <a href="{% url 'user_products:wishlist' %}" class="dropdown-item">
 
-                <span class="material-symbols-outlined">
-                    favorite
-                </span>
+                                <span class="material-symbols-outlined">
+                                    favorite
+                                </span>
 
-                Wishlist
+                                Wishlist
 
-            </a>
+                            </a>
 
-            <a
-            href="{% url "wallet_page" %}"
-            class="dropdown-item"
-            >
+                            <a href="{% url " wallet_page" %}" class="dropdown-item">
 
-                <span class="material-symbols-outlined">
-                    account_balance_wallet
-                </span>
+                                <span class="material-symbols-outlined">
+                                    account_balance_wallet
+                                </span>
 
-                Wallet
+                                Wallet
 
-            </a>
+                            </a>
 
-            <a
-            href="{% url 'userinfo:logout_page' %}"
-            class="dropdown-item logout-btn"
-            >
+                            <a href="{% url 'userinfo:logout_page' %}" class="dropdown-item logout-btn">
 
-                <span class="material-symbols-outlined">
-                    logout
-                </span>
+                                <span class="material-symbols-outlined">
+                                    logout
+                                </span>
 
-                Logout
+                                Logout
 
-            </a>
+                            </a>
 
-        </div>
+                        </div>
 
-    </div>
+                    </div>
 
-</div>
+                </div>
 
-{% else %}
+                {% else %}
 
-<a
-href="{% url 'login' %}"
-class="dropdown-item"
-style="
+                <a href="{% url 'login' %}" class="dropdown-item" style="
     background:#2563eb;
     color:white;
     padding:10px 18px;
     border-radius:12px;
     text-decoration:none;
     font-weight:600;
-"
->
-    Login
-</a>
+">
+                    Login
+                </a>
 
-{% endif %}
+                {% endif %}
 
-</div>
+            </div>
 
         </div>
 
     </div>
 
-{% if messages %}
+    {% if messages %}
 
-<div class="message-container">
+    <div class="message-container">
 
-    {% for message in messages %}
+        {% for message in messages %}
 
-    <div
-    class="alert {{ message.tags }}"
-    onclick="this.remove()"
-    >
+        <div class="alert {{ message.tags }}" onclick="this.remove()">
 
-        <span class="material-symbols-outlined">
+            <span class="material-symbols-outlined">
 
-            {% if message.tags == 'success' %}
+                {% if message.tags == 'success' %}
 
                 check_circle
 
-            {% elif message.tags == 'error' %}
+                {% elif message.tags == 'error' %}
 
                 error
 
-            {% else %}
+                {% else %}
 
                 info
 
-            {% endif %}
+                {% endif %}
 
-        </span>
+            </span>
 
-        {{ message }}
+            {{ message }}
+
+        </div>
+
+        {% endfor %}
 
     </div>
 
-    {% endfor %}
-
-</div>
-
-{% endif %}
+    {% endif %}
 
     <!-- PAGE CONTENT -->
 
@@ -1059,159 +931,159 @@ style="
 
     {% block extra_js %}{% endblock %}
 
-<script>
+    <script>
 
-function showAjaxPopup(message){
+        function showAjaxPopup(message) {
 
-    const popup =
-        document.getElementById("ajax-popup")
+            const popup =
+                document.getElementById("ajax-popup")
 
-    popup.innerText = message
+            popup.innerText = message
 
-    popup.classList.add("show")
+            popup.classList.add("show")
 
-    setTimeout(()=>{
+            setTimeout(() => {
 
-        popup.classList.remove("show")
+                popup.classList.remove("show")
 
-    },2000)
+            }, 2000)
 
-}
-
-
-/* =========================
-   WISHLIST AJAX
-========================= */
-
-document.addEventListener("click",function(e){
-
-    const button =
-        e.target.closest(".wishlist-btn")
-
-    if(!button) return
-
-    e.preventDefault()
-
-    e.stopPropagation()
-
-    const icon =
-        button.querySelector(
-            ".material-symbols-outlined"
-        )
-
-    fetch(button.dataset.url,{
-
-        method:"GET",
-
-        headers:{
-            "X-Requested-With":"XMLHttpRequest"
         }
 
-    })
 
-    .then(response=>response.json())
+        /* =========================
+           WISHLIST AJAX
+        ========================= */
 
-    .then(data=>{
+        document.addEventListener("click", function (e) {
 
-        showAjaxPopup(data.message)
+            const button =
+                e.target.closest(".wishlist-btn")
 
-        if(data.success){
+            if (!button) return
 
-            // NAVBAR COUNT
+            e.preventDefault()
 
-            const wishlistCount =
-                document.getElementById(
-                    "wishlist-count"
+            e.stopPropagation()
+
+            const icon =
+                button.querySelector(
+                    ".material-symbols-outlined"
                 )
 
-            if(wishlistCount){
+            fetch(button.dataset.url, {
 
-                wishlistCount.innerText =
-                    data.wishlist_count
+                method: "GET",
 
-            }
-
-            // ACTIVE BUTTON
-
-            button.classList.toggle(
-                "active"
-            )
-
-            // HEART ICON
-
-            if(
-                button.classList.contains(
-                    "active"
-                )
-            ){
-
-                icon.innerText =
-                    "favorite"
-
-            }
-
-            else{
-
-                icon.innerText =
-                    "favorite_border"
-
-            }
-
-            // REMOVE CARD IN
-            // WISHLIST PAGE
-
-            if(
-                data.action === "removed"
-            ){
-
-                const card =
-                    button.closest(
-                        ".product-card"
-                    )
-
-                if(card){
-
-                    card.remove()
-
+                headers: {
+                    "X-Requested-With": "XMLHttpRequest"
                 }
 
-                // UPDATE SUBTITLE
+            })
 
-                const subtitle =
-                    document.getElementById(
-                        "wishlist-subtitle"
-                    )
+                .then(response => response.json())
 
-                if(subtitle){
+                .then(data => {
 
-                    subtitle.innerText =
-                        `${data.wishlist_count} SAVED PRODUCT`
+                    showAjaxPopup(data.message)
 
-                }
+                    if (data.success) {
 
-                // EMPTY WISHLIST
+                        // NAVBAR COUNT
 
-                const productGrid =
-                    document.querySelector(
-                        ".product-grid"
-                    )
+                        const wishlistCount =
+                            document.getElementById(
+                                "wishlist-count"
+                            )
 
-                if(productGrid){
+                        if (wishlistCount) {
 
-                    const remainingCards =
-                        productGrid.querySelectorAll(
-                            ".product-card"
+                            wishlistCount.innerText =
+                                data.wishlist_count
+
+                        }
+
+                        // ACTIVE BUTTON
+
+                        button.classList.toggle(
+                            "active"
                         )
-                    if(remainingCards.length === 0){
 
-                        window.location.href = window.location.href;
+                        // HEART ICON
 
-                        return;
+                        if (
+                            button.classList.contains(
+                                "active"
+                            )
+                        ) {
 
-                    }
-                    if(remainingCards.length === 0){
+                            icon.innerText =
+                                "favorite"
 
-                        productGrid.innerHTML = `
+                        }
+
+                        else {
+
+                            icon.innerText =
+                                "favorite_border"
+
+                        }
+
+                        // REMOVE CARD IN
+                        // WISHLIST PAGE
+
+                        if (
+                            data.action === "removed"
+                        ) {
+
+                            const card =
+                                button.closest(
+                                    ".product-card"
+                                )
+
+                            if (card) {
+
+                                card.remove()
+
+                            }
+
+                            // UPDATE SUBTITLE
+
+                            const subtitle =
+                                document.getElementById(
+                                    "wishlist-subtitle"
+                                )
+
+                            if (subtitle) {
+
+                                subtitle.innerText =
+                                    `${data.wishlist_count} SAVED PRODUCT`
+
+                            }
+
+                            // EMPTY WISHLIST
+
+                            const productGrid =
+                                document.querySelector(
+                                    ".product-grid"
+                                )
+
+                            if (productGrid) {
+
+                                const remainingCards =
+                                    productGrid.querySelectorAll(
+                                        ".product-card"
+                                    )
+                                if (remainingCards.length === 0) {
+
+                                    window.location.href = window.location.href;
+
+                                    return;
+
+                                }
+                                if (remainingCards.length === 0) {
+
+                                    productGrid.innerHTML = `
 
                         <div class="empty-cart">
 
@@ -1236,181 +1108,182 @@ document.addEventListener("click",function(e){
 
                         `
 
-                        // UPDATE SUBTITLE
+                                    // UPDATE SUBTITLE
 
-                        const subtitle =
-                            document.getElementById(
-                                "wishlist-subtitle"
-                            )
+                                    const subtitle =
+                                        document.getElementById(
+                                            "wishlist-subtitle"
+                                        )
 
-                        if(subtitle){
+                                    if (subtitle) {
 
-                            subtitle.innerText =
-                                "0 SAVED PRODUCTS"
+                                        subtitle.innerText =
+                                            "0 SAVED PRODUCTS"
+
+                                    }
+
+                                    // HIDE PAGINATION
+
+                                    const pagination =
+                                        document.querySelector(
+                                            ".wishlist-pagination"
+                                        )
+
+                                    if (pagination) {
+
+                                        pagination.remove()
+
+                                    }
+
+                                }
+
+                            }
 
                         }
 
-                        // HIDE PAGINATION
+                        // BETTER MESSAGE
 
-                        const pagination =
-                            document.querySelector(
-                                ".wishlist-pagination"
+                        if (
+                            data.action === "added"
+                        ) {
+
+                            showAjaxPopup(
+                                "Saved to wishlist"
                             )
 
-                        if(pagination){
+                        }
 
-                            pagination.remove()
+                        else {
+
+                            showAjaxPopup(
+                                "Removed from wishlist"
+                            )
 
                         }
 
                     }
 
+                })
+
+        })
+
+
+        /* =========================
+           CART AJAX
+        ========================= */
+
+        document.querySelectorAll(".cart-form").forEach(form => {
+
+            form.addEventListener("submit", function (e) {
+
+                e.preventDefault()
+
+                fetch(this.action, {
+
+                    method: "POST",
+
+                    body: new FormData(this),
+
+                    headers: {
+                        "X-Requested-With": "XMLHttpRequest"
+                    }
+
+                })
+
+                    .then(response => response.json())
+
+                    .then(data => {
+
+
+
+                        if (data.success) {
+
+                            showAjaxPopup(data.message)
+
+                            document.getElementById(
+                                "cart-count"
+                            ).innerText = data.cart_count
+
+                        }
+
+                    })
+
+            })
+
+        })
+
+    </script>
+    <script>
+
+        const profileTrigger =
+            document.getElementById(
+                "profileTrigger"
+            )
+
+        const profileDropdown =
+            document.getElementById(
+                "profileDropdown"
+            )
+
+        profileTrigger.addEventListener(
+            "click",
+            function (e) {
+
+                e.stopPropagation()
+
+                profileDropdown.classList.toggle(
+                    "active"
+                )
+
+            }
+        )
+
+        document.addEventListener(
+            "click",
+            function (e) {
+
+                if (
+                    !profileDropdown.contains(e.target)
+                ) {
+
+                    profileDropdown.classList.remove(
+                        "active"
+                    )
+
                 }
 
             }
-
-            // BETTER MESSAGE
-
-            if(
-                data.action === "added"
-            ){
-
-                showAjaxPopup(
-                    "Saved to wishlist"
-                )
-
-            }
-
-            else{
-
-                showAjaxPopup(
-                    "Removed from wishlist"
-                )
-
-            }
-
-        }
-
-    })
-
-})
-
-
-/* =========================
-   CART AJAX
-========================= */
-
-document.querySelectorAll(".cart-form").forEach(form=>{
-
-    form.addEventListener("submit",function(e){
-
-        e.preventDefault()
-
-        fetch(this.action,{
-
-            method:"POST",
-
-            body:new FormData(this),
-
-            headers:{
-                "X-Requested-With":"XMLHttpRequest"
-            }
-
-        })
-
-        .then(response=>response.json())
-
-        .then(data=>{
-
-            
-
-            if(data.success){
-
-                showAjaxPopup(data.message)
-
-                document.getElementById(
-                    "cart-count"
-                ).innerText = data.cart_count
-
-            }
-
-        })
-
-    })
-
-})
-
-</script>
-<script>
-
-const profileTrigger =
-    document.getElementById(
-        "profileTrigger"
-    )
-
-const profileDropdown =
-    document.getElementById(
-        "profileDropdown"
-    )
-
-profileTrigger.addEventListener(
-    "click",
-    function(e){
-
-        e.stopPropagation()
-
-        profileDropdown.classList.toggle(
-            "active"
         )
 
-    }
-)
+    </script>
+    <audio id="notification-sound" preload="auto">
+        <source src="{% static 'sounds/notification.mp3.wav' %}" type="audio/wav">
+    </audio>
+    <script>
 
-document.addEventListener(
-    "click",
-    function(e){
+        document.addEventListener("DOMContentLoaded", function () {
 
-        if(
-            !profileDropdown.contains(e.target)
-        ){
+            const messages =
+                document.querySelectorAll(".alert");
 
-            profileDropdown.classList.remove(
-                "active"
-            )
+            if (messages.length > 0) {
 
-        }
+                const sound =
+                    document.getElementById(
+                        "notification-sound"
+                    );
 
-    }
-)
+                sound.volume = 0.6;
 
-</script>
-<audio id="notification-sound" preload="auto">
-    <source src="{% static 'sounds/notification.mp3.wav' %}" type="audio/wav">
-</audio>
-<script>
+                sound.play().catch(error => {
+                    console.log(error);
+                });
 
-document.addEventListener("DOMContentLoaded", function () {
+            }
 
-    const messages =
-        document.querySelectorAll(".alert");
-
-    if (messages.length > 0) {
-
-        const sound =
-            document.getElementById(
-                "notification-sound"
-            );
-
-        sound.volume = 0.6;
-
-        sound.play().catch(error => {
-            console.log(error);
         });
 
-    }
-
-});
-
-</script>
+    </script>
 </body>
+
 </html>
