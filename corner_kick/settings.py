@@ -218,7 +218,14 @@ AWS_S3_CUSTOM_DOMAIN = (
     f"{AWS_STORAGE_BUCKET_NAME}.s3.{AWS_S3_REGION_NAME}.amazonaws.com"
 )
 
-DEFAULT_FILE_STORAGE = "corner_kick.storage_backends.MediaStorage"
+STORAGES = {
+    "default": {
+        "BACKEND": "corner_kick.storage_backends.MediaStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
+}
 
 MEDIA_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/media/"
 

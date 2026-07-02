@@ -655,6 +655,31 @@ Product Details
         width:100%;
         height:56px;
     }
+        .button-group{
+        display:flex;
+        flex-direction:row;
+        align-items:center;
+        gap:12px;
+    }
+
+    .cart-btn{
+        flex:1;
+        height:68px;      /* Increase height */
+        font-size:16px;
+        border-radius:16px;
+    }
+
+    .wishlist-btn{
+        width:68px;       /* Keep icon button on right */
+        height:68px;
+        flex-shrink:0;
+        border-radius:16px;
+    }
+
+    .wishlist-btn span{
+        font-size:32px;
+    }
+
 }
 .related-pagination{
 
@@ -742,6 +767,7 @@ Product Details
         border-radius:14px;
 
     }
+    
 }
 
 @media(max-width:480px){
@@ -785,14 +811,6 @@ Product Details
         grid-template-columns:1fr;
     }
 
-    .button-group{
-        flex-direction:column;
-    }
-
-    .wishlist-btn{
-        width:100%;
-        height:56px;
-    }
 
     .thumb{
         width:70px;
@@ -800,6 +818,7 @@ Product Details
     }
 
 }
+
 .review-actions{
 
     display:flex;
@@ -1558,7 +1577,6 @@ Offer:
         </div>
 
         {% endif %}
-<!-- COLORS -->
 <!-- COLORS -->
 
 <div class="section-title">
