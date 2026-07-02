@@ -615,3 +615,10 @@ def about_page(request):
         return redirect("about")
 
     return render(request, "about.html")
+
+
+from django.shortcuts import render
+
+
+def custom_404(request, exception):
+    return render(request, "404.html", status=404)
