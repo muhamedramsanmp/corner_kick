@@ -5,7 +5,7 @@ from django.core.exceptions import ValidationError
 from django.db import models
 
 from user.user_orders.models import Order
-
+from decimal import Decimal
 
 class Coupon(models.Model):
 
@@ -72,18 +72,67 @@ class Coupon(models.Model):
 
         if self.discount_type == "PERCENTAGE":
 
-            if self.discount_value > 50:
+            if not 0 < self.discount_value <= 50:
 
                 raise ValidationError(
-                    {"discount_value": "Percentage discount cannot exceed 50%."}
+                    {
+                        "discount_value":
+                        "Percentage discount must be between 1 and 50."
+                    }
                 )
+
+            estimated_discount = (
+                self.min_purchase * self.discount_value
+            ) / Decimal("100")
+
+            max_allowed_discount = (
+                self.min_purchase * Decimal("0.50")
+            )
+
+            if estimated_discount > max_allowed_discount:
+
+                raise ValidationError(
+                    {
+                        "discount_value":
+                        f"This coupon would give more than 50% discount "
+                        f"on the minimum purchase amount "
+                        f"(maximum allowed ₹{max_allowed_discount})."
+                    }
+                )
+            
+        if self.discount_value <= 0:
+
+            raise ValidationError(
+                {"discount_value": "Discount value must be greater than zero."}
+            )
+
+        if self.min_purchase <= 0:
+
+            raise ValidationError(
+                {"min_purchase": "Minimum purchase amount must be greater than zero."}
+            )
 
         if self.discount_type == "FIXED":
 
-            if self.discount_value > 300:
+            if self.discount_value >= self.min_purchase:
 
                 raise ValidationError(
-                    {"discount_value": "Fixed discount cannot exceed ₹300."}
+                    {
+                        "discount_value":
+                        "Fixed discount must be less than minimum purchase amount."
+                    }
+                )
+
+            max_allowed_discount = self.min_purchase * Decimal("0.50")
+
+            if self.discount_value > max_allowed_discount:
+
+                raise ValidationError(
+                    {
+                        "discount_value":
+                        f"Fixed discount cannot exceed 50% of minimum purchase "
+                        f"(₹{max_allowed_discount})."
+                    }
                 )
 
         if self.usage_limit_per_user > self.total_usage_limit:

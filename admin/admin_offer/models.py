@@ -4,7 +4,7 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import timezone
 import re
-
+from decimal import Decimal
 from django.core.exceptions import ValidationError
 from django.utils import timezone
 
@@ -92,7 +92,35 @@ class Offer(models.Model):
             if self.max_discount <= 0:
 
                 raise ValidationError(
-                    {"max_discount": "Maximum discount must be greater than zero."}
+                    {
+                        "max_discount":
+                        "Maximum discount must be greater than zero."
+                    }
+                )
+
+            max_allowed_max_discount = (
+                self.min_purchase * Decimal("0.50")
+            )
+
+            if self.max_discount > max_allowed_max_discount:
+
+                raise ValidationError(
+                    {
+                        "max_discount":
+                        f"Maximum discount cannot exceed 50% "
+                        f"of minimum purchase amount "
+                        f"(₹{max_allowed_max_discount})."
+                    }
+                )
+                    
+        if self.discount_type == "PERCENTAGE":
+
+            if self.max_discount > 5000:
+                raise ValidationError(
+                    {
+                        "max_discount":
+                        "Maximum discount cannot exceed ₹5000."
+                    }
                 )
 
         if self.min_purchase < 0:
@@ -100,6 +128,30 @@ class Offer(models.Model):
             raise ValidationError(
                 {"min_purchase": "Minimum purchase cannot be negative."}
             )
+        if (
+            self.discount_type == "FIXED" and
+            self.apply_to == "PRODUCT"
+        ):
+            linked_products = self.offer_products.all()
+
+            for item in linked_products:
+                cheapest_variant = (
+                    item.product.variants
+                    .filter(is_deleted=False)
+                    .order_by("price")
+                    .first()
+                )
+
+                if (
+                    cheapest_variant and
+                    self.discount_value >= cheapest_variant.price
+                ):
+                    raise ValidationError(
+                        {
+                            "discount_value":
+                            "Flat discount cannot be greater than or equal to product price."
+                        }
+                    )
 
         duplicate_offer = Offer.objects.filter(
             offer_name__iexact=self.offer_name, is_deleted=False
@@ -241,6 +293,31 @@ class Offer(models.Model):
             raise ValidationError(
                 {"min_purchase": "Minimum purchase cannot be negative."}
             )
+        if self.discount_type == "FIXED":
+
+            if self.discount_value >= self.min_purchase and self.min_purchase > 0:
+
+                raise ValidationError(
+                    {
+                        "discount_value":
+                        "Flat offer amount must be less than minimum purchase amount."
+                    }
+                )
+            
+            max_allowed_discount = self.min_purchase * Decimal("0.50")
+
+            if (
+                self.min_purchase > 0 and
+                self.discount_value > max_allowed_discount
+            ):
+
+                raise ValidationError(
+                    {
+                        "discount_value":
+                        f"Flat offer cannot exceed 50% of minimum purchase "
+                        f"(₹{max_allowed_discount})."
+                    }
+                )
 
         duplicate_offer = Offer.objects.filter(
             offer_name__iexact=self.offer_name, is_deleted=False

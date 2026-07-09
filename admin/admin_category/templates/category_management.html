@@ -686,11 +686,13 @@ Manage sports categories and product hierarchy
 
     <div class="category">
 
-        {% if category.category_img %}
-            <img src="{{ category.category_img.url }}">
-        {% else %}
-            <img src="{% static 'images/default.png' %}">
-        {% endif %}
+{% if category.category_img %}
+    <img src="{{ category.category_img.url }}">
+    <p>IMAGE EXISTS</p>
+{% else %}
+    <img src="{% static 'images/default.png' %}">
+    <p style="color:red;">DEFAULT IMAGE</p>
+{% endif %}
 
         <div>
 

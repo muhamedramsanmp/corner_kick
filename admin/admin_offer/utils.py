@@ -19,7 +19,15 @@ def get_discount_amount(price, offer):
 
         return discount
 
-    return min(offer.discount_value, price)
+    discount = min(
+    Decimal(offer.discount_value),
+    price - Decimal("1")
+    )
+
+    if discount < 0:
+        discount = Decimal("0")
+
+    return discount
 
 
 def get_best_offer(product, price):
@@ -53,6 +61,8 @@ def get_best_offer(product, price):
     highest_discount = Decimal("0")
 
     for offer in all_offers:
+        if price < offer.min_purchase:
+            continue
 
         discount = get_discount_amount(price, offer)
 

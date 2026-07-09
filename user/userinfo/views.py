@@ -85,6 +85,7 @@ def profile_view(request):
         profile.phone = phone
         profile.save()
 
+
         messages.success(request, "Profile updated successfully")
         return redirect("userinfo:profile")
 

@@ -715,7 +715,28 @@ body{
 
     color:#fff;
 }
+.delete-image-btn{
+    position:absolute;
+    top:8px;
+    right:8px;
 
+    width:28px;
+    height:28px;
+
+    border:none;
+
+    border-radius:50%;
+
+    background:#ef4444;
+
+    color:white;
+
+    font-size:18px;
+
+    cursor:pointer;
+
+    z-index:100;
+}
 </style>
 
 </head>
@@ -790,26 +811,36 @@ body{
             <!-- IMAGE GRID -->
 
 <div class="image-grid">
+{% for image in variant.images.all|dictsort:"created_at" %}
 
-    {% for image in variant.images.all|dictsort:"created_at" %}
+<label class="image-box upload-box">
 
-    <label class="image-box upload-box">
+    <img
+        src="{{ image.image.url }}"
+        class="preview-img"
+    >
 
-        <img
-            src="{{ image.image.url }}"
-            class="preview-img"
-        >
+    {% if forloop.counter == 4 %}
+    <button
+        type="submit"
+        name="delete_fourth_image"
+        value="{{ image.id }}"
+        class="delete-image-btn"
+    >
+        ×
+    </button>
+    {% endif %}
 
-        <input
-            type="file"
-            name="images"
-            class="image-input"
-            accept="image/*"
-        >
+    <input
+        type="file"
+        name="image_{{ forloop.counter0 }}"
+        class="image-input"
+        accept="image/*"
+    >
 
-    </label>
+</label>
 
-    {% endfor %}
+{% endfor %}
 
     <!-- EMPTY BOXES -->
 
@@ -831,7 +862,7 @@ body{
 
         <input
             type="file"
-            name="images"
+            name="image_{{ variant.images.count|add:i }}"
             class="image-input"
             accept="image/*"
         >

@@ -306,7 +306,7 @@ Product Details
 
     border-radius:12px;
 
-    border:2px solid transparent;
+    border:1px solid #000001;
 
     cursor:pointer;
 }
@@ -1432,7 +1432,7 @@ class="thumbnail-row"
 id="thumbnailContainer"
 >
 
-{% for image in variant.images.all|dictsort:"created_at" %} 
+{% for image in default_variant.images.all|dictsort:"created_at" %}
 <div
 class="thumb {% if image.is_primary %}active{% endif %}"
 onclick="changeImage(this, '{{ image.image.url }}')"
@@ -1475,66 +1475,51 @@ color:#64748b;
 
         <div class="price-row">
 
-{% if price_data and price_data.offer %}
+<div class="price" id="productPrice">
 
-    <div class="price" id="productPrice">
-
+    {% if price_data and price_data.offer %}
         ₹{{ price_data.final_price }}
-
-    </div>
-
-    <div
-class="old-price"
-id="oldPrice"
->
-
-        ₹{{ price_data.original_price }}
-
-    </div>
-
-    <div
-class="discount"
-id="discountBadge"
->
-
-        {% if price_data.offer.discount_type == "PERCENTAGE" %}
-
-            {{ price_data.offer.discount_value }}% OFF
-
-        {% else %}
-
-            ₹{{ price_data.discount_amount }} OFF
-
-        {% endif %}
-
-    </div>
-
-{% else %}
-
-    <div class="price" id="productPrice">
-
+    {% else %}
         ₹{{ default_variant.price }}
-
-    </div>
-
-{% endif %}
+    {% endif %}
 
 </div>
-{% if price_data and price_data.offer %}
 
 <div
-style="
-margin-bottom:20px;
-font-size:14px;
-font-weight:600;
-color:#16a34a;
-"
+class="old-price"
+id="oldPrice"
+{% if not price_data.offer %}
+style="display:none;"
+{% endif %}
 >
 
-    You Save ₹{{ price_data.discount_amount }}
+    {% if price_data.offer %}
+        ₹{{ price_data.original_price }}
+    {% endif %}
 
 </div>
 
+<div
+class="discount"
+id="discountBadge"
+{% if not price_data.offer %}
+style="display:none;"
+{% endif %}
+>
+
+    {% if price_data.offer %}
+
+        {% if price_data.offer.discount_type == "PERCENTAGE" %}
+            {{ price_data.offer.discount_value }}% OFF
+        {% else %}
+            ₹{{ price_data.discount_amount }} OFF
+        {% endif %}
+
+    {% endif %}
+
+</div>
+
+</div>
 <div
 style="
 margin-bottom:20px;
@@ -1545,13 +1530,34 @@ color:#64748b;
 
     <div id="offerName">
 
-Offer:
-{{ price_data.offer.offer_name }}
+        {% if price_data.offer %}
+
+            Offer:
+            {{ price_data.offer.offer_name }}
+
+            {% if price_data.offer.min_purchase > 0 %}
+
+                <br>
+
+                <small
+                style="
+                color:#f59e0b;
+                font-weight:600;
+                "
+                >
+                    Minimum purchase
+                    ₹{{ price_data.offer.min_purchase }}
+                    required for this offer
+                </small>
+
+            {% endif %}
+
+        {% endif %}
+
+    </div>
 
 </div>
-</div>
 
-{% endif %}
         <!-- STOCK -->
 
         {% if default_variant.available_stock > 0 %}
@@ -1629,7 +1635,6 @@ class="cart-form"
 
     <div class="button-group">
 
-        <button
 <button
 type="submit"
 class="cart-btn"
@@ -1656,6 +1661,8 @@ ADD TO CART
 
 <a
 href="#"
+id="wishlistButton"
+data-variant-id="{{ default_variant.id }}"
 data-url="{% url 'user_products:toggle_wishlist' product.id %}"
 data-authenticated="{% if user.is_authenticated %}true{% else %}false{% endif %}"
 class="wishlist-btn {% if is_wishlisted %}active{% endif %}"
@@ -2316,40 +2323,27 @@ function updateVariant(){
 
    console.log("offerData =", offerData);
 
-console.log(
-    "variant id =",
-    matchedVariant.id
-);
+    console.log(
+        "variant id =",
+        matchedVariant.id
+    );
 
-const variantId =
-String(matchedVariant.id);
+    const variantId =
+    String(matchedVariant.id);
 
-console.log(
-    "variantId =",
-    variantId
-);
+    console.log(
+        "variantId =",
+        variantId
+    );
 
-console.log(
-    "offerData[variantId] =",
-    offerData[variantId]
-);
+    console.log(
+        "offerData[variantId] =",
+        offerData[variantId]
+    );
 
-const offer =
-offerData[variantId];
-
-console.log(
-    "final offer object =",
-    offer
-);
-
-console.log(
-    "offer =",
-    offer
-);
-
-if(offer){
-
-    document.getElementById(
+    const offer =
+    offerData[variantId];
+        document.getElementById(
         "productPrice"
     ).innerText =
         "₹" +
@@ -2360,19 +2354,40 @@ if(offer){
         "oldPrice"
     );
 
-    if(oldPrice){
-
-        oldPrice.innerText =
-            "₹" +
-            offer.original_price;
-    }
-
     const discountBadge =
     document.getElementById(
         "discountBadge"
     );
 
-    if(discountBadge){
+    const offerName =
+    document.getElementById(
+        "offerName"
+    );
+
+    console.log(
+        "final offer object =",
+        offer
+    );
+
+    console.log(
+        "offer =",
+        offer
+    );
+
+    if (
+        offer &&
+        parseFloat(offer.discount_amount) > 0
+    ){
+
+        oldPrice.style.display =
+            "inline";
+
+        oldPrice.innerText =
+            "₹" +
+            offer.original_price;
+
+        discountBadge.style.display =
+            "inline-block";
 
         if(
             offer.discount_type ===
@@ -2390,25 +2405,61 @@ if(offer){
                 offer.discount_amount +
                 " OFF";
         }
+
+        let minPurchaseText = "";
+
+        if(
+            offer.min_purchase &&
+            parseFloat(
+                offer.min_purchase
+            ) > 0
+        ){
+
+            minPurchaseText =
+            `
+            <br>
+            <small
+            style="
+            color:#f59e0b;
+            font-weight:600;
+            "
+            >
+                Minimum purchase
+                ₹${offer.min_purchase}
+                required for this offer
+            </small>
+            `;
+        }
+
+        offerName.innerHTML =
+        `
+            Offer:
+            ${offer.offer_name}
+            ${minPurchaseText}
+        `;
+
     }
+    else{
 
-    const offerName =
-    document.getElementById(
-        "offerName"
-    );
+        document.getElementById(
+            "productPrice"
+        ).innerText =
+            "₹" +
+            matchedVariant.price;
 
-    if(
-        offerName &&
-        offer.offer_name
-    ){
+        oldPrice.style.display =
+            "none";
 
-        offerName.innerText =
-            "Offer: " +
-            offer.offer_name;
+        oldPrice.innerText = "";
+
+        discountBadge.style.display =
+            "none";
+
+        discountBadge.innerText = "";
+
+        offerName.innerHTML = "";
     }
-}
-
-    // STOCK
+        // STOCK
 
     const stock =
     parseInt(matchedVariant.stock);
@@ -2447,8 +2498,15 @@ if(offer){
         "selectedVariant"
     ).value =
         matchedVariant.id;
-
+        
+    const wishlistBtn = document.getElementById("wishlistButton");
+    if (wishlistBtn) {
+        wishlistBtn.dataset.url = `{% url 'user_products:toggle_wishlist' product.id %}`;
+    }
 }
+
+
+
 
 
 // =====================================
@@ -2506,24 +2564,26 @@ function renderColors(){
 
             selectedColor = color;
 
-            // GET FIRST SIZE
-            // FOR THIS COLOR
-
-            const firstVariant =
-            variants.find(
-
+            // Check if current selectedSize is available in the new color
+            const currentSizeAvailable = variants.find(
                 variant =>
-
-                    variant.color ===
-                    selectedColor
-
+                    variant.color === selectedColor &&
+                    variant.size === selectedSize
             );
 
-            if(firstVariant){
+            if (!currentSizeAvailable) {
+                // GET FIRST SIZE FOR THIS COLOR
+                const firstVariant =
+                variants.find(
+                    variant =>
+                        variant.color ===
+                        selectedColor
+                );
 
-                selectedSize =
-                firstVariant.size;
-
+                if(firstVariant){
+                    selectedSize =
+                    firstVariant.size;
+                }
             }
 
             renderSizes();
@@ -2769,29 +2829,6 @@ document
     )
 
 })
-document.addEventListener("click", function(e){
-
-    const wishlistBtn =
-        e.target.closest(".wishlist-btn");
-
-    if(wishlistBtn){
-
-        const isAuthenticated =
-            wishlistBtn.dataset.authenticated === "true";
-
-        if(!isAuthenticated){
-
-            e.preventDefault();
-
-            showAjaxPopup(
-                 "Please login to add products to wishlist"
-            );
-
-            return;
-        }
-    }
-
-});
 
 document.querySelector(".cart-form")
 ?.addEventListener("submit", function(e){

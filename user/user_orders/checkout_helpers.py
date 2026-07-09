@@ -1,6 +1,5 @@
 import uuid
-from decimal import Decimal
-
+from decimal import Decimal, ROUND_DOWN
 from django.contrib import messages
 from django.db import transaction
 from django.shortcuts import redirect, render
@@ -14,7 +13,11 @@ from user.user_wallet.models import Wallet, WalletTransaction
 
 from .models import Order, OrderItem
 
-
+def floor_amount(value):
+    return Decimal(value).quantize(
+        Decimal("1"),
+        rounding=ROUND_DOWN,
+    )
 def get_cart_summary(cart_items):
 
     subtotal = Decimal("0")
@@ -22,12 +25,24 @@ def get_cart_summary(cart_items):
 
     for item in cart_items:
         price_data = calculate_discounted_price(item.variant)
-        item.checkout_total = price_data["final_price"] * item.quantity
-        item.original_total = price_data["original_price"] * item.quantity
+        item.checkout_total = floor_amount(
+            price_data["final_price"] * item.quantity
+        )
 
+        item.original_total = floor_amount(
+            price_data["original_price"] * item.quantity
+        )
         subtotal += price_data["original_price"] * item.quantity
-        offer_discount += price_data["discount_amount"] * item.quantity
+        offer_discount += (
+            price_data["discount_amount"] * item.quantity
+        )
+        subtotal = subtotal.quantize(
+            Decimal("0.01")
+        )
 
+        offer_discount = offer_discount.quantize(
+            Decimal("0.01")
+        )
     return subtotal, offer_discount
 
 
@@ -134,7 +149,9 @@ def create_order_with_items(
                 price_data["offer"].offer_name if price_data["offer"] else None
             ),
             price=price_data["final_price"],
-            total_price=price_data["final_price"] * item.quantity,
+            total_price=floor_amount(
+                price_data["final_price"] * item.quantity
+            ),
         )
 
         item.variant.stock -= item.quantity
@@ -283,7 +300,7 @@ def build_checkout_context(
     coupons,
 ):
 
-    amount_after_offer = subtotal - offer_discount
+    amount_after_offer = floor_amount(subtotal - offer_discount)
     coupon_discount = Decimal("0")
     applied_coupon_code = None
 
@@ -299,7 +316,7 @@ def build_checkout_context(
             else:
                 coupon_discount = Decimal(coupon.discount_value)
 
-    total_amount = amount_after_offer - coupon_discount
+    total_amount = floor_amount(amount_after_offer - coupon_discount)
     wallet, _ = Wallet.objects.get_or_create(user=request.user)
 
     return {

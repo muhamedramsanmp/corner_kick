@@ -285,8 +285,23 @@ def payment_success(request):
                 discount_amount = Decimal(discount_amount)
         except Coupon.DoesNotExist:
             pass
-
     total_amount = subtotal - offer_discount - discount_amount
+
+    if total_amount <= 0:
+
+        request.session.pop(
+            "coupon_id",
+            None
+        )
+
+        messages.error(
+            request,
+            "Invalid order amount. Please review your offers and coupon."
+        )
+
+        return redirect(
+            "checkout_page"
+        )
 
     with transaction.atomic():
 

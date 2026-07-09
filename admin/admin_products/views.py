@@ -412,21 +412,32 @@ def add_variant(request, product_id):
 
             return render(request, "add_variant.html", context)
 
-        images = request.FILES.getlist("images")
+        images = [
+            request.FILES.get("image_1"),
+            request.FILES.get("image_2"),
+            request.FILES.get("image_3"),
+            request.FILES.get("image_4"),
+        ]
 
-        valid_images = [image for image in images if image and image.name]
+        valid_images = [img for img in images if img]
 
         if len(valid_images) < 3:
 
             messages.error(
-                request, "Minimum 3 images are required", extra_tags="variant"
+                request,
+                "Minimum 3 images are required",
+                extra_tags="variant"
             )
 
             return render(request, "add_variant.html", context)
 
         if len(valid_images) > 4:
 
-            messages.error(request, "Maximum 4 images allowed", extra_tags="variant")
+            messages.error(
+                request,
+                "Maximum 4 images allowed",
+                extra_tags="variant"
+            )
 
             return render(request, "add_variant.html", context)
 
@@ -583,12 +594,30 @@ def edit_variant(request, variant_id):
             )
 
         variant.save()
+        delete_fourth_image = request.POST.get(
+            "delete_fourth_image"
+        )
 
-        existing_images = list(variant.images.order_by("id"))
+        if delete_fourth_image:
 
-        uploaded_images = request.FILES.getlist("images")
+            ProductImage.objects.filter(
+                id=delete_fourth_image,
+                variant=variant
+            ).delete()
 
-        for index, new_image in enumerate(uploaded_images):
+            return redirect(
+                "admin_products:edit_variant",
+                variant_id=variant.id
+            )
+        existing_images = list(
+            variant.images.order_by("id")
+        )
+
+        for index in range(4):
+
+            new_image = request.FILES.get(
+                f"image_{index}"
+            )
 
             if not new_image:
                 continue
@@ -598,6 +627,13 @@ def edit_variant(request, variant_id):
                 existing_images[index].image = new_image
                 existing_images[index].save()
 
+            else:
+
+                ProductImage.objects.create(
+                    variant=variant,
+                    image=new_image,
+                    is_primary=False,
+                )
         messages.success(request, "Variant updated successfully")
 
         return redirect("admin_products:variant_management", product_id=product.id)

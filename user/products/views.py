@@ -195,6 +195,9 @@ def product_details(request, slug):
             "discount_value": (
                 str(offer_data["offer"].discount_value) if offer_data["offer"] else ""
             ),
+            "min_purchase": (
+                str(offer_data["offer"].min_purchase) if offer_data["offer"] else ""
+            ),
         }
 
     default_variant = product.default_variant
@@ -487,7 +490,7 @@ def add_to_cart(request):
             "subtotal": subtotal,
             "cart_total": cart_total,
             "quantity": cart_item.quantity,
-        }
+        },status=200
     )
 
 
@@ -562,7 +565,13 @@ def update_cart_quantity(request, item_id):
 
     if not cart_item:
 
-        return JsonResponse({"success": False, "message": "Cart item not found"})
+        return JsonResponse(
+        {
+            "success": False,
+            "message": "Cart item not found"
+        },
+        status=404
+    )
 
     remove_invalid_cart_items(cart_item.cart)
 
@@ -575,7 +584,8 @@ def update_cart_quantity(request, item_id):
                 "success": False,
                 "removed": True,
                 "message": "Product is no longer available",
-            }
+            },
+            status=404
         )
 
     price_data = calculate_discounted_price(cart_item.variant)
@@ -607,7 +617,8 @@ def update_cart_quantity(request, item_id):
                     "cart_count": CartItem.objects.filter(
                         cart__user=request.user
                     ).count(),
-                }
+                },
+                status=404
             )
 
         total_reserved = (
@@ -629,7 +640,8 @@ def update_cart_quantity(request, item_id):
                     "subtotal": final_price * cart_item.quantity,
                     "stock": cart_item.variant.available_stock,
                     "cart_total": cart_total,
-                }
+                },
+                status=404
             )
 
         cart_item.quantity += 1
@@ -653,7 +665,8 @@ def update_cart_quantity(request, item_id):
                     "cart_count": CartItem.objects.filter(
                         cart__user=request.user
                     ).count(),
-                }
+                },
+                status=404
             )
 
         cart_item.quantity -= 1
@@ -664,7 +677,7 @@ def update_cart_quantity(request, item_id):
 
     else:
 
-        return JsonResponse({"success": False, "message": "Invalid action"})
+        return JsonResponse({"success": False, "message": "Invalid action"},status=404)
 
 
     subtotal = 0
@@ -700,7 +713,7 @@ def update_cart_quantity(request, item_id):
             "total": total,
             "stock": cart_item.variant.available_stock,
             "cart_count": cart_count,
-        }
+        },status=200
     )
 
 
@@ -748,7 +761,7 @@ def remove_cart_item(request, item_id):
             "subtotal": subtotal,
             "discount": total_discount,
             "total": total,
-        }
+        },status=200
     )
 
 
@@ -767,7 +780,7 @@ def toggle_wishlist(request, product_id):
                 "action": action,
                 "message": message,
                 "wishlist_count": wishlist_count,
-            }
+            },status=200
         )
 
     wishlist_item = Wishlist.objects.filter(user=request.user, product=product).first()
@@ -777,15 +790,18 @@ def toggle_wishlist(request, product_id):
         wishlist_item.delete()
 
         action = "removed"
-
+        in_wishlist = False
         message = "Removed from wishlist"
 
     else:
 
-        Wishlist.objects.create(user=request.user, product=product)
+        Wishlist.objects.create(
+            user=request.user,
+            product=product
+        )
 
         action = "added"
-
+        in_wishlist = True
         message = "Added to wishlist"
 
     wishlist_count = Wishlist.objects.filter(user=request.user).count()
@@ -796,7 +812,8 @@ def toggle_wishlist(request, product_id):
             "action": action,
             "message": message,
             "wishlist_count": wishlist_count,
-        }
+            "in_wishlist": in_wishlist,
+        },status=200
     )
 
 
@@ -949,5 +966,5 @@ def wishlist_to_cart(request, product_id):
             "message": "Product moved to cart",
             "cart_count": cart_count,
             "wishlist_count": wishlist_count,
-        }
+        },status=200
     )

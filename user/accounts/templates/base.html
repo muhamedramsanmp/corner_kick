@@ -966,6 +966,19 @@
 
             e.stopPropagation()
 
+            const isAuthenticated =
+                button.dataset.authenticated === "true"
+
+            if (!isAuthenticated) {
+
+                showAjaxPopup(
+                    "Please login to add products to wishlist"
+                )
+
+                return
+
+            }
+
             const icon =
                 button.querySelector(
                     ".material-symbols-outlined"
@@ -984,8 +997,6 @@
                 .then(response => response.json())
 
                 .then(data => {
-
-                    showAjaxPopup(data.message)
 
                     if (data.success) {
 
@@ -1141,14 +1152,14 @@
 
                         }
 
-                        // BETTER MESSAGE
+                        // CORRECT WISHLIST MESSAGES
 
                         if (
                             data.action === "added"
                         ) {
 
                             showAjaxPopup(
-                                "Saved to wishlist"
+                                "Added to wishlist"
                             )
 
                         }

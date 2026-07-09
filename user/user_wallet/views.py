@@ -154,7 +154,7 @@ def apply_coupon(request):
 
     if request.method != "POST":
 
-        return JsonResponse({"success": False, "message": "Invalid request"})
+        return JsonResponse({"success": False, "message": "Invalid request"}, status=404)
 
     coupon_code = request.POST.get("coupon_code")
 
@@ -166,7 +166,7 @@ def apply_coupon(request):
 
     except Coupon.DoesNotExist:
 
-        return JsonResponse({"success": False, "message": "Coupon does not exist"})
+        return JsonResponse({"success": False, "message": "Coupon does not exist"}, status=404)
 
     if coupon.total_usage_limit:
 
@@ -177,7 +177,7 @@ def apply_coupon(request):
         if total_used >= coupon.total_usage_limit:
 
             return JsonResponse(
-                {"success": False, "message": "Coupon usage limit reached"}
+                {"success": False, "message": "Coupon usage limit reached"},status=404
             )
 
     if coupon.usage_limit_per_user:
@@ -187,13 +187,13 @@ def apply_coupon(request):
         if user_used >= coupon.usage_limit_per_user:
 
             return JsonResponse(
-                {"success": False, "message": "You have already used this coupon"}
+                {"success": False, "message": "You have already used this coupon"},status=404
             )
 
     if not coupon.is_active:
 
         return JsonResponse(
-            {"success": False, "message": "Coupon is currently inactive"}
+            {"success": False, "message": "Coupon is currently inactive"},status=404
         )
 
     today = timezone.now().date()
@@ -203,14 +203,14 @@ def apply_coupon(request):
         if today < coupon.start_date:
 
             return JsonResponse(
-                {"success": False, "message": f"Coupon starts on {coupon.start_date}"}
+                {"success": False, "message": f"Coupon starts on {coupon.start_date}"},status=404
             )
 
     if coupon.end_date:
 
         if today > coupon.end_date:
 
-            return JsonResponse({"success": False, "message": "Coupon has expired"})
+            return JsonResponse({"success": False, "message": "Coupon has expired"},status=404)
 
     if coupon.min_purchase:
 
@@ -220,7 +220,7 @@ def apply_coupon(request):
                 {
                     "success": False,
                     "message": f"Minimum purchase ₹{coupon.min_purchase} required",
-                }
+                },status=404
             )
 
     discount = 0
@@ -254,5 +254,5 @@ def apply_coupon(request):
             "coupon": coupon.code,
             "discount": float(discount.quantize(Decimal("0.01"))),
             "total": float(total.quantize(Decimal("0.01"))),
-        }
+        },status=200
     )
