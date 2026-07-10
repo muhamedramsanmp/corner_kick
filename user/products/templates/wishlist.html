@@ -620,6 +620,7 @@ onchange="this.form.submit()"
 href="#"
 class="remove-btn wishlist-btn"
 data-url="{% url 'user_products:toggle_wishlist' product.id %}"
+data-authenticated="{% if user.is_authenticated %}true{% else %}false{% endif %}"
 >
 <span class="material-symbols-outlined">
 close
