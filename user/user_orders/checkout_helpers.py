@@ -136,7 +136,35 @@ def create_order_with_items(
     )
 
     for item in cart_items:
+
         price_data = calculate_discounted_price(item.variant)
+
+        item_original_total = (
+            price_data["original_price"] * item.quantity
+        )
+
+        item_offer_discount = (
+            price_data["discount_amount"] * item.quantity
+        )
+
+        item_after_offer = (
+            item_original_total - item_offer_discount
+        )
+
+        order_after_offer = (
+            subtotal - offer_discount
+        )
+
+        item_coupon_share = Decimal("0")
+
+        if order_after_offer > 0:
+            item_coupon_share = (
+                item_after_offer / order_after_offer
+            ) * discount_amount
+
+        item_coupon_share = floor_amount(
+            item_coupon_share
+        )
 
         OrderItem.objects.create(
             order=order,
@@ -152,6 +180,7 @@ def create_order_with_items(
             total_price=floor_amount(
                 price_data["final_price"] * item.quantity
             ),
+            coupon_share=item_coupon_share,
         )
 
         item.variant.stock -= item.quantity

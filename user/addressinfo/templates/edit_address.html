@@ -405,36 +405,36 @@ input:checked + .slider::before {
 
 <div>
 <label>FULL NAME</label>
-<input type="text" name="full_name" class="form-input" value="{{ address.full_name }}">
+<input type="text" name="full_name" class="form-input" value="{{ address.full_name|default:'' }}">
 </div>
 
 <div>
 <label>MOBILE NUMBER</label>
-<input type="text" name="phone" class="form-input" value="{{ address.phone }}">
+<input type="text" name="phone" class="form-input" value="{{ address.phone|default:'' }}">
 </div>
 
 <div>
 <label>PINCODE</label>
-<input type="text" name="pincode" class="form-input" value="{{ address.pincode }}">
+<input type="text" name="pincode" class="form-input" value="{{ address.pincode|default:'' }}">
 </div>
 
 <div>
 <label>CITY</label>
-<input type="text" name="city" class="form-input" value="{{ address.city }}">
+<input type="text" name="city" class="form-input" value="{{ address.city|default:'' }}">
 </div>
 
 <div>
 <label>STATE</label>
-<input type="text" name="state" class="form-input" value="{{ address.state }}"></div>
+<input type="text" name="state" class="form-input" value="{{ address.state|default:'' }}"></div>
 
 <div>
 <label>COUNTRY</label>
-<input type="text" name="country" class="form-input" value="{{ address.country }}">
+<input type="text" name="country" class="form-input" value="{{ address.country|default:'' }}">
 </div>
 
 <div class="full">
 <label>ADDRESS (AREA AND STREET)</label>
-<textarea name="address_line" class="form-textarea">{{ address.address_line }}</textarea>
+<textarea name="address_line" class="form-textarea">{{ address.address_line|default:'' }}</textarea>
 </div>
 
 </div>

@@ -621,24 +621,15 @@ def update_cart_quantity(request, item_id):
                 status=404
             )
 
-        total_reserved = (
-            CartItem.objects.filter(variant=cart_item.variant)
-            .exclude(id=cart_item.id)
-            .aggregate(total=Sum("quantity"))["total"]
-            or 0
-        )
-
-        remaining_stock = cart_item.variant.stock - total_reserved
-
-        if cart_item.quantity + 1 > remaining_stock:
+        if cart_item.quantity + 1 > cart_item.variant.stock:
 
             return JsonResponse(
                 {
                     "success": False,
-                    "message": f"Only {remaining_stock} items available",
+                    "message": f"Only {cart_item.variant.stock} items available",
                     "quantity": cart_item.quantity,
                     "subtotal": final_price * cart_item.quantity,
-                    "stock": cart_item.variant.available_stock,
+                    "stock": cart_item.variant.stock,
                     "cart_total": cart_total,
                 },
                 status=404

@@ -9,7 +9,7 @@ from user.accounts.utils import credit_referral_reward
 from user.products.models import Review
 from user.user_orders.models import Order, ReturnItem, ReturnRequest
 from user.user_wallet.models import Wallet, WalletTransaction
-
+from decimal import Decimal
 
 @admin_required
 def order_management(request):
@@ -131,10 +131,30 @@ def admin_order_view(request, order_id):
 
         summary_offer_discount += item.offer_discount * item.quantity
 
+    active_after_offer = (
+        summary_subtotal -
+        summary_offer_discount
+    )
+
+    original_after_offer = (
+        order.subtotal -
+        order.offer_discount
+    )
+
+    coupon_share = Decimal("0")
+
+    if (
+        original_after_offer > 0 and
+        order.discount_amount > 0
+    ):
+        coupon_share = (
+            active_after_offer /
+            original_after_offer
+        ) * order.discount_amount
+
     summary_total = (
-        summary_subtotal
-        - summary_offer_discount
-        - order.discount_amount
+        active_after_offer
+        - coupon_share
         + order.shipping_charge
         + order.tax_amount
     )

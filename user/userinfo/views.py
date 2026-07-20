@@ -53,7 +53,7 @@ def validate_password_strength(password):
 
 User = get_user_model()
 
-
+from user.user_orders.models import Order
 @never_cache
 @user_required
 def profile_view(request):
@@ -88,6 +88,7 @@ def profile_view(request):
 
         messages.success(request, "Profile updated successfully")
         return redirect("userinfo:profile")
+    total_spend = (Order.objects.filter(user=request.user,payment_status="paid").aggregate(total=sum("total_amount"))["total"])
 
     return render(
         request,
@@ -95,6 +96,8 @@ def profile_view(request):
         {
             "user": user,
             "profile": profile,
+            "total_spend": total_spend
+            
         },
     )
 

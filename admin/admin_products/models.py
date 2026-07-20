@@ -203,17 +203,7 @@ class Variant(models.Model):
 
     @property
     def available_stock(self):
-
-        from user.products.models import CartItem
-
-        cart_quantity = (
-            CartItem.objects.filter(variant=self).aggregate(
-                total=models.Sum("quantity")
-            )["total"]
-            or 0
-        )
-
-        return max(self.stock - cart_quantity, 0)
+        return self.stock
 
     @property
     def primary_image(self):

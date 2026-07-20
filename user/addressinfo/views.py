@@ -32,30 +32,30 @@ def add_address(request):
         address_line = request.POST.get("address_line", "").strip()
         address_type = request.POST.get("address_type", "").strip()
         is_default = True if request.POST.get("is_default") else False
+        form_data = {
+            "full_name": full_name,
+            "phone": phone,
+            "pincode": pincode,
+            "state": state,
+            "city": city,
+            "country": country,
+            "address_line": address_line,
+            "address_type": address_type,
+            "is_default": is_default,
+            "next": next_page,
+        }
 
         if not all([full_name, phone, pincode, state, city, address_line]):
             messages.error(request, "Please fill all fields.")
-            return render(
-                request,
-                "add_address.html",
-                {
-                    "full_name": full_name,
-                    "phone": phone,
-                    "pincode": pincode,
-                    "state": state,
-                    "city": city,
-                    "address_line": address_line,
-                    "address_type": address_type,
-                },
-            )
+            return render(request, "add_address.html", form_data)
 
         if len(phone) != 10:
             messages.error(request, "Enter a valid 10-digit phone number.")
-            return render(request, "add_address.html")
+            return render(request, "add_address.html", form_data)
 
         if len(pincode) != 6:
             messages.error(request, "Enter a valid 6-digit pincode.")
-            return render(request, "add_address.html")
+            return render(request, "add_address.html", form_data)
 
         if is_default:
             Address.objects.filter(user=request.user, is_default=True).update(
@@ -108,31 +108,75 @@ def edit_address(request, id):
     next_page = request.GET.get("next")
     if request.method == "POST":
 
-        address.full_name = request.POST.get("full_name")
-        address.phone = request.POST.get("phone")
-        address.city = request.POST.get("city")
-        address.pincode = request.POST.get("pincode")
-        address.state = request.POST.get("state")
-        address.country = request.POST.get("country")
-        address.address_line = request.POST.get("address_line")
+        full_name = request.POST.get("full_name", "").strip()
+        phone = request.POST.get("phone", "").strip()
+        pincode = request.POST.get("pincode", "").strip()
+        state = request.POST.get("state", "").strip()
+        city = request.POST.get("city", "").strip()
+        country = request.POST.get("country", "").strip()
+        address_line = request.POST.get("address_line", "").strip()
+        address_type = request.POST.get("address_type", "home")
+        is_default = True if request.POST.get("is_default") else False
 
-        address.address_type = request.POST.get("address_type") or "home"
+        form_data = {
+            "address": {
+                "full_name": full_name,
+                "phone": phone,
+                "pincode": pincode,
+                "state": state,
+                "city": city,
+                "country": country,
+                "address_line": address_line,
+                "address_type": address_type,
+                "is_default": is_default,
+            },
+            "next": next_page,
+        }
 
-        if request.POST.get("is_default"):
-            Address.objects.filter(user=request.user, is_default=True).exclude(
-                id=address.id
-            ).update(is_default=False)
+        if not all(
+            [
+                full_name,
+                phone,
+                pincode,
+                state,
+                city,
+                country,
+                address_line,
+            ]
+        ):
+            messages.error(request, "Please fill all fields.")
+            return render(request, "edit_address.html", form_data)
 
-            address.is_default = True
-        else:
-            address.is_default = False
+        if not phone.isdigit() or len(phone) != 10:
+            messages.error(request, "Enter a valid 10-digit phone number.")
+            return render(request, "edit_address.html", form_data)
+
+        if not pincode.isdigit() or len(pincode) != 6:
+            messages.error(request, "Enter a valid 6-digit pincode.")
+            return render(request, "edit_address.html", form_data)
+
+        if is_default:
+            Address.objects.filter(
+                user=request.user,
+                is_default=True
+            ).exclude(id=address.id).update(is_default=False)
+
+        address.full_name = full_name
+        address.phone = phone
+        address.city = city
+        address.pincode = pincode
+        address.state = state
+        address.country = country
+        address.address_line = address_line
+        address.address_type = address_type
+        address.is_default = is_default
 
         address.save()
 
         if next_page == "checkout":
-
             return redirect("checkout_page")
-        messages.success(request, "address updated.")
+
+        messages.success(request, "Address updated.")
         return redirect("addressinfo:address_view")
 
     return render(request, "edit_address.html", {"address": address, "next": next_page})

@@ -476,36 +476,62 @@ href="
 
 <div>
 <label>FULL NAME</label>
-<input type="text" name="full_name" class="form-input" required>
+<input type="text"
+       name="full_name"
+       class="form-input"
+       value="{{ full_name }}"
+       required>
 </div>
 
 <div>
 <label>MOBILE NUMBER</label>
-<input type="text" name="phone" class="form-input" required>
+<input type="text"
+       name="phone"
+       class="form-input"
+       value="{{ phone }}"
+       required>
 </div>
 
 <div>
 <label>PINCODE</label>
-<input type="text" name="pincode" class="form-input" required>
+<input type="text"
+       name="pincode"
+       class="form-input"
+       value="{{ pincode }}"
+       required>
 </div>
 
 <div>
 <label>CITY</label>
-<input type="text" name="city" class="form-input" required>
+<input type="text"
+       name="city"
+       class="form-input"
+       value="{{ city }}"
+       required>
 </div>
 
 <div>
 <label>STATE</label>
-<input type="text" name="state" class="form-input" required>
+<input type="text"
+       name="state"
+       class="form-input"
+       value="{{ state }}"
+       required>
 </div>
 <div>
 <label>COUNTRY</label>
-<input type="text" name="country" class="form-input" required>
+<input type="text"
+       name="country"
+       class="form-input"
+       value="{{ country }}"
+       required>
 </div>
 
 <div class="full">
 <label>ADDRESS</label>
-<textarea name="address_line" class="form-textarea" required></textarea>
+<textarea name="address_line"
+          class="form-textarea"
+          required>{{ address_line }}</textarea>
 </div>
 
 </div>
@@ -514,19 +540,33 @@ href="
 <div class="type-toggle-row">
 
     <div class="type-group">
-        <input type="radio" id="home" name="address_type" value="home" checked>
+        <input type="radio"
+       id="home"
+       name="address_type"
+       value="home"
+       {% if address_type == "home" or not address_type %}checked{% endif %}>
         <label for="home">HOME</label>
 
-        <input type="radio" id="work" name="address_type" value="work">
+       <input type="radio"
+       id="work"
+       name="address_type"
+       value="work"
+       {% if address_type == "work" %}checked{% endif %}>
         <label for="work">WORK</label>
 
-        <input type="radio" id="other" name="address_type" value="other">
+        <input type="radio"
+       id="other"
+       name="address_type"
+       value="other"
+       {% if address_type == "other" %}checked{% endif %}>
         <label for="other">OTHER</label>
     </div>
 
     <div class="toggle">
         <label class="switch">
-            <input type="checkbox" name="is_default">
+            <input type="checkbox"
+       name="is_default"
+       {% if is_default %}checked{% endif %}>
             <span class="slider"></span>
         </label>
         <span>Set as default address</span>

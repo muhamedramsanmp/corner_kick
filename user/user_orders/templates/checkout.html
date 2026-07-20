@@ -1108,6 +1108,19 @@ document
         'input[name="payment_method"]:checked'
 
     ).value;
+    
+    const selectedAddress = document.querySelector(
+        'input[name="selected_address"]:checked'
+    );
+
+    if(!selectedAddress){
+
+        showAjaxPopup(
+            "Please select or add a delivery address."
+        );
+
+        return false;
+    }
 
     if(paymentMethod !== "RAZORPAY"){
 
